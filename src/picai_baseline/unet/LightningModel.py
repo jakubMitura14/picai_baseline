@@ -41,13 +41,13 @@ class Model(pl.LightningModule):
         self.devicee=devicee
         self.args = args
         model = neural_network_for_run(args=args, device=devicee)
-        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=args.base_lr, amsgrad=True)
         self.train_gen = []
         self.valid_gen = []
         model, optimizer, tracking_metrics = resume_or_restart_training(
             model=model, optimizer=optimizer,
             device=devicee, args=args, fold_id=f
         )
+        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=args.base_lr, amsgrad=True)
         self.model=model
         self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
