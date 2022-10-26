@@ -77,7 +77,8 @@ class Model(pl.LightningModule):
         return self.valid_gen
 
     def configure_optimizers(self):
-        optimizer = self.optimizer(self.parameters(), lr=self.learning_rate)
+        optimizer = self.optimizer
+        # optimizer = self.optimizer(self.parameters(), lr=self.learning_rate)
         # hyperparameters from https://www.kaggle.com/code/isbhargav/guide-to-pytorch-learning-rate-scheduling/notebook
         lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )
         return [optimizer], [lr_scheduler]
