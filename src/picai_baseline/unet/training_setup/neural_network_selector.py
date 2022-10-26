@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from neural_networks.unets import UNet
+from .neural_networks.unets import UNet
 
 
 def neural_network_for_run(args, device):
