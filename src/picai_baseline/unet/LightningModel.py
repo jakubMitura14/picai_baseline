@@ -146,7 +146,7 @@ class Model(pl.LightningModule):
         # export train-time + validation metrics as .xlsx sheet
         metricsData = pd.DataFrame(list(zip(self.tracking_metrics['all_epochs'],
                                             # self.tracking_metrics['all_train_loss'],
-                                            0.0,
+                                            self.tracking_metrics['all_valid_metrics_ranking'],
                                             self.tracking_metrics['all_valid_metrics_auroc'],
                                             self.tracking_metrics['all_valid_metrics_ap'],
                                             self.tracking_metrics['all_valid_metrics_ranking'])),
