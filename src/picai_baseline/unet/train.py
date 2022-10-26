@@ -118,6 +118,8 @@ def main():
 
         # --------------------------------------------------------------------------------------------------------------------------
         # training loop
+        print("aaa before writer")
+
         writer = SummaryWriter()
 
         # resume or restart training model, based on whether checkpoint exists
