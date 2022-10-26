@@ -121,6 +121,7 @@ def main():
         print("aaa before writer")
 
         # writer = SummaryWriter()
+        writer = []
 
 
         print("aaa after trying to restart")
