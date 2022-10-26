@@ -35,8 +35,8 @@ class Model(pl.LightningModule):
     ,f):
         super().__init__()
         self.f = f
-        self.learning_rate=args.base_lr
         devicee, args = compute_spec_for_run(args=args)
+        self.learning_rate=args.base_lr
         self.devicee=devicee
         self.args = args
         model = neural_network_for_run(args=args, device=devicee)
