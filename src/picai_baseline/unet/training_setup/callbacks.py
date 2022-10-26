@@ -98,7 +98,7 @@ def resume_or_restart_training(model, optimizer, device, args, fold_id):
 
 def optimize_model(model, optimizer, loss_func, train_gen, args, tracking_metrics, device,writer):
     """Optimize model x N training steps per epoch + update learning rate"""
-
+    print(" optimize_model lll  ")
     train_loss, step = 0,  0
     start_time = time.time()
     epoch = tracking_metrics['epoch']

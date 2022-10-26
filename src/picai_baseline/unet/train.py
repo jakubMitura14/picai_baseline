@@ -132,7 +132,6 @@ def main():
 
         # for each epoch
         for epoch in range(tracking_metrics['start_epoch'], args.num_epochs):
-            print(f"epoch {epoch}")
             # optimize model x N training steps + update learning rate
             model.train()
             tracking_metrics['epoch'] = epoch
