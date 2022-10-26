@@ -111,18 +111,14 @@ def main():
 
         # model definition
         model = neural_network_for_run(args=args, device=device)
-        print("aaa after model")
         # loss function + optimizer 
         loss_func = FocalLoss(alpha=class_weights[-1], gamma=args.focal_loss_gamma).to(device)
-        print("aaa after loss")
        
         optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
-        print("aaa after optimizer")
 
         # --------------------------------------------------------------------------------------------------------------------------
         # training loop
         writer = SummaryWriter()
-        print("aaa after writer")
 
         # resume or restart training model, based on whether checkpoint exists
         # model, optimizer, tracking_metrics = resume_or_restart_training(
