@@ -119,9 +119,13 @@ def main():
         # --------------------------------------------------------------------------------------------------------------------------
         # training loop
         print("aaa before writer")
-
+        #resume or restart training model, based on whether checkpoint exists
+        model, optimizer, tracking_metrics = resume_or_restart_training(
+            model=model, optimizer=optimizer,
+            device=device, args=args, fold_id=f
+        )
         # writer = SummaryWriter()
-        writer = []
+        #writer = []
 
 
         print("aaa after trying to restart")
@@ -133,9 +137,9 @@ def main():
             model.train()
             tracking_metrics['epoch'] = epoch
 
-            model, optimizer, train_gen, tracking_metrics, writer = optimize_model(
+            model, optimizer, train_gen, tracking_metrics = optimize_model(
                 model=model, optimizer=optimizer, loss_func=loss_func, train_gen=train_gen,
-                args=args, tracking_metrics=tracking_metrics, device=device, writer=writer
+                args=args, tracking_metrics=tracking_metrics, device=device
             )
 
             # ----------------------------------------------------------------------------------------------------------------------
@@ -146,16 +150,16 @@ def main():
                 model.eval()
                 with torch.no_grad():  # no gradient updates during validation
 
-                    model, optimizer, valid_gen, tracking_metrics, writer = validate_model(
+                    model, optimizer, valid_gen, tracking_metrics = validate_model(
                         model=model, optimizer=optimizer, valid_gen=valid_gen, args=args,
-                        tracking_metrics=tracking_metrics, device=device, writer=writer
+                        tracking_metrics=tracking_metrics, device=device
                     )
 
         # --------------------------------------------------------------------------------------------------------------------------
         print(
             f"Training Complete! Peak Validation Ranking Score: {tracking_metrics['best_metric']:.4f} "
             f"@ Epoch: {tracking_metrics['best_metric_epoch']}")
-        writer.close()
+        # writer.close()
         # --------------------------------------------------------------------------------------------------------------------------
 
 
@@ -163,8 +167,3 @@ if __name__ == '__main__':
     main()
 
 
-        # resume or restart training model, based on whether checkpoint exists
-        # model, optimizer, tracking_metrics = resume_or_restart_training(
-        #     model=model, optimizer=optimizer,
-        #     device=device, args=args, fold_id=f
-        # )

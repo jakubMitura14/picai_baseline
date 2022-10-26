@@ -96,7 +96,7 @@ def resume_or_restart_training(model, optimizer, device, args, fold_id):
     return model, optimizer, tracking_metrics
 
 
-def optimize_model(model, optimizer, loss_func, train_gen, args, tracking_metrics, device, writer):
+def optimize_model(model, optimizer, loss_func, train_gen, args, tracking_metrics, device):
     """Optimize model x N training steps per epoch + update learning rate"""
 
     train_loss, step = 0,  0
@@ -133,15 +133,15 @@ def optimize_model(model, optimizer, loss_func, train_gen, args, tracking_metric
     # track training metrics
     train_loss /= step
     tracking_metrics['train_loss'] = train_loss
-    writer.add_scalar("train_loss", train_loss, epoch+1)
+    # writer.add_scalar("train_loss", train_loss, epoch+1)
     print("-" * 100)
     print(f"Epoch {epoch + 1}/{args.num_epochs} (Train. Loss: {train_loss:.4f}; \
         Time: {int(time.time()-start_time)}sec; Steps Completed: {step})", flush=True)
 
-    return model, optimizer, train_gen, tracking_metrics, writer
+    return model, optimizer, train_gen, tracking_metrics
 
 
-def validate_model(model, optimizer, valid_gen, args, tracking_metrics, device, writer):
+def validate_model(model, optimizer, valid_gen, args, tracking_metrics, device):
     """Validate model per N epoch + export model weights"""
 
     all_valid_preds, all_valid_labels = [], []
@@ -211,9 +211,9 @@ def validate_model(model, optimizer, valid_gen, args, tracking_metrics, device, 
     metricsData.to_excel(args.weights_dir + args.model_type + '_F' + str(f)
                          + '_metrics.xlsx', encoding='utf-8', index=False)
 
-    writer.add_scalar("valid_auroc",   valid_metrics.auroc, epoch+1)
-    writer.add_scalar("valid_ap",      valid_metrics.AP,    epoch+1)
-    writer.add_scalar("valid_ranking", valid_metrics.score, epoch+1)
+    # writer.add_scalar("valid_auroc",   valid_metrics.auroc, epoch+1)
+    # writer.add_scalar("valid_ap",      valid_metrics.AP,    epoch+1)
+    # writer.add_scalar("valid_ranking", valid_metrics.score, epoch+1)
 
     print(f"Valid. Performance [Benign or Indolent PCa (n={num_neg}) \
         vs. csPCa (n={num_pos})]:\nRanking Score = {valid_metrics.score:.3f},\
@@ -229,4 +229,4 @@ def validate_model(model, optimizer, valid_gen, args, tracking_metrics, device, 
                         'optimizer_state_dict': optimizer.state_dict()},
                        args.weights_dir + args.model_type + '_F' + str(f) + ".pt")
             print("Validation Ranking Score Improved! Saving New Best Model", flush=True)
-    return model, optimizer, valid_gen, tracking_metrics, writer
+    return model, optimizer, valid_gen, tracking_metrics
