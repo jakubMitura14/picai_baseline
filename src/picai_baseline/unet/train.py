@@ -112,10 +112,8 @@ def main():
         # model definition
         model = neural_network_for_run(args=args, device=device)
         # loss function + optimizer 
-        loss_func = FocalLoss(alpha=class_weights[-1], gamma=args.focal_loss_gamma).to(device)
-       
+        loss_func = FocalLoss(alpha=class_weights[-1], gamma=args.focal_loss_gamma).to(device)      
         optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
-
         # --------------------------------------------------------------------------------------------------------------------------
         # training loop
         print("aaa before writer")
