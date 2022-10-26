@@ -110,7 +110,9 @@ else:
 
     # note: modify preprocessing settings here
     mha2nnunet_settings["preprocessing"].update(args.preprocessing_kwargs)
-
+    mha2nnunet_settings["preprocessing"]["spacing"] = [3.0, 0.5, 0.5]
+    mha2nnunet_settings["preprocessing"]["matrix_size"] = [20, 256, 256]
+    
     # save mha2nnunet_settings
     with open(mha2nnunet_settings_path, "w") as fp:
         json.dump(mha2nnunet_settings, fp, indent=4)
