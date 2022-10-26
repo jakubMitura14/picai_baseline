@@ -157,7 +157,7 @@ class Model(pl.LightningModule):
 
         metricsData.to_excel(self.args.weights_dir + self.args.model_type + '_F' + str(self.f)
                             + '_metrics.xlsx', encoding='utf-8', index=False)
-
+        
         # writer.add_scalar("valid_auroc",   valid_metrics.auroc, epoch+1)
         # writer.add_scalar("valid_ap",      valid_metrics.AP,    epoch+1)
         # writer.add_scalar("valid_ranking", valid_metrics.score, epoch+1)
@@ -176,4 +176,8 @@ class Model(pl.LightningModule):
                             'optimizer_state_dict': self.optimizer.state_dict()},
                         self.args.weights_dir + self.args.model_type + '_F' + str(self.f) + ".pt")
                 print("Validation Ranking Score Improved! Saving New Best Model", flush=True)
-            
+
+
+        experiment=self.experiment=self.logger.experiment
+        if(epoch==0):
+                

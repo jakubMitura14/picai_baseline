@@ -87,7 +87,10 @@ def main():
                         help="Use default set of model-specific hyperparameters")
 
     args = parser.parse_args()
+    
     project_name= "pic_raw_1"
+    experiment_name="baseline_pl"
+
     args.model_strides = ast.literal_eval(args.model_strides)
     args.model_features = ast.literal_eval(args.model_features)
 
@@ -98,7 +101,7 @@ def main():
         api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
         #workspace="OPI", # Optional
         project_name=project_name, # Optional
-        #experiment_name="baseline" # Optional
+        experiment_name=experiment_name # Optional
     )
     # for each fold
     for f in args.folds:
@@ -115,7 +118,7 @@ def main():
             default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
             # auto_scale_batch_size="binsearch",
             auto_lr_find=True,
-            check_val_every_n_epoch=1,
+            check_val_every_n_epoch=40,
             #accumulate_grad_batches= 1,
             #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
             log_every_n_steps=5
