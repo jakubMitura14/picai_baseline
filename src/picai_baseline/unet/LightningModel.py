@@ -113,7 +113,7 @@ class Model(pl.LightningModule):
         #     ], axis=0)]
 
         # all_valid_labels += [valid_labels.numpy()[:, 0, ...]]
-        return {'valid_label': valid_labels.numpy()[:, 0, ...], 'validPred' :np.mean([
+        return {'valid_label': valid_labels[:, 0, ...], 'validPred' :np.mean([
                                                                                     gaussian_filter(x, sigma=1.5)
                                                                                     for x in preds
                                                                                 ], axis=0)  }
