@@ -32,7 +32,8 @@ import os
 
 class Model(pl.LightningModule):
     def __init__(self
-    ,f):
+    ,f
+    ,args):
         super().__init__()
         self.f = f
         devicee, args = compute_spec_for_run(args=args)

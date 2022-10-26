@@ -102,7 +102,7 @@ def main():
     )
     # for each fold
     for f in args.folds:
-        model = LightningModel.Model(f)
+        model = LightningModel.Model(f,args)
         trainer = pl.Trainer(
             #accelerator="cpu", #TODO(remove)
             max_epochs=args.num_epochs,
