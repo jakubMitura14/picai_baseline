@@ -120,8 +120,9 @@ class Model(pl.LightningModule):
 
     def validation_epoch_end(self, outputs): 
         epoch=self.current_epoch
-        all_valid_labels=np.array(([x['valid_label'] for x in outputs])).flatten()
-        all_valid_preds=np.array(([x['validPred'] for x in outputs])).flatten()
+        all_valid_labels=np.array(([x['valid_label'] for x in outputs]))
+        all_valid_preds=np.array(([x['validPred'] for x in outputs]))
+        print(f"all_valid_labels {all_valid_labels}")
 
         valid_metrics = evaluate(y_det=iter(np.concatenate([x for x in np.array(all_valid_preds)], axis=0)),
                                 y_true=iter(np.concatenate([x for x in np.array(all_valid_labels)], axis=0)),
