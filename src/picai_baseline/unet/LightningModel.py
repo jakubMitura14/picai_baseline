@@ -48,7 +48,6 @@ class Model(pl.LightningModule):
             model=model, optimizer=optimizer,
             device=devicee, args=args, fold_id=f
         )
-        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=args.base_lr, amsgrad=True)
         self.model=model
         self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
