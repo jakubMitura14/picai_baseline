@@ -125,10 +125,11 @@ def main():
         print("aaa after writer")
 
         # resume or restart training model, based on whether checkpoint exists
-        model, optimizer, tracking_metrics = resume_or_restart_training(
-            model=model, optimizer=optimizer,
-            device=device, args=args, fold_id=f
-        )
+        # model, optimizer, tracking_metrics = resume_or_restart_training(
+        #     model=model, optimizer=optimizer,
+        #     device=device, args=args, fold_id=f
+        # )
+        print("aaa after trying to restart")
 
         # for each epoch
         for epoch in range(tracking_metrics['start_epoch'], args.num_epochs):
