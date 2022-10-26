@@ -56,8 +56,8 @@ class Model(pl.LightningModule):
         """
         setting up dataset
         """
-        train_gen, valid_gen, class_weights = prepare_datagens(args=self.args, fold_id=f)
-        self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma).to(device)      
+        train_gen, valid_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f)
+        self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
         # integrate data augmentation pipeline from nnU-Net
         train_gen = apply_augmentations(
             dataloader=train_gen,
