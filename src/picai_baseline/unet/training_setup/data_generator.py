@@ -20,7 +20,7 @@ from collections import OrderedDict
 from batchgenerators.dataloading.data_loader import DataLoader
 from monai.transforms import Compose, EnsureType
 
-from image_reader import SimpleITKDataset
+from .image_reader import SimpleITKDataset
 
 
 def default_collate(batch):
