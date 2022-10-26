@@ -115,9 +115,9 @@ def main():
             default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
             # auto_scale_batch_size="binsearch",
             auto_lr_find=True,
-            check_val_every_n_epoch=40,
-            accumulate_grad_batches= 1,
-            gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
+            check_val_every_n_epoch=1,
+            #accumulate_grad_batches= 1,
+            #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
             log_every_n_steps=5
             ,reload_dataloaders_every_n_epochs=1
             #strategy='dp'
