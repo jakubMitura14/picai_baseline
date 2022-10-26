@@ -28,10 +28,8 @@ def main(
     excluded_cases: Tuple[str] = ("11475_1001499",)
 ):
     """Create overviews of the training data."""
-
     if splits is None:
         splits = nnunet_splits
-
     # create directory to store overviews
     overviews_path.mkdir(parents=True, exist_ok=True)
 
