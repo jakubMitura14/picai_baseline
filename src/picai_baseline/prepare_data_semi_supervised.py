@@ -16,6 +16,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import pytorch_lightning as pl
 
 import SimpleITK as sitk
 from picai_prep import MHA2nnUNetConverter
@@ -155,7 +156,7 @@ else:
     mha2nnunet_settings["options"]["annotation_preprocess_func"] = preprocess_picai_annotation
     mha2nnunet_settings["preprocessing"]["spacing"] = [3.0, 0.5, 0.5]
     mha2nnunet_settings["preprocessing"]["matrix_size"] = [20, 256, 256]
-    
+
     # prepare dataset in nnUNet format
     archive = MHA2nnUNetConverter(
         output_dir=nnUNet_raw_data_path,

@@ -30,7 +30,11 @@ from training_setup.loss_functions.focal import FocalLoss
 from training_setup.neural_network_selector import \
     neural_network_for_run
 # from torch.utils.tensorboard import SummaryWriter
-
+import pytorch_lightning as pl
+from pytorch_lightning.loggers import CometLogger
+from optuna.integration import PyTorchLightningPruningCallback
+from pytorch_lightning.callbacks import ModelCheckpoint
+import LightningModel
 
 def main():
     # command line arguments for hyperparameters and I/O paths
@@ -83,79 +87,106 @@ def main():
                         help="Use default set of model-specific hyperparameters")
 
     args = parser.parse_args()
+    project_name= "pic_raw_1"
     args.model_strides = ast.literal_eval(args.model_strides)
     args.model_features = ast.literal_eval(args.model_features)
 
     # retrieve default set of hyperparam (architecture, batch size) for given neural network
     if bool(args.use_def_model_hp):
         args = get_default_hyperparams(args)
-
+    comet_logger = CometLogger(
+        api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
+        #workspace="OPI", # Optional
+        project_name=project_name, # Optional
+        #experiment_name="baseline" # Optional
+    )
     # for each fold
     for f in args.folds:
-        # --------------------------------------------------------------------------------------------------------------------------
-        # GPU/CPU specifications
-        device, args = compute_spec_for_run(args=args)
-
-        # derive dataLoaders
-        train_gen, valid_gen, class_weights = prepare_datagens(args=args, fold_id=f)
-
-        # integrate data augmentation pipeline from nnU-Net
-        train_gen = apply_augmentations(
-            dataloader=train_gen,
-            num_threads=args.num_threads,
-            disable=(not bool(args.enable_da))
+        model = LightningModel.Model(f)
+        trainer = pl.Trainer(
+            #accelerator="cpu", #TODO(remove)
+            max_epochs=args.num_epochs,
+            #gpus=1,
+            #precision=experiment.get_parameter("precision"), 
+            # callbacks=[ checkpoint_callback,stochasticAveraging,early_stopping ], #optuna_prune
+            logger=comet_logger,
+            accelerator='auto',
+            devices='auto',       
+            default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
+            # auto_scale_batch_size="binsearch",
+            auto_lr_find=True,
+            check_val_every_n_epoch=40,
+            accumulate_grad_batches= 1,
+            gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
+            log_every_n_steps=5
+            ,reload_dataloaders_every_n_epochs=1
+            #strategy='dp'
         )
+
+        # # --------------------------------------------------------------------------------------------------------------------------
+        # # GPU/CPU specifications
+        # device, args = compute_spec_for_run(args=args)
+
+        # # derive dataLoaders
+        # train_gen, valid_gen, class_weights = prepare_datagens(args=args, fold_id=f)
+
+        # # integrate data augmentation pipeline from nnU-Net
+        # train_gen = apply_augmentations(
+        #     dataloader=train_gen,
+        #     num_threads=args.num_threads,
+        #     disable=(not bool(args.enable_da))
+        # )
         
-        # initialize multi-threaded augmenter in background
-        train_gen.restart()
+        # # initialize multi-threaded augmenter in background
+        # train_gen.restart()
 
-        # model definition
-        model = neural_network_for_run(args=args, device=device)
-        # loss function + optimizer 
-        loss_func = FocalLoss(alpha=class_weights[-1], gamma=args.focal_loss_gamma).to(device)      
-        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
-        # --------------------------------------------------------------------------------------------------------------------------
-        # training loop
-        #resume or restart training model, based on whether checkpoint exists
-        model, optimizer, tracking_metrics = resume_or_restart_training(
-            model=model, optimizer=optimizer,
-            device=device, args=args, fold_id=f
-        )
-        # writer = SummaryWriter()
-        writer = []
+        # # model definition
+        # model = neural_network_for_run(args=args, device=device)
+        # # loss function + optimizer 
+        # loss_func = FocalLoss(alpha=class_weights[-1], gamma=args.focal_loss_gamma).to(device)      
+        # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
+        # # --------------------------------------------------------------------------------------------------------------------------
+        # # training loop
+        # #resume or restart training model, based on whether checkpoint exists
+        # model, optimizer, tracking_metrics = resume_or_restart_training(
+        #     model=model, optimizer=optimizer,
+        #     device=device, args=args, fold_id=f
+        # )
+        # # writer = SummaryWriter()
+        # writer = []
 
 
 
-        # for each epoch
-        for epoch in range(tracking_metrics['start_epoch'], args.num_epochs):
-            # optimize model x N training steps + update learning rate
-            model.train()
-            tracking_metrics['epoch'] = epoch
+        # # for each epoch
+        # for epoch in range(tracking_metrics['start_epoch'], args.num_epochs):
+        #     # optimize model x N training steps + update learning rate
+        #     model.train()
+        #     tracking_metrics['epoch'] = epoch
 
-            model, optimizer, train_gen, tracking_metrics = optimize_model(
-                model=model, optimizer=optimizer, loss_func=loss_func, train_gen=train_gen,
-                args=args, tracking_metrics=tracking_metrics, device=device, writer=writer
-            )
+        #     model, optimizer, train_gen, tracking_metrics = optimize_model(
+        #         model=model, optimizer=optimizer, loss_func=loss_func, train_gen=train_gen,
+        #         args=args, tracking_metrics=tracking_metrics, device=device, writer=writer
+        #     )
 
-            # ----------------------------------------------------------------------------------------------------------------------
-            # for each round of validation
-            if ((epoch+1) % args.validate_n_epochs == 0) and ((epoch+1) >= args.validate_min_epoch):
+        #     # ----------------------------------------------------------------------------------------------------------------------
+        #     # for each round of validation
+        #     if ((epoch+1) % args.validate_n_epochs == 0) and ((epoch+1) >= args.validate_min_epoch):
 
-                # validate model per N epochs + export model weights
-                model.eval()
-                with torch.no_grad():  # no gradient updates during validation
+        #         # validate model per N epochs + export model weights
+        #         model.eval()
+        #         with torch.no_grad():  # no gradient updates during validation
 
-                    model, optimizer, valid_gen, tracking_metrics = validate_model(
-                        model=model, optimizer=optimizer, valid_gen=valid_gen, args=args,
-                        tracking_metrics=tracking_metrics, device=device,writer=writer
-                    )
+        #             model, optimizer, valid_gen, tracking_metrics = validate_model(
+        #                 model=model, optimizer=optimizer, valid_gen=valid_gen, args=args,
+        #                 tracking_metrics=tracking_metrics, device=device,writer=writer
+        #             )
 
-        # --------------------------------------------------------------------------------------------------------------------------
-        print(
-            f"Training Complete! Peak Validation Ranking Score: {tracking_metrics['best_metric']:.4f} "
-            f"@ Epoch: {tracking_metrics['best_metric_epoch']}")
-        # writer.close()
-        # --------------------------------------------------------------------------------------------------------------------------
+        # # --------------------------------------------------------------------------------------------------------------------------
+        # print(
+        #     f"Training Complete! Peak Validation Ranking Score: {tracking_metrics['best_metric']:.4f} "
+        #     f"@ Epoch: {tracking_metrics['best_metric_epoch']}")
+        # # writer.close()
+        # # --------------------------------------------------------------------------------------------------------------------------
 
 
 if __name__ == '__main__':
