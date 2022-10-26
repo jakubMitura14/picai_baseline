@@ -122,11 +122,7 @@ def main():
 
         writer = SummaryWriter()
 
-        # resume or restart training model, based on whether checkpoint exists
-        # model, optimizer, tracking_metrics = resume_or_restart_training(
-        #     model=model, optimizer=optimizer,
-        #     device=device, args=args, fold_id=f
-        # )
+
         print("aaa after trying to restart")
 
         # for each epoch
@@ -164,3 +160,10 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    
+        # resume or restart training model, based on whether checkpoint exists
+        # model, optimizer, tracking_metrics = resume_or_restart_training(
+        #     model=model, optimizer=optimizer,
+        #     device=device, args=args, fold_id=f
+        # )
