@@ -22,8 +22,8 @@ from picai_baseline.splits.picai_nnunet import nnunet_splits
 
 
 def main(
-    preprocessed_data_path: Union[Path, str] = Path('/mnt/disks/sdb/workdirSemiOpi/nnUNet_raw_data/Task2203_picai_baseline/'),
-    overviews_path: Union[Path, str] = Path('/mnt/disks/sdb/workdirSemiOpi/results/UNet/overviews/'),
+    preprocessed_data_path: Union[Path, str] = Path('/home/sliceruser/locTemp/workdirSemiOpi/nnUNet_raw_data/Task2203_picai_baseline/'),
+    overviews_path: Union[Path, str] = Path('/home/sliceruser/locTemp/workdirSemiOpi/results/UNet/overviews/'),
     splits: Optional[Dict[str, List[str]]] = None,
     excluded_cases: Tuple[str] = ("11475_1001499",)
 ):
