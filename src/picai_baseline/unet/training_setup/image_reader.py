@@ -16,7 +16,7 @@ import SimpleITK as sitk
 from monai.config import DtypeLike
 from monai.transforms import Randomizable, apply_transform
 from monai.utils import MAX_SEED, get_seed
-from preprocess_utils import z_score_norm
+from .preprocess_utils import z_score_norm
 try:
     import numpy.typing as npt
 except ImportError:  # pragma: no cover
