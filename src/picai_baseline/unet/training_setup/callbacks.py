@@ -18,7 +18,7 @@ import time
 import numpy as np
 import pandas as pd
 import torch
-from picai_baseline.unet.training_setup.poly_lr import poly_lr
+from poly_lr import poly_lr
 from picai_eval import evaluate
 from report_guided_annotation import extract_lesion_candidates
 from scipy.ndimage import gaussian_filter
@@ -100,7 +100,7 @@ def optimize_model(model, optimizer, loss_func, train_gen, args, tracking_metric
     """Optimize model x N training steps per epoch + update learning rate"""
     
     print(" optimize_model lll  ")
-    
+
     train_loss, step = 0,  0
     start_time = time.time()
     epoch = tracking_metrics['epoch']

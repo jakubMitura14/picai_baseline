@@ -17,19 +17,19 @@ import ast
 
 import numpy as np
 import torch
-from picai_baseline.unet.training_setup.augmentations.nnUNet_DA import \
+from training_setup.augmentations.nnUNet_DA import \
     apply_augmentations
-from picai_baseline.unet.training_setup.callbacks import (
+from training_setup.callbacks import (
     optimize_model, resume_or_restart_training, validate_model)
-from picai_baseline.unet.training_setup.compute_spec import \
+from training_setup.compute_spec import \
     compute_spec_for_run
-from picai_baseline.unet.training_setup.data_generator import prepare_datagens
-from picai_baseline.unet.training_setup.default_hyperparam import \
+from training_setup.data_generator import prepare_datagens
+from training_setup.default_hyperparam import \
     get_default_hyperparams
-from picai_baseline.unet.training_setup.loss_functions.focal import FocalLoss
-from picai_baseline.unet.training_setup.neural_network_selector import \
+from training_setup.loss_functions.focal import FocalLoss
+from training_setup.neural_network_selector import \
     neural_network_for_run
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 
 
 def main():

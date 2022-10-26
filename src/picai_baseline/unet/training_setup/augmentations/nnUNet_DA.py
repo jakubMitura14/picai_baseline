@@ -12,8 +12,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from picai_baseline.unet.training_setup.augmentations.multi_threaded_augmenter import MultiThreadedAugmenter
-from picai_baseline.unet.training_setup.augmentations.single_threaded_augmenter import SingleThreadedAugmenter
+from multi_threaded_augmenter import MultiThreadedAugmenter
+from single_threaded_augmenter import SingleThreadedAugmenter
 from batchgenerators.transforms.abstract_transforms import Compose
 from batchgenerators.transforms.color_transforms import BrightnessMultiplicativeTransform, ContrastAugmentationTransform, BrightnessTransform
 from batchgenerators.transforms.color_transforms import GammaTransform
