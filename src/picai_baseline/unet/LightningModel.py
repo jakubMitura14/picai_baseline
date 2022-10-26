@@ -94,7 +94,7 @@ class Model(pl.LightningModule):
         self.log('train_loss', loss.item())
         return loss
     def validation_step(self, valid_data, batch_idx):
-        valid_images = valid_data['data']
+        valid_images = torch.Tensor(valid_data['data']).to(self.device)
         valid_labels = valid_data['seg']                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         preds = [
