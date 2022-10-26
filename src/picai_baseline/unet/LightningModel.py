@@ -122,7 +122,7 @@ class Model(pl.LightningModule):
         epoch=self.current_epoch
         all_valid_labels=np.array(([x['valid_label'] for x in outputs]))
         all_valid_preds=np.array(([x['validPred'] for x in outputs]))
-        print(f"all_valid_labels {all_valid_labels}")
+        # print(f"all_valid_labels {all_valid_labels}")
 
         valid_metrics = evaluate(y_det=iter(np.concatenate([x for x in np.array(all_valid_preds)], axis=0)),
                                 y_true=iter(np.concatenate([x for x in np.array(all_valid_labels)], axis=0)),
@@ -134,7 +134,7 @@ class Model(pl.LightningModule):
                                         np.array(all_valid_labels)], axis=0)) - num_pos)
 
         self.tracking_metrics['all_epochs'].append(epoch+1)
-        self.tracking_metrics['all_train_loss'].append(self.tracking_metrics['train_loss'])
+        # self.tracking_metrics['all_train_loss'].append(self.tracking_metrics['train_loss'])
         self.tracking_metrics['all_valid_metrics_auroc'].append(valid_metrics.auroc)
         self.tracking_metrics['all_valid_metrics_ap'].append(valid_metrics.AP)
         self.tracking_metrics['all_valid_metrics_ranking'].append(valid_metrics.score)
@@ -145,7 +145,7 @@ class Model(pl.LightningModule):
     
         # export train-time + validation metrics as .xlsx sheet
         metricsData = pd.DataFrame(list(zip(self.tracking_metrics['all_epochs'],
-                                            self.tracking_metrics['all_train_loss'],
+                                            # self.tracking_metrics['all_train_loss'],
                                             self.tracking_metrics['all_valid_metrics_auroc'],
                                             self.tracking_metrics['all_valid_metrics_ap'],
                                             self.tracking_metrics['all_valid_metrics_ranking'])),
