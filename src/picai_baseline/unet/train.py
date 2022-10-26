@@ -120,7 +120,7 @@ def main():
         # training loop
         print("aaa before writer")
 
-        writer = SummaryWriter()
+        # writer = SummaryWriter()
 
 
         print("aaa after trying to restart")
@@ -161,7 +161,7 @@ def main():
 if __name__ == '__main__':
     main()
 
-    
+
         # resume or restart training model, based on whether checkpoint exists
         # model, optimizer, tracking_metrics = resume_or_restart_training(
         #     model=model, optimizer=optimizer,
