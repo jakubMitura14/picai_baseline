@@ -116,7 +116,6 @@ def main():
         optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
         # --------------------------------------------------------------------------------------------------------------------------
         # training loop
-        print("aaa before writer")
         #resume or restart training model, based on whether checkpoint exists
         model, optimizer, tracking_metrics = resume_or_restart_training(
             model=model, optimizer=optimizer,
@@ -126,7 +125,6 @@ def main():
         writer = []
 
 
-        print("aaa after trying to restart")
 
         # for each epoch
         for epoch in range(tracking_metrics['start_epoch'], args.num_epochs):
