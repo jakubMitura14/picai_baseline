@@ -24,7 +24,6 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 import numpy as np
 import pandas as pd
 import torch
-from .poly_lr import poly_lr
 from picai_eval import evaluate
 from report_guided_annotation import extract_lesion_candidates
 from scipy.ndimage import gaussian_filter
