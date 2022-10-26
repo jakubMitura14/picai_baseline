@@ -125,7 +125,7 @@ def main():
             device=device, args=args, fold_id=f
         )
         # writer = SummaryWriter()
-        #writer = []
+        writer = []
 
 
         print("aaa after trying to restart")
@@ -139,7 +139,7 @@ def main():
 
             model, optimizer, train_gen, tracking_metrics = optimize_model(
                 model=model, optimizer=optimizer, loss_func=loss_func, train_gen=train_gen,
-                args=args, tracking_metrics=tracking_metrics, device=device
+                args=args, tracking_metrics=tracking_metrics, device=device, writer=writer
             )
 
             # ----------------------------------------------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ def main():
 
                     model, optimizer, valid_gen, tracking_metrics = validate_model(
                         model=model, optimizer=optimizer, valid_gen=valid_gen, args=args,
-                        tracking_metrics=tracking_metrics, device=device
+                        tracking_metrics=tracking_metrics, device=device,writer=writer
                     )
 
         # --------------------------------------------------------------------------------------------------------------------------

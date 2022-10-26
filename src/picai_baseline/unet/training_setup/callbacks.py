@@ -96,7 +96,7 @@ def resume_or_restart_training(model, optimizer, device, args, fold_id):
     return model, optimizer, tracking_metrics
 
 
-def optimize_model(model, optimizer, loss_func, train_gen, args, tracking_metrics, device):
+def optimize_model(model, optimizer, loss_func, train_gen, args, tracking_metrics, device,writer):
     """Optimize model x N training steps per epoch + update learning rate"""
 
     train_loss, step = 0,  0
@@ -141,7 +141,7 @@ def optimize_model(model, optimizer, loss_func, train_gen, args, tracking_metric
     return model, optimizer, train_gen, tracking_metrics
 
 
-def validate_model(model, optimizer, valid_gen, args, tracking_metrics, device):
+def validate_model(model, optimizer, valid_gen, args, tracking_metrics, device,writer):
     """Validate model per N epoch + export model weights"""
 
     all_valid_preds, all_valid_labels = [], []
