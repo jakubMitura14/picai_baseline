@@ -118,7 +118,7 @@ class printTransform(MapTransform):
     def __init__(
         self,
         keys: KeysCollection,
-        info
+        info,
         allow_missing_keys: bool = False,
     ):
         super().__init__(keys, allow_missing_keys)
