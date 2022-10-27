@@ -93,7 +93,7 @@ class Model(pl.LightningModule):
         self.log('train_loss', loss.item())
         print(f" sssssssssss loss {type(loss)}  ")
 
-        return torch.Tensor(loss).to(self.device)
+        return torch.Tensor([loss]).to(self.device)
     def validation_step(self, valid_data, batch_idx):
         valid_images = valid_data['data'][:,0,:,:,:,:]
         valid_labels = valid_data['seg'][:,0,:,:,:,:]                
@@ -104,7 +104,6 @@ class Model(pl.LightningModule):
         ]
         # revert horizontally flipped tta image
         preds[1] = np.flip(preds[1], [3])
-
         # gaussian blur to counteract checkerboard artifacts in
         # predictions from the use of transposed conv. in the U-Net
         # all_valid_preds += [
@@ -112,7 +111,6 @@ class Model(pl.LightningModule):
         #         gaussian_filter(x, sigma=1.5)
         #         for x in preds
         #     ], axis=0)]
-
         # all_valid_labels += [valid_labels.numpy()[:, 0, ...]]
         return {'valid_label': valid_labels[:, 0, ...], 'validPred' :np.mean([
                                                                                     gaussian_filter(x, sigma=1.5)

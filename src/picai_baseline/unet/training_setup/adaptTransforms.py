@@ -128,7 +128,6 @@ class loadlabelMy(MapTransform):
         return d
 
 class applyOrigTransforms(MapTransform):
-
     def __init__(
     self,
     keys: KeysCollection,
