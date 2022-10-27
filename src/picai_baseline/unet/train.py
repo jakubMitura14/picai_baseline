@@ -208,7 +208,7 @@ def main():
                         help="Neural network: convolutional strides (as string representation)")
     parser.add_argument('--model_features', type=str, default='[32, 64, 128, 256, 512, 1024]',                           
                         help="Neural network: number of encoder channels (as string representation)")
-    parser.add_argument('--batch_size', type=int, default=8,                                                         
+    parser.add_argument('--batch_size', type=int, default=32,                                                         
                         help="Mini-batch size")
     parser.add_argument('--use_def_model_hp', type=int, default=1,                                                         
                         help="Use default set of model-specific hyperparameters")
