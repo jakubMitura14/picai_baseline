@@ -231,9 +231,9 @@ def main():
         experiment_name=experiment_name # Optional
     )
     toMonitor="valid_ranking"
-    checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
+    # checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
     stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs=trial.suggest_float("swa_lrs", 1e-6, 1e-4))
-    optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
+    # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
     early_stopping = pl.callbacks.early_stopping.EarlyStopping(
         monitor=toMonitor,
         patience=4,
