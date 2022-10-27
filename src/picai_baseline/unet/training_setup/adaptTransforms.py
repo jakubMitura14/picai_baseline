@@ -146,7 +146,7 @@ class applyOrigTransforms(MapTransform):
 def loadAndtransform(transform,seg_transform):
     return Compose([
             loadImageMy(keys=["t2w","hbv","adc"]),
-            loadlabelMy(keys=["label"]),
+            loadlabelMy(keys=["seg"]),
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
