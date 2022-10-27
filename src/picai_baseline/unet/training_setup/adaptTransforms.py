@@ -168,7 +168,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms):
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
-            adaptor(batchTransforms, {"data": "data"},
+            adaptor(batchTransforms, {"data": "data"}),
             SelectItemsd(keys=["data","seg"]) ,
             monai.transforms.ToTensord(keys=["data","seg"]) 
              ]           )        
