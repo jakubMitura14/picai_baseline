@@ -27,7 +27,8 @@ from .adaptTransforms import addBatchAugmentations
 from monai.data import (CacheDataset, Dataset, PersistentDataset,
                         decollate_batch, list_data_collate)
 from torch.utils.data import DataLoader, random_split
-
+from monai.data import (CacheDataset, Dataset, PersistentDataset,
+                        decollate_batch, list_data_collate)
 
 def default_collate(batch):
     """collate multiple samples into batches, if needed"""
@@ -153,8 +154,8 @@ def prepare_datagens(args, fold_id):
     train_ds=Dataset(data=subjects_train, transform= transfTrain)
     valid_ds=Dataset(data=subjects_val, transform= transfVal)
 
-    train_ldr=DataLoader(train_ds,batch_size=args.batch_size, num_workers=args.num_threads, shuffle=True )
-    valid_ldr=DataLoader(valid_ds,batch_size=args.batch_size, num_workers=1,shuffle=False)
+    train_ldr=DataLoader(train_ds,batch_size=args.batch_size, num_workers=args.num_threads, shuffle=True,collate_fn=list_data_collate )
+    valid_ldr=DataLoader(valid_ds,batch_size=args.batch_size, num_workers=1,shuffle=False,collate_fn=list_data_collate)
 
 
 
