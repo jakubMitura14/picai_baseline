@@ -93,7 +93,7 @@ class Model(pl.LightningModule):
         self.log('train_loss', loss.item())
         print(f" sssssssssss loss {type(loss)}  ")
 
-        return loss
+        return torch.from_numpy(loss).to(self.device)
     def validation_step(self, valid_data, batch_idx):
         valid_images = valid_data['data'][:,0,:,:,:,:]
         valid_labels = valid_data['seg'][:,0,:,:,:,:]                
