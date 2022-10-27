@@ -147,14 +147,14 @@ class Model(pl.LightningModule):
         return (epoch,valid_metrics,num_pos,num_neg  )
 
     def test_epoch_end(self, outputs): 
-        epoch,valid_metrics,num_pos,num_neg = self._eval_epoch_end(self, outputs)
+        epoch,valid_metrics,num_pos,num_neg = self._eval_epoch_end( outputs)
         self.log('train_auroc',valid_metrics.auroc  )
         self.log('train_AP',valid_metrics.AP  )
         self.log('train_ranking',valid_metrics.score  )
     
 
     def validation_epoch_end(self, outputs): 
-        epoch,valid_metrics,num_pos,num_neg = self._eval_epoch_end(self, outputs)
+        epoch,valid_metrics,num_pos,num_neg = self._eval_epoch_end(outputs)
 
         self.tracking_metrics['all_epochs'].append(epoch+1)
         # self.tracking_metrics['all_train_loss'].append(self.tracking_metrics['train_loss'])
