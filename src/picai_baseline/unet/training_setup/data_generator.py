@@ -151,6 +151,11 @@ def prepare_datagens(args, fold_id):
     transfTrain=addBatchAugmentations(transfTrain,nnUNet_DA.get_augmentations())
     transfVal=loadAndtransform(Compose(pretx),Compose(pretx))
 
+    transfTrain=Compose(transfTrain,monai.transforms.ToTensord(keys=["data","seg"])  )
+    transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
+
+    
+
     train_ds=Dataset(data=subjects_train, transform= transfTrain)
     valid_ds=Dataset(data=subjects_val, transform= transfVal)
 
