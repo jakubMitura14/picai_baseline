@@ -156,11 +156,8 @@ from torch.utils.data import DataLoader, random_split
 monai.utils.set_determinism()
 from functools import partial
 
-import model.DataModule as DataModule
-import model.LigtningModel as LigtningModel
 # import preprocessing.transformsForMain
 # import preprocessing.ManageMetadata
-import model.unets as unets
 from optuna.integration import PyTorchLightningPruningCallback
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger
