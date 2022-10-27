@@ -23,6 +23,7 @@ from functools import partial
 import adaptTransforms
 from .image_reader import SimpleITKDataset
 from .augmentations import nnUNet_DA
+from .augmentations import adaptTransforms
 
 
 def default_collate(batch):
