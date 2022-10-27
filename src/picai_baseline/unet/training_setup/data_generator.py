@@ -144,8 +144,8 @@ def prepare_datagens(args, fold_id):
     # assert args.num_classes == len(np.unique(train_json['case_label']))
 
 
-    subjects_train = list(map(partial(getPatientDict,image_files=train_data[0], seg_files=train_data[1]) , range(0,len(train_data)) ))
-    subjects_val = list(map(partial(getPatientDict,image_files=valid_data[0], seg_files=valid_data[1]) , range(0,len(valid_data)) ))
+    subjects_train = list(map(partial(getPatientDict,image_files=train_data[0], seg_files=train_data[1]) , range(0,len(train_data[0])) ))
+    subjects_val = list(map(partial(getPatientDict,image_files=valid_data[0], seg_files=valid_data[1]) , range(0,len(valid_data[0])) ))
     transfTrain=loadAndtransform(Compose(pretx),Compose(pretx))
        
     transfTrain=addBatchAugmentations(transfTrain,nnUNet_DA.get_augmentations())
@@ -155,7 +155,7 @@ def prepare_datagens(args, fold_id):
     transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
 
     
-    print(f"train_data {train_data}")
+    # print(f"train_data {train_data[0]}")
     train_ds=Dataset(data=subjects_train, transform= transfTrain)
     valid_ds=Dataset(data=subjects_val, transform= transfVal)
 
