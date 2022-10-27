@@ -161,7 +161,7 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
 
 def loadAndtransform(transform,seg_transform):
     return Compose([
-            printTransform(keys=["seg"],info="loadAndtransform")
+            printTransform(keys=["seg"],info="loadAndtransform"),
 
             loadImageMy(keys=["t2w","hbv","adc"]),
             loadlabelMy(keys=["seg"]),
