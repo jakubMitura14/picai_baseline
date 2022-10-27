@@ -87,6 +87,7 @@ class Model(pl.LightningModule):
         # train_loss, step = 0,  0
         inputs = batch_data['data'][:,0,:,:,:,:]
         labels = batch_data['seg'][:,0,:,:,:,:]
+        print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         outputs = self.model(inputs)
         loss = self.loss_func(outputs, labels[:, 0, ...].long())
         # train_loss += loss.item()
