@@ -122,7 +122,7 @@ class Model(pl.LightningModule):
                                                     ], axis=0)  }
 
 
-    def validation_step(self, valid_data, batch_idx):
+    def validation_step(self, batch, batch_idx):
         valid_labels, preds = self._shared_eval_step(batch, batch_idx)
         # revert horizontally flipped tta image
         return {'valid_label': valid_labels[:, 0, ...], 'validPred' :np.mean([
