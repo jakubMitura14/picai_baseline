@@ -144,7 +144,7 @@ class loadlabelMy(MapTransform):
             d[key] = np.expand_dims(d[key], axis=(0, 1))
         return d
 
-class applyOrigTransforms(MapTransform):
+class applyOrigTransforms(MapTransform): #RandomizableTransform
     def __init__(
     self,
     keys: KeysCollection,
