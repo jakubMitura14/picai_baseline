@@ -59,7 +59,7 @@ class DataLoaderFromDataset(DataLoader):
     def __init__(self, data, batch_size, num_threads, seed_for_shuffle=1, collate_fn=default_collate,
                  return_incomplete=False, shuffle=True, infinite=False):
         super(DataLoaderFromDataset, self).__init__(data, batch_size, num_threads, seed_for_shuffle,
-                                                    return_incomplete=return_incomplete, shuffle=shuffle,
+                                                    shuffle=shuffle,
                                                     infinite=infinite)
         self.collate_fn = collate_fn
         self.indices = np.arange(len(data))
