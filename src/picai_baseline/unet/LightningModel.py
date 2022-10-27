@@ -162,7 +162,7 @@ class Model(pl.LightningModule):
 
     def validation_epoch_end(self, outputs): 
         epoch,valid_metrics,num_pos,num_neg = self._eval_epoch_end( outputs,'valid_label','val_preds',0 )
-        epoch,valid_metrics_train,num_pos_train,num_neg_train = self._eval_epoch_end( outputs,'train_label','tain_preds' ,1)
+        epoch,valid_metrics_train,num_pos_train,num_neg_train = self._eval_epoch_end( outputs,'valid_label','val_preds' ,1)
 
         self.tracking_metrics['all_epochs'].append(epoch+1)
         # self.tracking_metrics['all_train_loss'].append(self.tracking_metrics['train_loss'])
