@@ -153,8 +153,8 @@ def prepare_datagens(args, fold_id):
     train_ds=Dataset(data=subjects_train, transform= transfTrain)
     valid_ds=Dataset(data=subjects_val, transform= transfVal)
 
-    train_ldr=DataLoader(train_ds,batch_size=args.batch_size, num_threads=args.num_threads, infinite=True, shuffle=True )
-    valid_ldr=DataLoader(valid_ds,batch_size=args.batch_size, num_threads=1, infinite=False, shuffle=False)
+    train_ldr=DataLoader(train_ds,batch_size=args.batch_size, num_workers=args.num_threads, shuffle=True )
+    valid_ldr=DataLoader(valid_ds,batch_size=args.batch_size, num_workers=1,shuffle=False)
 
 
 
