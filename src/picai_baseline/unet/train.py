@@ -257,7 +257,6 @@ def main():
             # auto_scale_batch_size="binsearch",
             auto_lr_find=True,
             check_val_every_n_epoch=check_eval_every_epoch,
-            check_test_every_n_epoch=check_eval_every_epoch,
             #accumulate_grad_batches= 1,
             #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
             log_every_n_steps=5

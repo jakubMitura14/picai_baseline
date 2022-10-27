@@ -74,10 +74,10 @@ class Model(pl.LightningModule):
         return self.train_gen
     
     def val_dataloader(self):
-        return self.valid_gen
+        return [self.valid_gen,self.test_gen]
 
-    def test_dataloader(self):
-        return self.test_gen
+    # def test_dataloader(self):
+    #     return self.test_gen
 
     def configure_optimizers(self):
         optimizer = self.optimizer
@@ -111,29 +111,36 @@ class Model(pl.LightningModule):
         ]
         preds[1] = np.flip(preds[1], [3])
 
-        return valid_labels, preds
-
-    def test_step(self, batch, batch_idx):
-        valid_labels, preds = self._shared_eval_step(batch, batch_idx)
-        # revert horizontally flipped tta image
-        return {'train_label': valid_labels[:, 0, ...], 'trainPred' :np.mean([
+        return valid_labels[:, 0, ...], np.mean([
                                                         gaussian_filter(x, sigma=1.5)
                                                         for x in preds
-                                                    ], axis=0)  }
+                                                    ], axis=0)
+
+    # def test_step(self, batch, batch_idx):
+    #     valid_labels, preds = self._shared_eval_step(batch, batch_idx)
+    #     # revert horizontally flipped tta image
+    #     return {'train_label': valid_labels[:, 0, ...], 'trainPred' :np.mean([
+    #                                                     gaussian_filter(x, sigma=1.5)
+    #                                                     for x in preds
+    #                                                 ], axis=0)  }
 
 
-    def validation_step(self, batch, batch_idx):
-        valid_labels, preds = self._shared_eval_step(batch, batch_idx)
+    def validation_step(self, batch, batch_idx, dataloader_idx):
+        valid_label, preds = self._shared_eval_step(batch, batch_idx)
         # revert horizontally flipped tta image
-        return {'valid_label': valid_labels[:, 0, ...], 'validPred' :np.mean([
-                                                        gaussian_filter(x, sigma=1.5)
-                                                        for x in preds
-                                                    ], axis=0)  }
+        if(dataloader_idx==0):
+            return {'valid_label': valid_label, 'val_preds' : preds }
+        return {'train_label': valid_label, 'tain_preds' : preds }
 
-    def _eval_epoch_end(self, outputs):
+    def _eval_epoch_end(self, outputs,labelKey,predsKey):
         epoch=self.current_epoch
-        all_valid_labels=np.array(([x['valid_label'].cpu().detach().numpy() for x in outputs]))
-        all_valid_preds=np.array(([x['validPred']for x in outputs]))
+        all_valid_labels=np.array(([x[labelKey].cpu().detach().numpy() for x in outputs]))
+        all_valid_preds=np.array(([x[predsKey]for x in outputs]))
+        # all_valid_labels=np.array(([x['valid_label'].cpu().detach().numpy() for x in outputs]))
+        # all_valid_preds=np.array(([x['val_preds']for x in outputs]))
+
+        # all_train_labels=np.array(([x['train_label'].cpu().detach().numpy() for x in outputs]))
+        # all_train_preds=np.array(([x['tain_preds']for x in outputs]))
         # print(f"all_valid_labels {all_valid_labels}")
 
         valid_metrics = evaluate(y_det=iter(np.concatenate([x for x in np.array(all_valid_preds)], axis=0)),
@@ -146,15 +153,14 @@ class Model(pl.LightningModule):
                                         np.array(all_valid_labels)], axis=0)) - num_pos)
         return (epoch,valid_metrics,num_pos,num_neg  )
 
-    def test_epoch_end(self, outputs): 
-        epoch,valid_metrics,num_pos,num_neg = self._eval_epoch_end( outputs)
-        self.log('train_auroc',valid_metrics.auroc  )
-        self.log('train_AP',valid_metrics.AP  )
-        self.log('train_ranking',valid_metrics.score  )
+    # def test_epoch_end(self, outputs): 
+
+
     
 
     def validation_epoch_end(self, outputs): 
-        epoch,valid_metrics,num_pos,num_neg = self._eval_epoch_end(outputs)
+        epoch,valid_metrics,num_pos,num_neg = self._eval_epoch_end( outputs,'valid_label','val_preds' )
+        epoch,valid_metrics_train,num_pos_train,num_neg_train = self._eval_epoch_end( outputs,'train_label','tain_preds' )
 
         self.tracking_metrics['all_epochs'].append(epoch+1)
         # self.tracking_metrics['all_train_loss'].append(self.tracking_metrics['train_loss'])
@@ -165,7 +171,11 @@ class Model(pl.LightningModule):
         self.log('valid_auroc',valid_metrics.auroc  )
         self.log('valid_AP',valid_metrics.AP  )
         self.log('valid_ranking',valid_metrics.score  )
-    
+
+        self.log('train_auroc',valid_metrics_train.auroc  )
+        self.log('train_AP',valid_metrics_train.AP  )
+        self.log('train_ranking',valid_metrics_train.score  )    
+        
         # export train-time + validation metrics as .xlsx sheet
         metricsData = pd.DataFrame(list(zip(self.tracking_metrics['all_epochs'],
                                             # self.tracking_metrics['all_train_loss'],
