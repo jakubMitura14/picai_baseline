@@ -85,16 +85,16 @@ class Model(pl.LightningModule):
     def training_step(self, batch_data, batch_idx):        
         epoch=self.current_epoch
         train_loss, step = 0,  0
-        inputs = batch_data['data']
-        labels = batch_data['seg']
+        inputs = batch_data['data'][:,0,:,:,:,:]
+        labels = batch_data['seg'][:,0,:,:,:,:]
         outputs = self.model(inputs)
         loss = self.loss_func(outputs, labels[:, 0, ...].long())
         train_loss += loss.item()
         self.log('train_loss', loss.item())
         return loss
     def validation_step(self, valid_data, batch_idx):
-        valid_images = torch.Tensor(valid_data['data']).to(self.device)
-        valid_labels = valid_data['seg']                
+        valid_images = valid_data['data'][:,0,:,:,:,:]
+        valid_labels = valid_data['seg'][:,0,:,:,:,:]                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         preds = [
             torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy()
