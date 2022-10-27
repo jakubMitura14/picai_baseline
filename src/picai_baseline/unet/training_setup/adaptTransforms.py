@@ -147,13 +147,13 @@ class applyOrigTransforms(MapTransform):
         return d
 
 def loadAndtransform(transform,seg_transform):
-    return Compose(
+    return Compose([
             loadImageMy(keys=["t2w","hbv","adc"]),
             loadlabelMy(keys=["label"]),
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
-            SelectItemsd(keys=["data","seg"])        
+            SelectItemsd(keys=["data","seg"])  ]      
             )        
 
 def addBatchAugmentations(transforms,batchTransforms): 
