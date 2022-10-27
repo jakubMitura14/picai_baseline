@@ -22,7 +22,7 @@ from monai.transforms import Compose, EnsureType
 from functools import partial
 from .image_reader import SimpleITKDataset
 from .augmentations import nnUNet_DA
-from .augmentations import adaptTransforms
+from import adaptTransforms
 
 
 def default_collate(batch):
