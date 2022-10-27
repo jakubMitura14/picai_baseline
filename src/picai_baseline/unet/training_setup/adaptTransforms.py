@@ -174,7 +174,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms):
              ]           )        
 def loadValTransform(transform,seg_transform):
     return Compose([
-            printTransform(keys=["seg"],info="loadAndtransform"),
+            # printTransform(keys=["seg"],info="loadAndtransform"),
 
             loadImageMy(keys=["t2w","hbv","adc"]),
             loadlabelMy(keys=["seg"]),
