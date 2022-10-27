@@ -112,12 +112,12 @@ class Model(pl.LightningModule):
         preds[1] = np.flip(preds[1], [3])
 
         return valid_labels, preds
-                                                                                    gaussian_filter(x, sigma=1.5)
 
     def test_step(self, batch, batch_idx):
         valid_labels, preds = self._shared_eval_step(batch, batch_idx)
         # revert horizontally flipped tta image
         return {'train_label': valid_labels[:, 0, ...], 'trainPred' :np.mean([
+                                                        gaussian_filter(x, sigma=1.5)
                                                         for x in preds
                                                     ], axis=0)  }
 
@@ -126,6 +126,7 @@ class Model(pl.LightningModule):
         valid_labels, preds = self._shared_eval_step(batch, batch_idx)
         # revert horizontally flipped tta image
         return {'valid_label': valid_labels[:, 0, ...], 'validPred' :np.mean([
+                                                        gaussian_filter(x, sigma=1.5)
                                                         for x in preds
                                                     ], axis=0)  }
 
