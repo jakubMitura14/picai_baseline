@@ -91,7 +91,7 @@ class loadImageMy(MapTransform):
 
         d = dict(data)
         for key in self.keys:
-            d[key]=z_score_norm(self.prepare_scan(d[key]), 99.5)
+            d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
         return d
 
 class concatImageMy(MapTransform):
@@ -111,7 +111,7 @@ class concatImageMy(MapTransform):
         img_hbv=d["hbv"]
         imgConc= np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
 
-        d["3Chan"]=np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
+        d["data"]=np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
 
         return d
 
