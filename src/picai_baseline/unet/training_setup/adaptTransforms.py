@@ -66,10 +66,7 @@ except ImportError:  # pragma: no cover
     pass
 
 
-def randomize(self, data: Optional[Any] = None) -> None:
-    self._seed = self.R.randint(MAX_SEED, dtype="uint32")
-
-def prepare_scan(self, path: str) -> "npt.NDArray[Any]":
+def prepare_scan(path: str) -> "npt.NDArray[Any]":
     return np.expand_dims(
         sitk.GetArrayFromImage(
             sitk.ReadImage(path)
