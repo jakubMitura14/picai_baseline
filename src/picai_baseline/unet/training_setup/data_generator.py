@@ -68,7 +68,8 @@ class DataLoaderFromDataset(DataLoader):
                   'seg': self._data[i][1].numpy()} for i in indices]
 
         return self.collate_fn(batch)
-
+    def __len__(self):
+        return len(data)
 
 def prepare_datagens(args, fold_id):
     """Load data sheets --> Create datasets --> Create data loaders"""

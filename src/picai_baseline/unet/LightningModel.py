@@ -71,10 +71,10 @@ class Model(pl.LightningModule):
         self.valid_gen=valid_gen
 
     def train_dataloader(self):
-        return self.train_gen.generator
+        return self.train_gen
     
     def val_dataloader(self):
-        return self.valid_gen.generator
+        return self.valid_gen
 
     def configure_optimizers(self):
         optimizer = self.optimizer
