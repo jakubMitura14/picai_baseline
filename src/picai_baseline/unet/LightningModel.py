@@ -201,5 +201,6 @@ class Model(pl.LightningModule):
                 print("Validation Ranking Score Improved! Saving New Best Model", flush=True)
 
 
-        # experiment=self.experiment=self.logger.experiment
-        # if(epoch==0):
+        experiment=self.experiment=self.logger.experiment
+        if(epoch==0):
+            experiment.log_parameter('machine',os.environ['machine'])
