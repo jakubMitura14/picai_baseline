@@ -161,7 +161,7 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
 
 def loadTrainTransform(transform,seg_transform,batchTransforms):
     return Compose([
-            printTransform(keys=["seg"],info=f"loadAndtransform  {len(batchTransforms)}"),
+            printTransform(keys=["seg"],info=f"loadAndtransform "),
 
             loadImageMy(keys=["t2w","hbv","adc"]),
             loadlabelMy(keys=["seg"]),

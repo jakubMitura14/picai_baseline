@@ -133,6 +133,7 @@ def get_augmentations( params=default_3D_augmentation_params, patch_size=None, n
             tr_transforms.append(MirrorTransform(params.get("mirror_axes"),data_key="data"))
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
     # convert NumPy -> PyTorch tensors
+    print(f"leeeeen {len(tr_transforms)}")
     tr_transforms.append(NumpyToTensor(['data', 'seg'], 'float'))
     tr_transforms = Compose(tr_transforms)
     return tr_transforms
