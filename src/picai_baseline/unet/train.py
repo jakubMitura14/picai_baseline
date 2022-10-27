@@ -240,6 +240,7 @@ def main():
         mode="max",
         #divergence_threshold=(-0.1)
     )
+    check_eval_every_epoch=2
     # for each fold
     for f in args.folds:
         model = LightningModel.Model(f,args)
@@ -255,7 +256,8 @@ def main():
             default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
             # auto_scale_batch_size="binsearch",
             auto_lr_find=True,
-            check_val_every_n_epoch=2,
+            check_val_every_n_epoch=check_eval_every_epoch,
+            check_test_every_n_epoch=check_eval_every_epoch,
             #accumulate_grad_batches= 1,
             #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
             log_every_n_steps=5
