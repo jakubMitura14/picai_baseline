@@ -155,7 +155,7 @@ def prepare_datagens(args, fold_id):
     transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
 
     
-
+    print(f"subjects_train {subjects_train}")
     train_ds=Dataset(data=subjects_train, transform= transfTrain)
     valid_ds=Dataset(data=subjects_val, transform= transfVal)
 
