@@ -158,18 +158,19 @@ def prepare_datagens(args, fold_id):
     # print(f"train_data {train_data[0]}")
     train_ds=Dataset(data=subjects_train, transform= transfTrain)
     valid_ds=Dataset(data=subjects_val, transform= transfVal)
+    test_ds=Dataset(data=subjects_train[0:len(subjects_val)], transform= transfVal)
 
 
     print(f"aaaaaaaaaaaaaa {args.batch_size}")
-
     train_ldr=DataLoader(train_ds,batch_size=args.batch_size, num_workers=args.num_threads, shuffle=True,collate_fn=list_data_collate )
-    valid_ldr=DataLoader(valid_ds,batch_size=args.batch_size, num_workers=1,shuffle=False,collate_fn=list_data_collate)
+    valid_ldr=DataLoader(valid_ds,batch_size=args.batch_size, num_workers=args.num_threads,shuffle=False,collate_fn=list_data_collate)
+    test_gen=DataLoader(test_ds,batch_size=args.batch_size, num_workers=args.num_threads,shuffle=False,collate_fn=list_data_collate)
 
 
 
 
 
-    return train_ldr, valid_ldr, class_weights.astype(np.float32)
+    return train_ldr, valid_ldr, test_gen, class_weights.astype(np.float32)
 
 
     # actual dataloaders used at train-time

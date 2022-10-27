@@ -14,26 +14,157 @@
 
 import argparse
 import ast
+import concurrent.futures
+import functools
+import glob
+import importlib.util
+import itertools
+import json
+import math
+import multiprocessing as mp
+import operator
+import os
+import shutil
+import sys
+import tempfile
+import time
+import warnings
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from functools import partial
+from glob import glob
+from os import path as pathOs
+from os.path import basename, dirname, exists, isdir, join, split
+from pathlib import Path
+#from picai_eval.picai_eval import evaluate_case
+from statistics import mean
+from typing import (Callable, Dict, Hashable, Iterable, List, Optional,
+                    Sequence, Sized, Tuple, Union)
 
+import gdown
+import matplotlib.pyplot as plt
+import monai
 import numpy as np
-import torch
-
-from training_setup.callbacks import (
-    optimize_model, resume_or_restart_training, validate_model)
-from training_setup.compute_spec import \
-    compute_spec_for_run
-from training_setup.data_generator import prepare_datagens
-from training_setup.default_hyperparam import \
-    get_default_hyperparams
-from training_setup.loss_functions.focal import FocalLoss
-from training_setup.neural_network_selector import \
-    neural_network_for_run
-# from torch.utils.tensorboard import SummaryWriter
+import pandas as pd
 import pytorch_lightning as pl
+import seaborn as sns
+import SimpleITK as sitk
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torchio
+import torchio as tio
+import torchmetrics
+from monai.apps import download_and_extract
+from monai.config import print_config
+from monai.data import (CacheDataset, Dataset, PersistentDataset,
+                        decollate_batch, list_data_collate)
+from monai.handlers.utils import from_engine
+from monai.inferers import sliding_window_inference
+from monai.losses import DiceLoss
+# lltm_cuda = load('lltm_cuda', ['lltm_cuda.cpp', 'lltm_cuda_kernel.cu'], verbose=True)
+from monai.metrics import (ConfusionMatrixMetric, DiceMetric,
+                           HausdorffDistanceMetric, SurfaceDistanceMetric,
+                           compute_confusion_matrix_metric,
+                           do_metric_reduction, get_confusion_matrix)
+from monai.networks.blocks.convolutions import Convolution, ResidualUnit
+from monai.networks.layers import Norm
+from monai.networks.layers.factories import Act, Norm
+from monai.networks.layers.simplelayers import SkipConnection
+from monai.networks.nets import UNet
+from monai.transforms import (AddChanneld, AsDiscrete, Compose,
+                              CropForegroundd, EnsureType, EnsureTyped,
+                              LoadImaged, Orientationd, RandCropByPosNegLabeld,
+                              ScaleIntensityRanged, Spacingd)
+from monai.utils import alias, deprecated_arg, export, set_determinism
+from optuna.integration import PyTorchLightningPruningCallback
+from picai_eval import evaluate
+from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger
+from report_guided_annotation import extract_lesion_candidates
+from scipy import ndimage
+from scipy.ndimage import gaussian_filter
+from scipy.optimize import linear_sum_assignment
+from sklearn.model_selection import train_test_split
+from torch.nn.intrinsic.qat import ConvBnReLU3d
+from torch.utils.cpp_extension import load
+from torch.utils.data import DataLoader, random_split
+from torchmetrics import Precision
+from torchmetrics.functional import precision_recall
+from tqdm import tqdm
+
+import LightningModel
+from training_setup.callbacks import (optimize_model,
+                                      resume_or_restart_training,
+                                      validate_model)
+from training_setup.compute_spec import compute_spec_for_run
+from training_setup.data_generator import prepare_datagens
+from training_setup.default_hyperparam import get_default_hyperparams
+from training_setup.loss_functions.focal import FocalLoss
+from training_setup.neural_network_selector import neural_network_for_run
+
+try:
+    import numpy.typing as npt
+except ImportError:  # pragma: no cover
+    pass
+
+import functools
+import glob
+import math
+import multiprocessing
+import multiprocessing as mp
+import os
+import os.path
+import shutil
+import tempfile
+import time
+from datetime import datetime
+from glob import glob
+from pathlib import Path
+
+import gdown
+import matplotlib.pyplot as plt
+import monai
+import numpy as np
+import pandas as pd
+import pytorch_lightning as pl
+import seaborn as sns
+import SimpleITK as sitk
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torchio as tio
+from monai.data import (CacheDataset, Dataset, PersistentDataset,
+                        decollate_batch, list_data_collate)
+from monai.handlers.utils import from_engine
+from monai.inferers import sliding_window_inference
+from monai.losses import DiceLoss
+from monai.metrics import DiceMetric
+from monai.networks.layers import Norm
+from monai.networks.layers.factories import Act, Norm
+from monai.networks.nets import UNet
+from monai.utils import set_determinism
+from picai_eval.analysis_utils import (calculate_dsc, calculate_iou,
+                                       label_structure, parse_detection_map)
+from picai_eval.eval import evaluate_case
+from picai_eval.image_utils import (read_label, read_prediction,
+                                    resize_image_with_crop_or_pad)
+from picai_eval.metrics import Metrics
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader, random_split
+
+monai.utils.set_determinism()
+from functools import partial
+
+import model.DataModule as DataModule
+import model.LigtningModel as LigtningModel
+# import preprocessing.transformsForMain
+# import preprocessing.ManageMetadata
+import model.unets as unets
 from optuna.integration import PyTorchLightningPruningCallback
 from pytorch_lightning.callbacks import ModelCheckpoint
-import LightningModel
+from pytorch_lightning.loggers import CometLogger
+
 
 def main():
     # command line arguments for hyperparameters and I/O paths
@@ -102,22 +233,32 @@ def main():
         project_name=project_name, # Optional
         experiment_name=experiment_name # Optional
     )
+    toMonitor="valid_ranking"
+    checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
+    stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs=trial.suggest_float("swa_lrs", 1e-6, 1e-4))
+    optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
+    early_stopping = pl.callbacks.early_stopping.EarlyStopping(
+        monitor=toMonitor,
+        patience=4,
+        mode="max",
+        #divergence_threshold=(-0.1)
+    )
     # for each fold
     for f in args.folds:
         model = LightningModel.Model(f,args)
         trainer = pl.Trainer(
             #accelerator="cpu", #TODO(remove)
-            max_epochs=args.num_epochs,
+            max_epochs=1000,#args.num_epochs,
             #gpus=1,
             #precision=experiment.get_parameter("precision"), 
-            # callbacks=[ checkpoint_callback,stochasticAveraging,early_stopping ], #optuna_prune
+            callbacks=[early_stopping ], #optuna_prune
             logger=comet_logger,
             accelerator='auto',
             devices='auto',       
             default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
             # auto_scale_batch_size="binsearch",
             auto_lr_find=True,
-            check_val_every_n_epoch=40,
+            check_val_every_n_epoch=2,
             #accumulate_grad_batches= 1,
             #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
             log_every_n_steps=5
