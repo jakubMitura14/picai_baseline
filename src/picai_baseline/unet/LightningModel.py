@@ -4,7 +4,7 @@ import ast
 
 import numpy as np
 import torch
-
+import monai
 from training_setup.callbacks import (
     optimize_model, resume_or_restart_training, validate_model)
 from training_setup.compute_spec import \
