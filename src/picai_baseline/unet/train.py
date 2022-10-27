@@ -215,7 +215,7 @@ def main():
 
     args = parser.parse_args()
     
-    project_name= "pic_raw_1"
+    project_name= "pic_raw_2"
     experiment_name="baseline_pl"
 
     args.model_strides = ast.literal_eval(args.model_strides)
