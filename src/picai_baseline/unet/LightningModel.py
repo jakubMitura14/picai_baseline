@@ -59,11 +59,11 @@ class Model(pl.LightningModule):
         train_gen, valid_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f)
         self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
         # integrate data augmentation pipeline from nnU-Net
-        train_gen = apply_augmentations(
-            dataloader=train_gen,
-            num_threads=self.args.num_threads,
-            disable=(not bool(self.args.enable_da))
-        )
+        # train_gen = apply_augmentations(
+        #     dataloader=train_gen,
+        #     num_threads=self.args.num_threads,
+        #     disable=(not bool(self.args.enable_da))
+        # )
         
         # initialize multi-threaded augmenter in background
         train_gen.restart()

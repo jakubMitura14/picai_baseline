@@ -17,8 +17,8 @@ import ast
 
 import numpy as np
 import torch
-from training_setup.augmentations.nnUNet_DA import \
-    apply_augmentations
+# from training_setup.augmentations.nnUNet_DA import \
+#     apply_augmentations
 from training_setup.callbacks import (
     optimize_model, resume_or_restart_training, validate_model)
 from training_setup.compute_spec import \
