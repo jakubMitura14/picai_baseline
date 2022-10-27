@@ -159,7 +159,7 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
             d[key] =  apply_transform(self.transform, d[key], map_items=False)
         return d
 
-def loadAndtransform(transform,seg_transform):
+def loadTrainTransform(transform,seg_transform,batchTransforms):
     return Compose([
             printTransform(keys=["seg"],info="loadAndtransform"),
 
@@ -168,13 +168,28 @@ def loadAndtransform(transform,seg_transform):
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
-            SelectItemsd(keys=["data","seg"])  ]      
-            )        
+            adaptor(batchTransforms, {"data": "data"},
+            SelectItemsd(keys=["data","seg"]) ,
+            monai.transforms.ToTensord(keys=["data","seg"]) 
+             ]           )        
 
-def addBatchAugmentations(transforms,batchTransforms): 
-    return Compose(transforms
-                    ,printTransform(keys=["seg"],info="before adaptor")
-                    ,adaptor(batchTransforms, {"data": "data"}
-                    ,printTransform(keys=["seg"],info="after adaptor")
+def loadValTransform(transform,seg_transform):
+    return Compose([
+            printTransform(keys=["seg"],info="loadAndtransform"),
 
-                    ))           
+            loadImageMy(keys=["t2w","hbv","adc"]),
+            loadlabelMy(keys=["seg"]),
+            concatImageMy(keys=["t2w","hbv","adc"]),
+            applyOrigTransforms(keys=["data"],transform=transform),
+            applyOrigTransforms(keys=["seg"],transform=seg_transform),
+            SelectItemsd(keys=["data","seg"])  ,      
+            monai.transforms.ToTensord(keys=["data","seg"]) 
+            ])        
+
+# def addBatchAugmentations(transforms,batchTransforms): 
+#     return Compose(transforms
+#                     ,printTransform(keys=["seg"],info="before adaptor")
+#                     ,adaptor(batchTransforms, {"data": "data"}
+#                     ,printTransform(keys=["seg"],info="after adaptor")
+
+#                     ))           

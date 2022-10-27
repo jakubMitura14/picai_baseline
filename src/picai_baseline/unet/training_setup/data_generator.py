@@ -147,10 +147,9 @@ def prepare_datagens(args, fold_id):
 
     subjects_train = list(map(partial(getPatientDict,image_files=train_data[0], seg_files=train_data[1]) , range(0,len(train_data[0])) ))
     subjects_val = list(map(partial(getPatientDict,image_files=valid_data[0], seg_files=valid_data[1]) , range(0,len(valid_data[0])) ))
-    transfTrain=loadAndtransform(Compose(pretx),Compose(pretx))
+    transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations())
        
-    transfTrain=addBatchAugmentations(transfTrain,nnUNet_DA.get_augmentations())
-    transfVal=loadAndtransform(Compose(pretx),Compose(pretx))
+    transfVal=loadValTransform(Compose(pretx),Compose(pretx))
 
     transfTrain=Compose(transfTrain,monai.transforms.ToTensord(keys=["data","seg"])  )
     transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
