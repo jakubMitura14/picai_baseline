@@ -78,9 +78,9 @@ class DataLoaderFromDataset(DataLoader):
 
 def getPatientDict(index, image_files,seg_files):
     subject= {#"chan3_col_name": str(row[chan3_col_name])
-        "t2w": str(self.image_files[index][0])     
-        ,"adc": str(self.image_files[index][1])        
-        ,"hbv": str(self.image_files[index][2]) 
+        "t2w": str(image_files[index][0])     
+        ,"adc": str(image_files[index][1])        
+        ,"hbv": str(image_files[index][2]) 
         
     #    , "isAnythingInAnnotated":int(row['isAnythingInAnnotated'])
     #     , "study_id":str(row['study_id'])
@@ -142,10 +142,10 @@ def prepare_datagens(args, fold_id):
 
     subjects_train = list(map(partial(getPatientDict,image_files=train_data[0], seg_files=train_data[1]) , range(0,len(train_data)) ))
     subjects_val = list(map(partial(getPatientDict,image_files=valid_data[0], seg_files=valid_data[1]) , range(0,len(valid_data)) ))
-    transfTrain=adaptTransforms.loadAndtransform(Compose(pretx),Compose(pretx))
+    transfTrain=loadAndtransform(Compose(pretx),Compose(pretx))
        
-    transfTrain=adaptTransforms.addBatchAugmentations(transfTrain,nnUNet_DA.get_augmentations())
-    transfVal=adaptTransforms.loadAndtransform(Compose(pretx),Compose(pretx))
+    transfTrain=addBatchAugmentations(transfTrain,nnUNet_DA.get_augmentations())
+    transfVal=loadAndtransform(Compose(pretx),Compose(pretx))
 
     train_ds=Dataset(data=subjects_train, transform= transfTrain)
     valid_ds=Dataset(data=subjects_val, transform= transfVal)
