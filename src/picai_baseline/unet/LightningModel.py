@@ -84,12 +84,12 @@ class Model(pl.LightningModule):
 
     def training_step(self, batch_data, batch_idx):        
         epoch=self.current_epoch
-        train_loss, step = 0,  0
+        # train_loss, step = 0,  0
         inputs = batch_data['data'][:,0,:,:,:,:]
         labels = batch_data['seg'][:,0,:,:,:,:]
         outputs = self.model(inputs)
-        loss = self.loss_func(outputs, labels[:, 0, ...].long())
-        train_loss += loss.item()
+        loss = self.loss_func(outputs, labels.long())
+        # train_loss += loss.item()
         self.log('train_loss', loss.item())
         return loss
     def validation_step(self, valid_data, batch_idx):
