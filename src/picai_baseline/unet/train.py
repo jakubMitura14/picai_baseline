@@ -217,7 +217,7 @@ def main():
     
     project_name= "pic_raw_2"
     experiment_name="baseline_pl"
-
+    args.weights_dir=join(args.weights_dir,experiment_name )
     args.model_strides = ast.literal_eval(args.model_strides)
     args.model_features = ast.literal_eval(args.model_features)
 
@@ -240,7 +240,7 @@ def main():
         mode="max",
         #divergence_threshold=(-0.1)
     )
-    check_eval_every_epoch=2
+    check_eval_every_epoch=40
     # for each fold
     for f in args.folds:
         model = LightningModel.Model(f,args)
