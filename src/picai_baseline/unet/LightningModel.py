@@ -91,6 +91,7 @@ class Model(pl.LightningModule):
         loss = self.loss_func(outputs, labels.long())
         # train_loss += loss.item()
         self.log('train_loss', loss.item())
+        print(f" sssssssssss loss {type(loss)}  ")
         return loss
     def validation_step(self, valid_data, batch_idx):
         valid_images = valid_data['data'][:,0,:,:,:,:]
