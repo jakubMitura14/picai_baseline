@@ -159,7 +159,6 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
         for key in self.keys:
             d[key] =  apply_transform(self.transform, d[key], map_items=False)
         return d
-
 def loadTrainTransform(transform,seg_transform,batchTransforms):
     return Compose([
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
@@ -173,7 +172,6 @@ def loadTrainTransform(transform,seg_transform,batchTransforms):
             SelectItemsd(keys=["data","seg"]) ,
             monai.transforms.ToTensord(keys=["data","seg"]) 
              ]           )        
-
 def loadValTransform(transform,seg_transform):
     return Compose([
             printTransform(keys=["seg"],info="loadAndtransform"),
