@@ -40,3 +40,6 @@ class SingleThreadedAugmenter(object):
 
     def next(self):
         return self.__next__()
+        
+    def __len__(self):
+        return self.generator.__len__()        

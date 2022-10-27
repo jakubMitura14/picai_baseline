@@ -289,3 +289,6 @@ class MultiThreadedAugmenter(object):
     def __del__(self):
         logging.debug("MultiThreadedGenerator: destructor was called")
         self._finish()
+
+    def __len__(self):
+        return self.generator.__len__()
