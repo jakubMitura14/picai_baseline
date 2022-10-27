@@ -22,8 +22,8 @@ from monai.transforms import Compose, EnsureType
 from functools import partial
 from .image_reader import SimpleITKDataset
 from .augmentations import nnUNet_DA
-from .adaptTransforms import loadAndtransform
-from .adaptTransforms import addBatchAugmentations
+from .adaptTransforms import loadTrainTransform
+from .adaptTransforms import loadValTransform
 from monai.data import (CacheDataset, SmartCacheDataset,Dataset, PersistentDataset,
                         decollate_batch, list_data_collate)
 from torch.utils.data import DataLoader, random_split
