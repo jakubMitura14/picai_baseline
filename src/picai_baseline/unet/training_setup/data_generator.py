@@ -19,8 +19,10 @@ import torch
 from collections import OrderedDict
 from batchgenerators.dataloading.data_loader import DataLoader
 from monai.transforms import Compose, EnsureType
-
+from functools import partial
+import adaptTransforms
 from .image_reader import SimpleITKDataset
+from .augmentations import nnUNet_DA
 
 
 def default_collate(batch):
@@ -58,7 +60,7 @@ class DataLoaderFromDataset(DataLoader):
         self.collate_fn = collate_fn
         self.indices = np.arange(len(data))
         self.dataLen=len(data)
-        
+
     def generate_train_batch(self):
 
         # randomly select N samples (N = batch size)
@@ -69,8 +71,29 @@ class DataLoaderFromDataset(DataLoader):
                   'seg': self._data[i][1].numpy()} for i in indices]
 
         return self.collate_fn(batch)
+
     def __len__(self):
         return self.dataLen
+
+def getPatientDict(index, image_files,seg_files):
+    subject= {#"chan3_col_name": str(row[chan3_col_name])
+        "t2w": str(self.image_files[index][0])     
+        ,"adc": str(self.image_files[index][1])        
+        ,"hbv": str(self.image_files[index][2]) 
+        
+    #    , "isAnythingInAnnotated":int(row['isAnythingInAnnotated'])
+    #     , "study_id":str(row['study_id'])
+    #     , "patient_id":str(row['patient_id'])
+    #     , "num_lesions_to_retain":int(row['num_lesions_to_retain_bin'])
+
+        , "label":str(seg_files[index])
+        
+        
+        }
+    return subject
+
+
+
 
 def prepare_datagens(args, fold_id):
     """Load data sheets --> Create datasets --> Create data loaders"""
@@ -84,6 +107,8 @@ def prepare_datagens(args, fold_id):
     # load paths to images and labels
     train_data = [np.array(train_json['image_paths']), np.array(train_json['label_paths'])]
     valid_data = [np.array(valid_json['image_paths']), np.array(valid_json['label_paths'])]
+
+
 
     # use case-level class balance to deduce required train-time class weights
     class_ratio_t = [int(np.sum(train_json['case_label'])), int(len(train_data[0])-np.sum(train_json['case_label']))]
@@ -109,19 +134,37 @@ def prepare_datagens(args, fold_id):
     print('DataLoader - Image Shape: ', data_pair['data'].shape)
     print('DataLoader - Label Shape: ', data_pair['seg'].shape)
     print("-"*100)
-
     assert args.image_shape == list(data_pair['data'].shape[2:])
     assert args.num_channels == data_pair['data'].shape[1]
     assert args.num_classes == len(np.unique(train_json['case_label']))
 
-    # actual dataloaders used at train-time
-    train_ds = SimpleITKDataset(image_files=train_data[0], seg_files=train_data[1],
-                                transform=Compose(pretx),  seg_transform=Compose(pretx))
-    valid_ds = SimpleITKDataset(image_files=valid_data[0], seg_files=valid_data[1],
-                                transform=Compose(pretx),  seg_transform=Compose(pretx))
-    train_ldr = DataLoaderFromDataset(train_ds, 
-        batch_size=args.batch_size, num_threads=args.num_threads, infinite=True, shuffle=True)
-    valid_ldr = DataLoaderFromDataset(valid_ds, 
-        batch_size=args.batch_size, num_threads=1, infinite=False, shuffle=False)
+
+    subjects_train = list(map(partial(getPatientDict,image_files=train_data[0], seg_files=train_data[1]) , range(0,len(train_data)) ))
+    subjects_val = list(map(partial(getPatientDict,image_files=valid_data[0], seg_files=valid_data[1]) , range(0,len(valid_data)) ))
+    transfTrain=adaptTransforms.loadAndtransform(Compose(pretx),Compose(pretx))
+       
+    transfTrain=adaptTransforms.addBatchAugmentations(transfTrain,nnUNet_DA.get_augmentations())
+    transfVal=adaptTransforms.loadAndtransform(Compose(pretx),Compose(pretx))
+
+    train_ds=Dataset(data=subjects_train, transform= transfTrain)
+    valid_ds=Dataset(data=subjects_val, transform= transfVal)
+
+    train_ldr=DataLoader(train_ds,batch_size=args.batch_size, num_threads=args.num_threads, infinite=True, shuffle=True )
+    valid_ldr=DataLoader(valid_ds,batch_size=args.batch_size, num_threads=1, infinite=False, shuffle=False)
+
+
+
+
 
     return train_ldr, valid_ldr, class_weights.astype(np.float32)
+
+
+    # actual dataloaders used at train-time
+    # train_ds = SimpleITKDataset(image_files=train_data[0], seg_files=train_data[1],
+    #                             transform=Compose(pretx),  seg_transform=Compose(pretx))
+    # valid_ds = SimpleITKDataset(image_files=valid_data[0], seg_files=valid_data[1],
+    #                             transform=Compose(pretx),  seg_transform=Compose(pretx))
+    # train_ldr = DataLoaderFromDataset(train_ds, 
+    #     batch_size=args.batch_size, num_threads=args.num_threads, infinite=True, shuffle=True)
+    # valid_ldr = DataLoaderFromDataset(valid_ds, 
+    #     batch_size=args.batch_size, num_threads=1, infinite=False, shuffle=False)

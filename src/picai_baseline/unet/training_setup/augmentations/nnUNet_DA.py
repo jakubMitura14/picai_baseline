@@ -69,7 +69,7 @@ default_3D_augmentation_params = {
 }
 
 
-def apply_augmentations(dataloader, params=default_3D_augmentation_params, patch_size=None, num_threads=1,
+def get_augmentations( params=default_3D_augmentation_params, patch_size=None, num_threads=1,
                         border_val_seg=-1, seeds_train=None, seeds_val=None, order_seg=1, order_data=3, disable=False,
                         pin_memory=False, use_multithreading=True, use_nondetMultiThreadedAugmenter: bool = False):
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -100,54 +100,57 @@ def apply_augmentations(dataloader, params=default_3D_augmentation_params, patch
                                               p_el_per_sample=params.get("p_eldef"),
                                               p_scale_per_sample=params.get("p_scale"),
                                               p_rot_per_sample=params.get("p_rot"),
-                                              independent_scale_for_each_axis=params.get("independent_scale_factor_for_each_axis")))
+                                              independent_scale_for_each_axis=params.get("independent_scale_factor_for_each_axis")
+                                              ,data_key="data"                                              
+                                              ))
         # -------------------------------------------------------------------------------------------------------------------------------------------------------------
         # intensity transforms
-        tr_transforms.append(GaussianNoiseTransform(p_per_sample=0.1))
-        tr_transforms.append(GaussianBlurTransform((0.5, 1.), different_sigma_per_channel=True, p_per_sample=0.2, p_per_channel=0.5))
-        tr_transforms.append(BrightnessMultiplicativeTransform(multiplier_range=(0.75, 1.25), p_per_sample=0.15))
+        tr_transforms.append(GaussianNoiseTransform(p_per_sample=0.1,data_key="data"))
+        tr_transforms.append(GaussianBlurTransform((0.5, 1.), different_sigma_per_channel=True, p_per_sample=0.2, p_per_channel=0.5,data_key="data"))
+        tr_transforms.append(BrightnessMultiplicativeTransform(multiplier_range=(0.75, 1.25), p_per_sample=0.15,data_key="data"))
 
         if params.get("do_additive_brightness"):
             tr_transforms.append(BrightnessTransform(params.get("additive_brightness_mu"),
                                                      params.get("additive_brightness_sigma"), True,
                                                      p_per_sample=params.get("additive_brightness_p_per_sample"),
-                                                     p_per_channel=params.get("additive_brightness_p_per_channel")))
+                                                     p_per_channel=params.get("additive_brightness_p_per_channel"),data_key="data"))
 
-        tr_transforms.append(ContrastAugmentationTransform(p_per_sample=0.15))
+        tr_transforms.append(ContrastAugmentationTransform(p_per_sample=0.15,data_key="data"))
         tr_transforms.append(SimulateLowResolutionTransform(zoom_range=(0.5, 1), per_channel=True, p_per_channel=0.5,
                                                             order_downsample=0,  order_upsample=3, p_per_sample=0.25,
-                                                            ignore_axes=None))
+                                                            ignore_axes=None,data_key="data"))
         tr_transforms.append(
             GammaTransform(params.get("gamma_range"), True, True, retain_stats=params.get("gamma_retain_stats"),
-                           p_per_sample=0.1))  # inverted gamma
+                           p_per_sample=0.1,data_key="data"))  # inverted gamma
 
         if params.get("do_gamma"):
             tr_transforms.append(
                 GammaTransform(params.get("gamma_range"), False, True, retain_stats=params.get("gamma_retain_stats"),
-                               p_per_sample=params["p_gamma"]))
+                               p_per_sample=params["p_gamma"],data_key="data"))
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------
         # flipping transform (reserved for last in order)
         if params.get("do_mirror") or params.get("mirror"):
-            tr_transforms.append(MirrorTransform(params.get("mirror_axes")))
+            tr_transforms.append(MirrorTransform(params.get("mirror_axes"),data_key="data"))
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
     # convert NumPy -> PyTorch tensors
-    tr_transforms.append(NumpyToTensor(['data', 'seg'], 'float'))
+    tr_transforms.append(NumpyToTensor(['data', 'seg'], 'float',data_key="data"))
     tr_transforms = Compose(tr_transforms)
-    # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-    # multi-threaded augmenter (non-deterministic, if available)
-    if use_multithreading and num_threads > 1:
-        if use_nondetMultiThreadedAugmenter:
-            if NonDetMultiThreadedAugmenter is None:
-                raise RuntimeError('NonDetMultiThreadedAugmenter is not yet available')
-            batchgenerator_train = NonDetMultiThreadedAugmenter(dataloader, tr_transforms, num_threads,
-                                                                num_threads, seeds=seeds_train,
-                                                                pin_memory=pin_memory)
-        else:
-            batchgenerator_train = MultiThreadedAugmenter(dataloader, tr_transforms, num_threads,
-                                                          num_threads, seeds=seeds_train, 
-                                                          pin_memory=pin_memory)
-    else:
-        batchgenerator_train = SingleThreadedAugmenter(dataloader, tr_transforms)
-    # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-    return batchgenerator_train
+    return tr_transforms
+    # # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    # # multi-threaded augmenter (non-deterministic, if available)
+    # if use_multithreading and num_threads > 1:
+    #     if use_nondetMultiThreadedAugmenter:
+    #         if NonDetMultiThreadedAugmenter is None:
+    #             raise RuntimeError('NonDetMultiThreadedAugmenter is not yet available')
+    #         batchgenerator_train = NonDetMultiThreadedAugmenter(dataloader, tr_transforms, num_threads,
+    #                                                             num_threads, seeds=seeds_train,
+    #                                                             pin_memory=pin_memory)
+    #     else:
+    #         batchgenerator_train = MultiThreadedAugmenter(dataloader, tr_transforms, num_threads,
+    #                                                       num_threads, seeds=seeds_train, 
+    #                                                       pin_memory=pin_memory)
+    # else:
+    #     batchgenerator_train = SingleThreadedAugmenter(dataloader, tr_transforms)
+    # # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    # return batchgenerator_train
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
