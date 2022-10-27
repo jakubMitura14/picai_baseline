@@ -42,7 +42,8 @@ from monai.transforms import (
     ResizeWithPadOrCropd,
     RepeatChanneld,
     Rand3DElasticd,
-    adaptor
+    adaptor,
+    ToNumpyd
     
 )
 from monai.transforms import Randomizable, apply_transform
@@ -168,6 +169,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms):
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
+            ToNumpyd(keys=["data","seg"]),
             adaptor(batchTransforms, {"data": "data"}),
             SelectItemsd(keys=["data","seg"]) ,
             monai.transforms.ToTensord(keys=["data","seg"]) 
