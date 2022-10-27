@@ -20,7 +20,6 @@ from collections import OrderedDict
 from batchgenerators.dataloading.data_loader import DataLoader
 from monai.transforms import Compose, EnsureType
 from functools import partial
-import adaptTransforms
 from .image_reader import SimpleITKDataset
 from .augmentations import nnUNet_DA
 from .augmentations import adaptTransforms
