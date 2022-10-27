@@ -217,10 +217,13 @@ def main():
     
     project_name= "pic_raw_2"
     experiment_name="baseline_pl"
+    args.batch_size=32
+
+
     args.weights_dir=join(args.weights_dir,experiment_name )
     args.model_strides = ast.literal_eval(args.model_strides)
     args.model_features = ast.literal_eval(args.model_features)
-
+    
     # retrieve default set of hyperparam (architecture, batch size) for given neural network
     if bool(args.use_def_model_hp):
         args = get_default_hyperparams(args)
