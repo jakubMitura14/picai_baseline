@@ -113,6 +113,23 @@ class concatImageMy(MapTransform):
         return d
 
 
+class printTransform(MapTransform):
+
+    def __init__(
+        self,
+        keys: KeysCollection,
+        info
+        allow_missing_keys: bool = False,
+    ):
+        super().__init__(keys, allow_missing_keys)
+        self.info=info
+
+    def __call__(self, data):
+
+        d = dict(data)
+        print(self.info)
+        return d
+
 class loadlabelMy(MapTransform):
 
     def __init__(
@@ -154,4 +171,8 @@ def loadAndtransform(transform,seg_transform):
 
 def addBatchAugmentations(transforms,batchTransforms): 
     return Compose(transforms
-                    ,adaptor(batchTransforms, {"data": "data"}))           
+                    ,printTransform(keys=["seg"],info="before adaptor")
+                    ,adaptor(batchTransforms, {"data": "data"}
+                    ,printTransform(keys=["seg"],info="after adaptor")
+
+                    ))           

@@ -24,7 +24,7 @@ from .image_reader import SimpleITKDataset
 from .augmentations import nnUNet_DA
 from .adaptTransforms import loadAndtransform
 from .adaptTransforms import addBatchAugmentations
-from monai.data import (CacheDataset, Dataset, PersistentDataset,
+from monai.data import (CacheDataset, SmartCacheDataset,Dataset, PersistentDataset,
                         decollate_batch, list_data_collate)
 from torch.utils.data import DataLoader, random_split
 from monai.data import (CacheDataset, Dataset, PersistentDataset,
@@ -156,10 +156,13 @@ def prepare_datagens(args, fold_id):
 
     
     # print(f"train_data {train_data[0]}")
-    train_ds=Dataset(data=subjects_train, transform= transfTrain)
-    valid_ds=Dataset(data=subjects_val, transform= transfVal)
-    test_ds=Dataset(data=subjects_train[0:len(subjects_val)], transform= transfVal)
+    # train_ds=Dataset(data=subjects_train, transform= transfTrain)
+    # valid_ds=Dataset(data=subjects_val, transform= transfVal)
+    # test_ds=Dataset(data=subjects_train[0:len(subjects_val)], transform= transfVal)
 
+    train_ds=SmartCacheDataset(data=subjects_train, transform=transfTrain  ,num_init_workers=os.cpu_count(),num_replace_workers=os.cpu_count())
+    valid_ds=SmartCacheDataset(data=subjects_val, transform=transfVal  ,num_init_workers=os.cpu_count(),num_replace_workers=os.cpu_count())
+    test_ds=SmartCacheDataset(data=subjects_train[0:len(subjects_val)], transform=transfVal  ,num_init_workers=os.cpu_count(),num_replace_workers=os.cpu_count())
 
     print(f"aaaaaaaaaaaaaa {args.batch_size}")
     train_ldr=DataLoader(train_ds,batch_size=args.batch_size, num_workers=args.num_threads, shuffle=True,collate_fn=list_data_collate )
