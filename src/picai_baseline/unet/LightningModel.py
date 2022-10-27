@@ -128,7 +128,7 @@ class Model(pl.LightningModule):
     def validation_step(self, batch, batch_idx, dataloader_idx):
         valid_label, preds = self._shared_eval_step(batch, batch_idx)
         # revert horizontally flipped tta image
-        return {'valid_label': valid_label, 'val_preds' : preds ,dataloader_idx :dataloader_idx}
+        return {'valid_label': valid_label, 'val_preds' : preds ,'dataloader_idx' :dataloader_idx}
 
 
     def _eval_epoch_end(self, outputs,labelKey,predsKey, dataloader_idx):
