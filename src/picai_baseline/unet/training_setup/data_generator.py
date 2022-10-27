@@ -57,7 +57,8 @@ class DataLoaderFromDataset(DataLoader):
                                                     infinite=infinite)
         self.collate_fn = collate_fn
         self.indices = np.arange(len(data))
-
+        self.dataLen=len(data)
+        
     def generate_train_batch(self):
 
         # randomly select N samples (N = batch size)
@@ -69,7 +70,7 @@ class DataLoaderFromDataset(DataLoader):
 
         return self.collate_fn(batch)
     def __len__(self):
-        return len(data)
+        return self.dataLen
 
 def prepare_datagens(args, fold_id):
     """Load data sheets --> Create datasets --> Create data loaders"""
