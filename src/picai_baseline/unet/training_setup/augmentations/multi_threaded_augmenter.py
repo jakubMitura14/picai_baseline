@@ -291,4 +291,4 @@ class MultiThreadedAugmenter(object):
         self._finish()
 
     def __len__(self):
-        return self.generator.__len__()
+        return len(self.generator)
