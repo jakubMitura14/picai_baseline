@@ -129,18 +129,18 @@ def prepare_datagens(args, fold_id):
 
     # dummy dataloader for sanity check
     pretx = [EnsureType()]
-    check_ds = SimpleITKDataset(image_files=train_data[0][:args.batch_size*2],
-                                seg_files=train_data[1][:args.batch_size*2],
-                                transform=Compose(pretx),
-                                seg_transform=Compose(pretx))
-    check_loader = DataLoaderFromDataset(check_ds, batch_size=args.batch_size, num_threads=args.num_threads)
-    data_pair = monai.utils.misc.first(check_loader)
-    print('DataLoader - Image Shape: ', data_pair['data'].shape)
-    print('DataLoader - Label Shape: ', data_pair['seg'].shape)
-    print("-"*100)
-    assert args.image_shape == list(data_pair['data'].shape[2:])
-    assert args.num_channels == data_pair['data'].shape[1]
-    assert args.num_classes == len(np.unique(train_json['case_label']))
+    # check_ds = SimpleITKDataset(image_files=train_data[0][:args.batch_size*2],
+    #                             seg_files=train_data[1][:args.batch_size*2],
+    #                             transform=Compose(pretx),
+    #                             seg_transform=Compose(pretx))
+    # check_loader = DataLoaderFromDataset(check_ds, batch_size=args.batch_size, num_threads=args.num_threads)
+    # data_pair = monai.utils.misc.first(check_loader)
+    # print('DataLoader - Image Shape: ', data_pair['data'].shape)
+    # print('DataLoader - Label Shape: ', data_pair['seg'].shape)
+    # print("-"*100)
+    # assert args.image_shape == list(data_pair['data'].shape[2:])
+    # assert args.num_channels == data_pair['data'].shape[1]
+    # assert args.num_classes == len(np.unique(train_json['case_label']))
 
 
     subjects_train = list(map(partial(getPatientDict,image_files=train_data[0], seg_files=train_data[1]) , range(0,len(train_data)) ))
