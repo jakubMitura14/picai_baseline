@@ -101,7 +101,7 @@ class Model(pl.LightningModule):
         # return torch.Tensor([loss]).to(self.device)
         return loss
 
-    def _shared_eval_step(self, batch, batch_idx):
+    def _shared_eval_step(self, valid_data, batch_idx):
         valid_images = valid_data['data'][:,0,:,:,:,:]
         valid_labels = valid_data['seg'][:,0,:,:,:,:]                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
