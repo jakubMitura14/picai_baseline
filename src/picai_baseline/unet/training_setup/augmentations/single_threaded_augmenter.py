@@ -42,4 +42,4 @@ class SingleThreadedAugmenter(object):
         return self.__next__()
 
     def __len__(self):
-        return len(self.generator)    
+        return len(self.generator)
