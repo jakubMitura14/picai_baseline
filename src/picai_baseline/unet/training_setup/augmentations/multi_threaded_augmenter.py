@@ -171,7 +171,7 @@ class MultiThreadedAugmenter(object):
         self.abort_event = Event()
         self.wait_time = wait_time
         self.was_initialized = False
-        print(f"aaaaaa {len(data_loader)}")
+        # print(f"aaaaaa {len(data_loader)}")
 
     def __iter__(self):
         return self
