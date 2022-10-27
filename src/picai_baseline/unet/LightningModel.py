@@ -132,10 +132,10 @@ class Model(pl.LightningModule):
         return {'valid_label': valid_label, 'val_preds' : preds ,'dataloader_idx' :dataloader_idx}
 
 
-    def _eval_epoch_end(self, outputs,labelKey,predsKey, dataloader_idx):
+    def _eval_epoch_end(self, outputs,labelKey,predsKey, dataloader_idxx):
         epoch=self.current_epoch
-        print(f"outputs {outputs}")
-        outpuuts = list(map( lambda entry : entry['dataloader_idx']==dataloader_idx,outputs))
+        # print(f"outputs {outputs}")
+        outputs = list(filter( lambda entry : entry['dataloader_idx']==dataloader_idxx,outputs))
         all_valid_labels=np.array(([x[labelKey].cpu().detach().numpy() for x in outputs]))
         all_valid_preds=np.array(([x[predsKey] for x in outputs]))
         # all_valid_labels=np.array(([x['valid_label'].cpu().detach().numpy() for x in outputs]))
