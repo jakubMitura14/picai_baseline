@@ -65,7 +65,7 @@ class Model(pl.LightningModule):
         # )
         
         # initialize multi-threaded augmenter in background
-        train_gen.restart()
+        # train_gen.restart()
         self.train_gen=train_gen
         self.valid_gen=valid_gen
 
