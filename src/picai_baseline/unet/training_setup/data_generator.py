@@ -90,7 +90,7 @@ def getPatientDict(index, image_files,seg_files):
     #     , "patient_id":str(row['patient_id'])
     #     , "num_lesions_to_retain":int(row['num_lesions_to_retain_bin'])
 
-        , "label":str(seg_files[index])
+        , "seg":str(seg_files[index])
         
         
         }
