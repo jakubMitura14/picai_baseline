@@ -227,6 +227,7 @@ def main():
     # retrieve default set of hyperparam (architecture, batch size) for given neural network
     if bool(args.use_def_model_hp):
         args = get_default_hyperparams(args)
+
     comet_logger = CometLogger(
         api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
         #workspace="OPI", # Optional
@@ -239,7 +240,7 @@ def main():
     # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
     early_stopping = pl.callbacks.early_stopping.EarlyStopping(
         monitor=toMonitor,
-        patience=6,
+        patience=7,
         mode="max",
         #divergence_threshold=(-0.1)
     )
@@ -249,7 +250,7 @@ def main():
         model = LightningModel.Model(f,args)
         trainer = pl.Trainer(
             #accelerator="cpu", #TODO(remove)
-            max_epochs=1000,#args.num_epochs,
+            max_epochs=2000,#args.num_epochs,
             #gpus=1,
             #precision=experiment.get_parameter("precision"), 
             callbacks=[early_stopping ], #optuna_prune
@@ -267,7 +268,7 @@ def main():
             #strategy='dp'
         )
         trainer.fit(model)
-        
+
         # # --------------------------------------------------------------------------------------------------------------------------
         # # GPU/CPU specifications
         # device, args = compute_spec_for_run(args=args)

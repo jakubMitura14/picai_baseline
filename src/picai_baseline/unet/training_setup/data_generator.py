@@ -164,7 +164,6 @@ def prepare_datagens(args, fold_id):
     valid_ds=SmartCacheDataset(data=subjects_val, transform=transfVal  ,num_init_workers=os.cpu_count(),num_replace_workers=os.cpu_count())
     test_ds=SmartCacheDataset(data=subjects_train[0:len(subjects_val)], transform=transfVal  ,num_init_workers=os.cpu_count(),num_replace_workers=os.cpu_count())
     batchh= args.batch_size
-    batchh=64
 
     print(f"aaaaaaaaaaaaaa batchh {batchh}")
     train_ldr=DataLoader(train_ds,batch_size=batchh, num_workers=args.num_threads, shuffle=True,collate_fn=list_data_collate )
