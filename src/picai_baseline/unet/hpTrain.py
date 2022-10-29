@@ -63,7 +63,7 @@ import sys
 import LightningModel
 
 
-def mainTrain(project_name,experiment_name,args):
+def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> float:
 
     comet_logger = CometLogger(
         api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
