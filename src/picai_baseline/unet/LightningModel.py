@@ -91,7 +91,7 @@ class Model(pl.LightningModule):
                 "scheduler": lr_scheduler,
                 "monitor": "train_loss",
                 "frequency": 1
-            }
+            }}
         
         
 
