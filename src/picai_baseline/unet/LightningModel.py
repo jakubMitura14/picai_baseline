@@ -86,12 +86,12 @@ class Model(pl.LightningModule):
         # lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )
         lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
         return {
-        "optimizer": optimizer,
-        "lr_scheduler": {
-            "scheduler": ReduceLROnPlateau(optimizer),
-            "monitor": "train_loss",
-            "frequency": 1
-        },
+            "optimizer": optimizer,
+            "lr_scheduler": {
+                "scheduler": ReduceLROnPlateau(optimizer),
+                "monitor": "train_loss",
+                "frequency": 1
+            },
         
         
         return [optimizer], [lr_scheduler]
