@@ -88,7 +88,7 @@ class Model(pl.LightningModule):
         return {
             "optimizer": optimizer,
             "lr_scheduler": {
-                "scheduler": ReduceLROnPlateau(optimizer),
+                "scheduler": lr_scheduler,
                 "monitor": "train_loss",
                 "frequency": 1
             }
