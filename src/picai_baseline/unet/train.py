@@ -245,6 +245,10 @@ def main():
         #divergence_threshold=(-0.1)
     )
     check_eval_every_epoch=40
+
+    print(f"argssssssss beg bbbbbb {args}")
+
+
     # for each fold
     for f in args.folds:
         model = LightningModel.Model(f,args)
