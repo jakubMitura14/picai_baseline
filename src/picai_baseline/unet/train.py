@@ -267,6 +267,7 @@ def main():
             #strategy='dp'
         )
         trainer.fit(model)
+        
         # # --------------------------------------------------------------------------------------------------------------------------
         # # GPU/CPU specifications
         # device, args = compute_spec_for_run(args=args)
