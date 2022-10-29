@@ -217,8 +217,8 @@ def main():
     
     project_name= "pic_raw_3"
     experiment_name="baseline_pl"
-    args.batch_size=32
-
+    # args.batch_size=32
+    print(f"argssssssss beg {args}")
 
     args.weights_dir=join(args.weights_dir,experiment_name )
     args.model_strides = ast.literal_eval(args.model_strides)

@@ -50,6 +50,8 @@ class Model(pl.LightningModule):
         self.model=model
         self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
+        print(f"argssssssss pl {args}")
+
 
     def setup(self, stage=None):
         """
