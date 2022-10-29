@@ -86,25 +86,29 @@ def mainTrain(project_name,experiment_name,args):
     print(f"argssssssss beg bbbbbb {args}")
 
     # for each fold
-    for f in args.folds:
-        model = LightningModel.Model(f,args)
-        trainer = pl.Trainer(
-            #accelerator="cpu", #TODO(remove)
-            max_epochs=2000,#args.num_epochs,
-            #gpus=1,
-            #precision=experiment.get_parameter("precision"), 
-            callbacks=[early_stopping ], #optuna_prune
-            logger=comet_logger,
-            accelerator='auto',
-            devices='auto',       
-            default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
-            # auto_scale_batch_size="binsearch",
-            auto_lr_find=True,
-            check_val_every_n_epoch=check_eval_every_epoch,
-            #accumulate_grad_batches= 1,
-            #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
-            log_every_n_steps=5
-            ,reload_dataloaders_every_n_epochs=1
-            #strategy='dp'
-        )
-        trainer.fit(model)
+    # for f in args.folds:
+    f=args.folds[0]
+
+    model = LightningModel.Model(f,args)
+    trainer = pl.Trainer(
+        #accelerator="cpu", #TODO(remove)
+        max_epochs=1,#args.num_epochs,
+        #gpus=1,
+        #precision=experiment.get_parameter("precision"), 
+        callbacks=[early_stopping ], #optuna_prune
+        logger=comet_logger,
+        accelerator='auto',
+        devices='auto',       
+        default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
+        # auto_scale_batch_size="binsearch",
+        auto_lr_find=True,
+        check_val_every_n_epoch=check_eval_every_epoch,
+        #accumulate_grad_batches= 1,
+        #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
+        log_every_n_steps=5
+        ,reload_dataloaders_every_n_epochs=1
+        #strategy='dp'
+    )
+    trainer.fit(model)
+    res = trainer.logged_metrics['valid_ranking']
+    print(f"mmmmmmmmmmmmmmmm {res}")
