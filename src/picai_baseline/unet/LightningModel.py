@@ -94,7 +94,6 @@ class Model(pl.LightningModule):
             },
         
         
-        return [optimizer], [lr_scheduler]
 
     def training_step(self, batch_data, batch_idx):        
         epoch=self.current_epoch
