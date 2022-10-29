@@ -14,7 +14,7 @@ import math
 import torch
 from torch.utils.data import random_split, DataLoader
 import monai
-import 
+
 import pandas as pd
 import torchio as tio
 import pytorch_lightning as pl

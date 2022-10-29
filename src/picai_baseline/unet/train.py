@@ -41,7 +41,7 @@ from statistics import mean
 from typing import (Callable, Dict, Hashable, Iterable, List, Optional,
                     Sequence, Sized, Tuple, Union)
 
-import 
+
 import matplotlib.pyplot as plt
 import monai
 import numpy as np
@@ -122,7 +122,7 @@ from datetime import datetime
 from glob import glob
 from pathlib import Path
 
-import 
+
 import matplotlib.pyplot as plt
 import monai
 import numpy as np
@@ -252,6 +252,7 @@ def main():
 
     def objective(trial: optuna.trial.Trial) -> float:
         return hpTrain.mainTrain(project_name,experiment_name,args)
+
 
 
     study.optimize(objective, n_trials=400)
