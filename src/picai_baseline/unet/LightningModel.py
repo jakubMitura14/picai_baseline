@@ -91,7 +91,7 @@ class Model(pl.LightningModule):
                 "scheduler": ReduceLROnPlateau(optimizer),
                 "monitor": "train_loss",
                 "frequency": 1
-            },
+            }
         
         
 
