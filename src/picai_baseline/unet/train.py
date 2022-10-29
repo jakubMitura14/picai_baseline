@@ -225,8 +225,8 @@ def main():
     args.model_features = ast.literal_eval(args.model_features)
     
     # retrieve default set of hyperparam (architecture, batch size) for given neural network
-    if bool(args.use_def_model_hp):
-        args = get_default_hyperparams(args)
+    # if bool(args.use_def_model_hp):
+    #     args = get_default_hyperparams(args)
 
     comet_logger = CometLogger(
         api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
