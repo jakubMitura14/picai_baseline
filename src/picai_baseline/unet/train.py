@@ -161,6 +161,20 @@ from functools import partial
 from optuna.integration import PyTorchLightningPruningCallback
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger
+import optuna
+from optuna.integration import PyTorchLightningPruningCallback
+# from ray import air, tune
+# from ray.air import session
+# from ray.tune import CLIReporter
+from optuna.visualization import plot_contour
+from optuna.visualization import plot_edf
+from optuna.visualization import plot_intermediate_values
+from optuna.visualization import plot_optimization_history
+from optuna.visualization import plot_parallel_coordinate
+from optuna.visualization import plot_param_importances
+from optuna.visualization import plot_slice
+
+
 import hpTrain
 
 def main():
@@ -227,6 +241,16 @@ def main():
     # if bool(args.use_def_model_hp):
     #     args = get_default_hyperparams(args)
     
+    study = optuna.create_study(
+            study_name=project_name
+            ,sampler=optuna.samplers.NSGAIISampler()    
+            ,pruner=optuna.pruners.HyperbandPruner()
+            ,storage=f"mysql://root:jm@34.91.215.109:3306/{project_name}"
+            ,load_if_exists=True
+            ,direction="maximize"
+            )
+
+
     hpTrain.mainTrain(project_name,experiment_name,args)
 
 if __name__ == '__main__':

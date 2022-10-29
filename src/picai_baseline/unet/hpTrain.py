@@ -73,14 +73,21 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
     )
     toMonitor="valid_ranking"
     # checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
-    # stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs=trial.suggest_float("swa_lrs", 1e-6, 1e-4))
     # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
+    
+    swa_lrs=0.05 #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
+
+
+    stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= swa_lrs )
     early_stopping = pl.callbacks.early_stopping.EarlyStopping(
         monitor=toMonitor,
         patience=7,
         mode="max",
         #divergence_threshold=(-0.1)
     )
+    callbacks=[early_stopping], #optuna_prune
+    if(swa_lrs>0.0):
+        callbacks=[early_stopping,stochasticAveraging], #optuna_prune
     # check_eval_every_epoch=40
     check_eval_every_epoch=1
 
@@ -94,7 +101,7 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
         max_epochs=1,#args.num_epochs,
         #gpus=1,
         #precision=experiment.get_parameter("precision"), 
-        callbacks=[early_stopping ], #optuna_prune
+        callbacks=callbacks, #optuna_prune
         logger=comet_logger,
         accelerator='auto',
         devices='auto',       
@@ -102,12 +109,14 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
         # auto_scale_batch_size="binsearch",
         auto_lr_find=True,
         check_val_every_n_epoch=check_eval_every_epoch,
-        #accumulate_grad_batches= 1,
+        accumulate_grad_batches= 1,
         #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
         log_every_n_steps=5
         ,reload_dataloaders_every_n_epochs=1
         #strategy='dp'
     )
     trainer.fit(model)
+    
     res = model.tracking_metrics['best_metric']
-    print(f"mmmmmmmmmmmmmmmm {res}")
+    print(f"best_metric {res}")
+    return res
