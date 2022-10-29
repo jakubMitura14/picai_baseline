@@ -215,7 +215,7 @@ def main():
 
     args = parser.parse_args()
     
-    project_name= "pic_raw_2"
+    project_name= "pic_raw_3"
     experiment_name="baseline_pl"
     args.batch_size=32
 
