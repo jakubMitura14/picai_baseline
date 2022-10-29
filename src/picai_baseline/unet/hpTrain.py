@@ -14,7 +14,7 @@ import math
 import torch
 from torch.utils.data import random_split, DataLoader
 import monai
-import gdown
+import 
 import pandas as pd
 import torchio as tio
 import pytorch_lightning as pl
@@ -75,8 +75,10 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
     # checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
     # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
     
-    swa_lrs=0.05 #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
-
+    swa_lrs=trial.suggest_float("base_lr_multi", 0.5, 1e-5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
+    base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
+    schedulerIndex=trial.suggest_int("scheduler_int", 0, 1)
+    normalizationIndex=trial.suggest_int("normalizationIndex", 0, 1)
 
     stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= swa_lrs )
     early_stopping = pl.callbacks.early_stopping.EarlyStopping(
@@ -95,7 +97,7 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
     # for f in args.folds:
     f=args.folds[0]
 
-    model = LightningModel.Model(f,args)
+    model = LightningModel.Model(f,args,base_lr_multi,schedulerIndex,normalizationIndex)
     trainer = pl.Trainer(
         #accelerator="cpu", #TODO(remove)
         max_epochs=1,#args.num_epochs,
@@ -115,8 +117,23 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
         ,reload_dataloaders_every_n_epochs=1
         #strategy='dp'
     )
+
+    experiment=trainer.logger.experiment
+    experiment.log_parameter('machine',os.environ['machine'])
+    experiment.log_parameter('base_lr_multi',base_lr_multi)
+    experiment.log_parameter('swa_lrs',swa_lrs)
+    experiment.log_parameter('schedulerIndex',schedulerIndex)
+    experiment.log_parameter('normalizationIndex',normalizationIndex)
+
+
+
+
+
     trainer.fit(model)
-    
+
+
+
+
     res = model.tracking_metrics['best_metric']
     print(f"best_metric {res}")
     return res

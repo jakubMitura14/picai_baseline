@@ -65,7 +65,8 @@ try:
     import numpy.typing as npt
 except ImportError:  # pragma: no cover
     pass
-
+from intensity_normalization.normalize.nyul import NyulNormalize
+import os
 
 def prepare_scan(path: str) -> "npt.NDArray[Any]":
     return np.expand_dims(
@@ -81,15 +82,23 @@ class loadImageMy(MapTransform):
     def __init__(
         self,
         keys: KeysCollection,
+        normalizationIndex,
+        normalizerDict,
         allow_missing_keys: bool = False,
     ):
         super().__init__(keys, allow_missing_keys)
+        self.normalizationIndex=normalizationIndex
+        self.normalizerDict=normalizerDict
 
     def __call__(self, data):
 
         d = dict(data)
         for key in self.keys:
-            d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
+            if(self.normalizationIndex==0):    
+                d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
+            if(self.normalizationIndex==1):    
+                nyul_normalizer=  self.normalizerDict(key)
+                d[key]=nyul_normalizer(prepare_scan(d[key]))          
         return d
 
 class concatImageMy(MapTransform):
@@ -159,10 +168,10 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
         for key in self.keys:
             d[key] =  apply_transform(self.transform, d[key], map_items=False)
         return d
-def loadTrainTransform(transform,seg_transform,batchTransforms):
+def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex,normalizerDict):
     return Compose([
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
-            loadImageMy(keys=["t2w","hbv","adc"]),
+            loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),

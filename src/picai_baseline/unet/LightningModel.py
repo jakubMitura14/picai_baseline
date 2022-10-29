@@ -29,11 +29,56 @@ from scipy.ndimage import gaussian_filter
 import os
 
 
+def getSwinUNETR(dropout,input_image_size,in_channels,out_channels):
+    return monai.networks.nets.SwinUNETR(
+        spatial_dims=3,
+        in_channels=in_channels,
+        out_channels=out_channels,
+        img_size=input_image_size,
+        # depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
+        depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
+    )
+
+def getSegResNet(dropout,input_image_size,in_channels,out_channels):
+    return monai.networks.nets.SegResNet(
+        spatial_dims=3,
+        in_channels=in_channels,
+        out_channels=out_channels,
+        dropout_prob=dropout,
+        # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
+        blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
+    )
+
+def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
+    if(index ==0):
+        return neural_network_for_run(args=args, device=devicee)
+    if(index==1):
+        return getSwinUNETR(dropout,input_image_size,in_channels,out_channels)
+    if(index==2):
+        return getSegResNet(dropout,input_image_size,in_channels,out_channels)
+
+
+def chooseScheduler(optimizer, schedulerIndex):
+    schedulers = [torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+                 ,torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )                  ]
+    return schedulers[schedulerIndex]
+
+
+
 class Model(pl.LightningModule):
     def __init__(self
     ,f
-    ,args):
+    ,args
+    ,base_lr_multi
+    , schedulerIndex
+    ,normalizationIndex):
         super().__init__()
+
+
+        base_lr= args.base_lr*base_lr_multi
+        optimizer = torch.optim.NAdam(params=model.parameters(), lr=base_lr)
+        self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
+        
         self.f = f
         devicee, args = compute_spec_for_run(args=args)
         self.learning_rate=args.base_lr
@@ -42,13 +87,16 @@ class Model(pl.LightningModule):
         model = neural_network_for_run(args=args, device=devicee)
         self.train_gen = []
         self.valid_gen = []
-    	optimizer = torch.optim.NAdam(params=model.parameters(), lr=args.base_lr)
+        self.normalizationIndex
+
         #optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
         model, optimizer, tracking_metrics = resume_or_restart_training(
             model=model, optimizer=optimizer,
             device=devicee, args=args, fold_id=f
         )
+
         self.model=model
+
         self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
         print(f"argssssssss pl {args}")
@@ -58,7 +106,7 @@ class Model(pl.LightningModule):
         """
         setting up dataset
         """
-        train_gen, valid_gen, test_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f)
+        train_gen, valid_gen, test_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex)
         # self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
         self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # integrate data augmentation pipeline from nnU-Net
@@ -87,11 +135,11 @@ class Model(pl.LightningModule):
         # optimizer = self.optimizer(self.parameters(), lr=self.learning_rate)
         # hyperparameters from https://www.kaggle.com/code/isbhargav/guide-to-pytorch-learning-rate-scheduling/notebook
         # lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )
-        lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+        # lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
         return {
             "optimizer": optimizer,
             "lr_scheduler": {
-                "scheduler": lr_scheduler,
+                "scheduler": self.scheduler,
                 "monitor": "train_loss",
                 "frequency": 1
             }}
@@ -225,6 +273,4 @@ class Model(pl.LightningModule):
                 print("Validation Ranking Score Improved! Saving New Best Model", flush=True)
 
 
-        experiment=self.experiment=self.logger.experiment
-        if(epoch==0):
-            experiment.log_parameter('machine',os.environ['machine'])
+

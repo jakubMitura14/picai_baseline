@@ -28,7 +28,7 @@ from statistics import mean
 from typing import (Callable, Dict, Hashable, Iterable, List, Optional,
                     Sequence, Sized, Tuple, Union)
 
-import gdown
+import 
 import matplotlib.pyplot as plt
 import monai
 import numpy as np

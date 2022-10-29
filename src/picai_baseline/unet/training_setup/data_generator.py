@@ -30,6 +30,7 @@ from torch.utils.data import DataLoader, random_split
 from monai.data import (CacheDataset, Dataset, PersistentDataset,
                         decollate_batch, list_data_collate)
 import os
+from intensity_normalization.normalize.nyul import NyulNormalize
 
 def default_collate(batch):
     """collate multiple samples into batches, if needed"""
@@ -101,7 +102,7 @@ def getPatientDict(index, image_files,seg_files):
 
 
 
-def prepare_datagens(args, fold_id):
+def prepare_datagens(args, fold_id,normalizationIndex):
     """Load data sheets --> Create datasets --> Create data loaders"""
 
     # load datasheets
@@ -145,16 +146,28 @@ def prepare_datagens(args, fold_id):
     # assert args.num_classes == len(np.unique(train_json['case_label']))
 
 
+
+    normalizationsDir="/home/sliceruser/locTemp/picai_baseline/src/picai_baseline/standarizationModels"
+    normalizerDict = {}
+    for key in ["t2w","adc","hbv"]:
+        pathNormalizer = os.path.join(normalizationsDir,key+".npy")
+        nyul_normalizer = NyulNormalize()
+        nyul_normalizer.load_standard_histogram(pathNormalizer)  
+        normalizerDict[key]=nyul_normalizer
+
+
     subjects_train = list(map(partial(getPatientDict,image_files=train_data[0], seg_files=train_data[1]) , range(0,len(train_data[0])) ))
     subjects_val = list(map(partial(getPatientDict,image_files=valid_data[0], seg_files=valid_data[1]) , range(0,len(valid_data[0])) ))
-    transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations())
+
+
+
+    transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(),normalizationIndex,normalizerDict)
        
     transfVal=loadValTransform(Compose(pretx),Compose(pretx))
 
     transfTrain=Compose(transfTrain,monai.transforms.ToTensord(keys=["data","seg"])  )
     transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
 
-    
     # print(f"train_data {train_data[0]}")
     # train_ds=Dataset(data=subjects_train, transform= transfTrain)
     # valid_ds=Dataset(data=subjects_val, transform= transfVal)
