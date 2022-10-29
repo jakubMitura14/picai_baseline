@@ -239,7 +239,7 @@ def main():
     # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
     early_stopping = pl.callbacks.early_stopping.EarlyStopping(
         monitor=toMonitor,
-        patience=7,
+        patience=6,
         mode="max",
         #divergence_threshold=(-0.1)
     )
