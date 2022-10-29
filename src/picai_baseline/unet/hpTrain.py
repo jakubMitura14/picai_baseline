@@ -81,9 +81,8 @@ def mainTrain(project_name,experiment_name,args):
         mode="max",
         #divergence_threshold=(-0.1)
     )
-    check_eval_every_epoch=40
-
-    print(f"argssssssss beg bbbbbb {args}")
+    # check_eval_every_epoch=40
+    check_eval_every_epoch=1
 
     # for each fold
     # for f in args.folds:
