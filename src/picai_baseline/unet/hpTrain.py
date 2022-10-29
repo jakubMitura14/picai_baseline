@@ -109,5 +109,5 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
         #strategy='dp'
     )
     trainer.fit(model)
-    res = trainer.logged_metrics['valid_ranking']
+    res = model.tracking_metrics['best_metric']
     print(f"mmmmmmmmmmmmmmmm {res}")
