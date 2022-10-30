@@ -65,7 +65,7 @@ def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
         in_channels=in_channels,
         out_channels=out_channels,
         dropout_prob=dropout,
-        blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
+        # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         #blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
     )
 
