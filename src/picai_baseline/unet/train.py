@@ -229,7 +229,7 @@ def main():
 
     args = parser.parse_args()
     
-    project_name= "pic_mono_0"
+    project_name= "pic_mono_1"
     #experiment_name="baseline_pl"
     # args.batch_size=32
     # imageShape=(256, 256,20)

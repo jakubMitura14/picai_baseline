@@ -116,7 +116,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     model = LightningModel.Model(f,args,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape,fInd)
     trainer = pl.Trainer(
         #accelerator="cpu", #TODO(remove)
-        max_epochs=1,#args.num_epochs,
+        max_epochs=3000,#args.num_epochs,
         #gpus=1,
         #precision=16,#experiment.get_parameter("precision"), 
         callbacks=callbacks, #optuna_prune
@@ -130,7 +130,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
         accumulate_grad_batches= 1,
         #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
         log_every_n_steps=5
-        ,reload_dataloaders_every_n_epochs=1
+        #,reload_dataloaders_every_n_epochs=40
         #strategy='dp'
     )
 
