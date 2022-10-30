@@ -170,14 +170,14 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
             d[key] =  apply_transform(self.transform, d[key], map_items=False)
         return d
 def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex,normalizerDict,expectedShape):
-    print(f"hhhh {expectedShape}")
+    # print(f"hhhh {expectedShape}")
     return Compose([
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc"]),
-            monai.transforms.SpatialPadd(keys=["data","seg"],spatial_size=expectedShape),#(3,32,256,256)
+            monai.transforms.SpatialPadd(keys=["data"],spatial_size=expectedShape),#(3,32,256,256)
 
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
@@ -187,7 +187,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
              ]           )        
 def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,expectedShape):
-    print(f"hhhh {expectedShape}")
+    # print(f"hhhh {expectedShape}")
 
     return Compose([
             # printTransform(keys=["seg"],info="loadAndtransform"),
@@ -196,7 +196,7 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
             loadlabelMy(keys=["seg"]),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc"]),
-            monai.transforms.SpatialPadd(keys=["data","seg"],spatial_size=expectedShape),
+            monai.transforms.SpatialPadd(keys=["data"],spatial_size=expectedShape),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             SelectItemsd(keys=["data","seg"])  ,      
