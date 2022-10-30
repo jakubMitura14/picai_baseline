@@ -117,7 +117,7 @@ class Model(pl.LightningModule):
         
         self.f = f
         self.learning_rate=args.base_lr
-
+        self.modelIndex=modelIndex
         self.train_gen = []
         self.valid_gen = []
         self.normalizationIndex=normalizationIndex
@@ -183,8 +183,15 @@ class Model(pl.LightningModule):
     def training_step(self, batch_data, batch_idx):        
         epoch=self.current_epoch
         # train_loss, step = 0,  0
-        inputs = batch_data['data'][:,0,:,:,:,:]
-        labels = batch_data['seg'][:,0,:,:,:,:]
+        inputs=[]
+        labels=[]
+        if(self.modelIndex>1):
+            inputs = batch_data['data'][:,0,:,:,:,:]
+            labels = batch_data['seg'][:,0,:,:,:,:]
+        else:
+            inputs = batch_data['data']
+            labels = batch_data['seg']
+        
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         outputs = self.model(inputs)
         loss = self.loss_func(outputs, labels)
@@ -196,8 +203,16 @@ class Model(pl.LightningModule):
         return loss
 
     def _shared_eval_step(self, valid_data, batch_idx):
-        valid_images = valid_data['data'][:,0,:,:,:,:]
-        valid_labels = valid_data['seg'][:,0,:,:,:,:]                
+        valid_images=[]
+        valid_labels=[]
+        if(self.modelIndex>1):
+            valid_images = valid_data['data'][:,0,:,:,:,:]
+            valid_labels = valid_data['seg'][:,0,:,:,:,:]
+        else:
+            valid_images = valid_data['data']
+            valid_labels = valid_data['seg']
+
+            
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         preds = [
             torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy()
