@@ -79,9 +79,9 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     
     swa_lrs=trial.suggest_float("swa_lrs", 1e-5,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
     base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
-    schedulerIndex=trial.suggest_int("scheduler_int", 0, 2)
+    schedulerIndex=1#trial.suggest_int("scheduler_int", 0, 2)
     # modelIndex=trial.suggest_int("modelIndex", 0, 3)
-    modelIndex=0
+    modelIndex=3
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
 
 
@@ -107,9 +107,9 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
     schedulerIndexToLog= schedulerIndex
     callbacks=[early_stopping,stochasticAveraging,checkpoint_callback]
-    if(schedulerIndex==2):
-        schedulerIndex=1
-        callbacks=[early_stopping,checkpoint_callback]
+    # if(schedulerIndex==2):
+    #     schedulerIndex=1
+    #     callbacks=[early_stopping,checkpoint_callback]
 
     model = LightningModel.Model(f,args,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape,fInd)
     trainer = pl.Trainer(
