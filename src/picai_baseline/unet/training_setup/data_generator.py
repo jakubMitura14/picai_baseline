@@ -163,7 +163,7 @@ def prepare_datagens(args, fold_id,normalizationIndex):
 
     transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(),normalizationIndex,normalizerDict)
        
-    transfVal=loadValTransform(Compose(pretx),Compose(pretx))
+    transfVal=loadValTransform(Compose(pretx),Compose(pretx,normalizationIndex,normalizerDict))
 
     transfTrain=Compose(transfTrain,monai.transforms.ToTensord(keys=["data","seg"])  )
     transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
@@ -174,8 +174,8 @@ def prepare_datagens(args, fold_id,normalizationIndex):
     # test_ds=Dataset(data=subjects_train[0:len(subjects_val)], transform= transfVal)
 
     train_ds=SmartCacheDataset(data=subjects_train, transform=transfTrain  ,num_init_workers=os.cpu_count(),num_replace_workers=os.cpu_count())
-    valid_ds=SmartCacheDataset(data=subjects_val, transform=transfVal  ,num_init_workers=os.cpu_count(),num_replace_workers=os.cpu_count())
-    test_ds=SmartCacheDataset(data=subjects_train[0:len(subjects_val)], transform=transfVal  ,num_init_workers=os.cpu_count(),num_replace_workers=os.cpu_count())
+    valid_ds=Dataset(data=subjects_val, transform=transfVal )
+    test_ds=Dataset(data=subjects_train[0:len(subjects_val)], transform=transfVal)
     batchh= args.batch_size
 
     print(f"aaaaaaaaaaaaaa batchh {batchh}")

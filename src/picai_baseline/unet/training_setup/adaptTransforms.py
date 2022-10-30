@@ -181,11 +181,11 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             SelectItemsd(keys=["data","seg"]) ,
             monai.transforms.ToTensord(keys=["data","seg"]) 
              ]           )        
-def loadValTransform(transform,seg_transform):
+def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict):
     return Compose([
             # printTransform(keys=["seg"],info="loadAndtransform"),
 
-            loadImageMy(keys=["t2w","hbv","adc"]),
+            loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),
