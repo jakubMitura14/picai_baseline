@@ -174,13 +174,14 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
+            DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
+
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             ToNumpyd(keys=["data","seg"]),
             adaptor(batchTransforms, {"data": "data"}),
             SelectItemsd(keys=["data","seg"]) ,
-            DivisiblePadd(keys=["data","seg"],k=32),
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
              ]           )        
 def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict):
@@ -189,11 +190,11 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict):
 
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
+            DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             SelectItemsd(keys=["data","seg"])  ,      
-            DivisiblePadd(keys=["data","seg"],k=32),
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
             ])        
 
