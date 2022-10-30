@@ -79,7 +79,9 @@ class Model(pl.LightningModule):
         self.args = args
         model = neural_network_for_run(args=args, device=devicee)
         base_lr= args.base_lr*base_lr_multi
-        optimizer = torch.optim.NAdam(params=model.parameters(),momentum_decay=0.004, lr=base_lr)
+        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
+        
+        # optimizer = torch.optim.NAdam(params=model.parameters(),momentum_decay=0.004, lr=base_lr)
         self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
         
         self.f = f
