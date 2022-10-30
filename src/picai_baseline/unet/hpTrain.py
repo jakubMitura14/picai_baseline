@@ -87,9 +87,9 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
         mode="max",
         #divergence_threshold=(-0.1)
     )
-    callbacks=[early_stopping], #optuna_prune
-    if(swa_lrs>0.0):
-        callbacks=[early_stopping,stochasticAveraging], #optuna_prune
+    # callbacks=[early_stopping], #optuna_prune
+    # if(swa_lrs>0.0):
+    #     callbacks=[early_stopping,stochasticAveraging], #optuna_prune
     # check_eval_every_epoch=40
     check_eval_every_epoch=1
 
@@ -103,7 +103,7 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
         max_epochs=1,#args.num_epochs,
         #gpus=1,
         #precision=experiment.get_parameter("precision"), 
-        callbacks=callbacks, #optuna_prune
+        callbacks=[early_stopping,stochasticAveraging], #optuna_prune
         logger=comet_logger,
         accelerator='auto',
         devices='auto',       
