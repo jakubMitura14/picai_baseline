@@ -29,25 +29,25 @@ from scipy.ndimage import gaussian_filter
 import os
 
 
-def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
-    return monai.networks.nets.SwinUNETR(
-        spatial_dims=3,
-        in_channels=in_channels,
-        out_channels=out_channels,
-        img_size=input_image_size,
-        #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
-        #depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
-    )
+# def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
+#     return monai.networks.nets.SwinUNETR(
+#         spatial_dims=3,
+#         in_channels=in_channels,
+#         out_channels=out_channels,
+#         img_size=input_image_size,
+#         #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
+#         #depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
+#     )
 
-def getSwinUNETRb(dropout,input_image_size,in_channels,out_channels):
-    return monai.networks.nets.SwinUNETR(
-        spatial_dims=3,
-        in_channels=in_channels,
-        out_channels=out_channels,
-        img_size=input_image_size,
-        #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
-        depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
-    )
+# def getSwinUNETRb(dropout,input_image_size,in_channels,out_channels):
+#     return monai.networks.nets.SwinUNETR(
+#         spatial_dims=3,
+#         in_channels=in_channels,
+#         out_channels=out_channels,
+#         img_size=input_image_size,
+#         #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
+#         depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
+#     )
 
 def getSegResNeta(dropout,input_image_size,in_channels,out_channels):
     return (monai.networks.nets.SegResNet(
@@ -57,7 +57,7 @@ def getSegResNeta(dropout,input_image_size,in_channels,out_channels):
         dropout_prob=dropout,
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
-    ),(3,32,256,256))
+    ),(3,32,256,256),32)
 
 def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
     return (monai.networks.nets.SegResNet(
@@ -67,14 +67,14 @@ def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
         dropout_prob=dropout,
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         #blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
-    ),(3,32,256,256))
+    ),(3,32,256,256),32)
 
 def getUneta(args,devicee):
-    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256))
+    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),48)
 
 def getUnetb(args,devicee):
     args.model_features = [ 64, 128, 256, 512, 1024,2048]
-    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256))
+    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),48)
 
 def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
     models=[#getSwinUNETRa(dropout,input_image_size,in_channels,out_channels),
@@ -128,7 +128,7 @@ class Model(pl.LightningModule):
         #     device=devicee, args=args, fold_id=f
         # )
         tracking_metrics=resume_or_restart_training_tracking(args, fInd)
-        model,expectedShape=chooseModel(args,devicee,modelIndex, dropout, imageShape,in_channels,out_channels  )
+        model,expectedShape,newBatchSize=chooseModel(args,devicee,modelIndex, dropout, imageShape,in_channels,out_channels  )
         self.model=model
         self.expectedShape =expectedShape
         self.optimizer=optimizer
