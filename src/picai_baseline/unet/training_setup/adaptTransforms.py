@@ -175,7 +175,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
-            monai.transforms.SpatialPadd(keys=["t2w","hbv","adc","seg"],spatial_size=(3,256,256,32)),
+            monai.transforms.SpatialPadd(keys=["t2w","hbv","adc","seg"],spatial_size=(32,256,256)),
 
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),
@@ -192,7 +192,7 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict):
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
-            monai.transforms.SpatialPadd(keys=["t2w","hbv","adc","seg"],spatial_size=(3,256,256,32)),
+            monai.transforms.SpatialPadd(keys=["t2w","hbv","adc","seg"],spatial_size=(32,256,256)),
             concatImageMy(keys=["t2w","hbv","adc"]),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
