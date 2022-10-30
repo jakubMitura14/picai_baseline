@@ -202,7 +202,7 @@ class Model(pl.LightningModule):
         valid_labels = valid_data['seg'][:,0,:,:,:,:]                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         preds = [
-            torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy()
+            torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy().astype(np.float32)
             for x in valid_images
         ]
         preds[1] = np.flip(preds[1], [3])
