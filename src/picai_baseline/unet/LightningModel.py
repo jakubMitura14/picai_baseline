@@ -82,7 +82,7 @@ def getVNet(dropout,input_image_size,in_channels,out_channels):
         in_channels=4,
         out_channels=out_channels,
         dropout_prob=dropout
-    ),(4,32,256,256),16  )
+    ),(4,32,256,256),12)
 
 def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
     models=[#getSwinUNETRa(dropout,input_image_size,in_channels,out_channels),
