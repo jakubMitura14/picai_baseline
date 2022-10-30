@@ -99,7 +99,7 @@ class loadImageMy(MapTransform):
                 d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
             if(self.normalizationIndex==1):    
                 nyul_normalizer=  self.normalizerDict[key]
-                d[key]=nyul_normalizer(prepare_scan(d[key]))          
+                d[key]=nyul_normalizer(prepare_scan(d[key])).astype(np.float32)          
         return d
 
 class concatImageMy(MapTransform):
