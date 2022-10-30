@@ -64,7 +64,7 @@ import LightningModel
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 
-def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape,f) -> float:
+def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     machine = os.environ['machine']
     expId=trial.number
     comet_logger = CometLogger(
