@@ -97,7 +97,6 @@ class loadImageMy(MapTransform):
         for key in self.keys:
             if(self.normalizationIndex==0):    
                 d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
-                print(f" shape {d[key].shape} ")
             if(self.normalizationIndex==1):    
                 nyul_normalizer=  self.normalizerDict[key]
                 d[key]=nyul_normalizer(prepare_scan(d[key])).astype(np.float32)          
