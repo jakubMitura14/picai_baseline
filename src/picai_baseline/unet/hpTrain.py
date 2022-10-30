@@ -84,7 +84,6 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     modelIndex=0
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
 
-    os.environ["max_split_size_mb"] = "2000"
 
     stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= swa_lrs )
     early_stopping = pl.callbacks.early_stopping.EarlyStopping(

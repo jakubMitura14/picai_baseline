@@ -77,8 +77,8 @@ def getUnetb(args,devicee):
     return neural_network_for_run(args=args, device=devicee)
 
 def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
-    models=[getSwinUNETRa(dropout,input_image_size,in_channels,out_channels),
-            getSwinUNETRb(dropout,input_image_size,in_channels,out_channels),
+    models=[#getSwinUNETRa(dropout,input_image_size,in_channels,out_channels),
+            #getSwinUNETRb(dropout,input_image_size,in_channels,out_channels),
             getSegResNeta(dropout,input_image_size,in_channels,out_channels),
             getSegResNetb(dropout,input_image_size,in_channels,out_channels),
             getUneta(args,devicee),
