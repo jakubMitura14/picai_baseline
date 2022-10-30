@@ -79,7 +79,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     
     swa_lrs=trial.suggest_float("swa_lrs", 1e-5,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
     base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
-    schedulerIndex=trial.suggest_int("scheduler_int", 0, 1)
+    schedulerIndex=trial.suggest_int("scheduler_int", 0, 2)
     # modelIndex=trial.suggest_int("modelIndex", 0, 3)
     modelIndex=1
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
@@ -105,7 +105,11 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
     checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
     checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
-
+    schedulerIndexToLog= schedulerIndex
+    callbacks=[early_stopping,stochasticAveraging,checkpoint_callback]
+    if(schedulerIndex==2):
+        schedulerIndex=1
+        callbacks=[early_stopping,checkpoint_callback]
 
     model = LightningModel.Model(f,args,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape,fInd)
     trainer = pl.Trainer(
@@ -113,7 +117,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
         max_epochs=1,#args.num_epochs,
         #gpus=1,
         #precision=16,#experiment.get_parameter("precision"), 
-        callbacks=[early_stopping,stochasticAveraging,checkpoint_callback], #optuna_prune
+        callbacks=callbacks, #optuna_prune
         logger=comet_logger,
         accelerator='auto',
         devices='auto',       
@@ -133,7 +137,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     experiment.log_parameter('machine',machine)
     experiment.log_parameter('base_lr_multi',base_lr_multi)
     experiment.log_parameter('swa_lrs',swa_lrs)
-    experiment.log_parameter('schedulerIndex',schedulerIndex)
+    experiment.log_parameter('schedulerIndex',schedulerIndexToLog)
     experiment.log_parameter('normalizationIndex',normalizationIndex)
     experiment.log_parameter('modelIndex',modelIndex)
 

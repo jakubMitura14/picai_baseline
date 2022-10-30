@@ -233,7 +233,7 @@ def main():
     #experiment_name="baseline_pl"
     # args.batch_size=32
     # imageShape=(256, 256,20)
-    imageShape=(256, 256,32)
+    imageShape=(256, 256,20)
     args.weights_dir=join(args.weights_dir,project_name )
     args.model_strides = ast.literal_eval(args.model_strides)
     args.model_features = ast.literal_eval(args.model_features)
