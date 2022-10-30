@@ -112,7 +112,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
         #accelerator="cpu", #TODO(remove)
         max_epochs=1,#args.num_epochs,
         #gpus=1,
-        precision=16,#experiment.get_parameter("precision"), 
+        #precision=16,#experiment.get_parameter("precision"), 
         callbacks=[early_stopping,stochasticAveraging,checkpoint_callback], #optuna_prune
         logger=comet_logger,
         accelerator='auto',
