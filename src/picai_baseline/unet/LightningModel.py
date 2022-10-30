@@ -79,7 +79,7 @@ def getUnetb(args,devicee):
 def getVNet(dropout,input_image_size,in_channels,out_channels):
     return (monai.networks.nets.VNet(
         spatial_dims=3,
-        in_channels=in_channels,
+        in_channels=4,
         out_channels=out_channels,
         dropout_prob=dropout
     ),(4,32,256,256),16  )
