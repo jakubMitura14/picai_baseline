@@ -181,6 +181,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             ToNumpyd(keys=["data","seg"]),
             adaptor(batchTransforms, {"data": "data"}),
             SelectItemsd(keys=["data","seg"]) ,
+            DivisiblePadd(keys=["data","seg"],k=32),
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
              ]           )        
 def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict):
@@ -193,6 +194,7 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict):
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             SelectItemsd(keys=["data","seg"])  ,      
+            DivisiblePadd(keys=["data","seg"],k=32),
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
             ])        
 
