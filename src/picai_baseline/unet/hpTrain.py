@@ -105,7 +105,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
 
 
-    model = LightningModel.Model(f,args,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape)
+    model = LightningModel.Model(f,args,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape,fInd)
     trainer = pl.Trainer(
         #accelerator="cpu", #TODO(remove)
         max_epochs=1,#args.num_epochs,

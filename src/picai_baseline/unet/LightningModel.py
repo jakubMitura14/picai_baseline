@@ -99,7 +99,8 @@ class Model(pl.LightningModule):
     , schedulerIndex
     ,normalizationIndex
     ,modelIndex
-    ,imageShape):
+    ,imageShape
+    ,fInd):
         super().__init__()
         in_channels=3
         out_channels=2
@@ -125,7 +126,7 @@ class Model(pl.LightningModule):
         #     model=model, optimizer=optimizer,
         #     device=devicee, args=args, fold_id=f
         # )
-        tracking_metrics=resume_or_restart_training_tracking(args, fold_id)
+        tracking_metrics=resume_or_restart_training_tracking(args, fInd)
         model=chooseModel(args,devicee,modelIndex, dropout, imageShape,in_channels,out_channels  )
         self.model=model
 
