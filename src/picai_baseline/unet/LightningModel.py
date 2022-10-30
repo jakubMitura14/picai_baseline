@@ -73,18 +73,18 @@ class Model(pl.LightningModule):
     , schedulerIndex
     ,normalizationIndex):
         super().__init__()
-
-
+        
+        devicee, args = compute_spec_for_run(args=args)
+        self.devicee=devicee
+        self.args = args
+        model = neural_network_for_run(args=args, device=devicee)
         base_lr= args.base_lr*base_lr_multi
         optimizer = torch.optim.NAdam(params=model.parameters(), lr=base_lr)
         self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
         
         self.f = f
-        devicee, args = compute_spec_for_run(args=args)
         self.learning_rate=args.base_lr
-        self.devicee=devicee
-        self.args = args
-        model = neural_network_for_run(args=args, device=devicee)
+
         self.train_gen = []
         self.valid_gen = []
         self.normalizationIndex
