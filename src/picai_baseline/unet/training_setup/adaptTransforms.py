@@ -47,6 +47,7 @@ from monai.transforms import (
     
 )
 from monai.transforms import Randomizable, apply_transform
+import torch
 
 from monai.config import KeysCollection
 from monai.data import MetaTensor
@@ -179,7 +180,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             ToNumpyd(keys=["data","seg"]),
             adaptor(batchTransforms, {"data": "data"}),
             SelectItemsd(keys=["data","seg"]) ,
-            monai.transforms.ToTensord(keys=["data","seg"], dtype='float') 
+            monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
              ]           )        
 def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict):
     return Compose([
@@ -191,7 +192,7 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict):
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             SelectItemsd(keys=["data","seg"])  ,      
-            monai.transforms.ToTensord(keys=["data","seg"], dtype='float') 
+            monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
             ])        
 
 # def addBatchAugmentations(transforms,batchTransforms): 
