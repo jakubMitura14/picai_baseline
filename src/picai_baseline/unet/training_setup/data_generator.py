@@ -163,7 +163,7 @@ def prepare_datagens(args, fold_id,normalizationIndex):
 
     transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(),normalizationIndex,normalizerDict)
        
-    transfVal=loadValTransform(Compose(pretx),Compose(pretx,normalizationIndex,normalizerDict))
+    transfVal=loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,normalizerDict)
 
     transfTrain=Compose(transfTrain,monai.transforms.ToTensord(keys=["data","seg"])  )
     transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
