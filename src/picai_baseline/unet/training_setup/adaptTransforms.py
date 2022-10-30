@@ -170,7 +170,7 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
             d[key] =  apply_transform(self.transform, d[key], map_items=False)
         return d
 def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex,normalizerDict,expectedShape):
-    # print(f"hhhh {expectedShape}")
+    print(f"hhhh {expectedShape}")
     return Compose([
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
@@ -186,7 +186,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
              ]           )        
 def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,expectedShape):
-    # print(f"hhhh {expectedShape}")
+    print(f"hhhh {expectedShape}")
 
     return Compose([
             # printTransform(keys=["seg"],info="loadAndtransform"),
