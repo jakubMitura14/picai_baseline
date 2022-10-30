@@ -169,15 +169,15 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
         for key in self.keys:
             d[key] =  apply_transform(self.transform, d[key], map_items=False)
         return d
-def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex,normalizerDict):
+def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex,normalizerDict,expectedShape):
     return Compose([
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
-            monai.transforms.SpatialPadd(keys=["t2w","hbv","adc","seg"],spatial_size=(1,32,256,256)),
-
             concatImageMy(keys=["t2w","hbv","adc"]),
+            monai.transforms.SpatialPadd(keys=["t2w","hbv","adc","seg"],spatial_size=expectedShape),#(3,32,256,256)
+
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             ToNumpyd(keys=["data","seg"]),
@@ -185,15 +185,15 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             SelectItemsd(keys=["data","seg"]) ,
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
              ]           )        
-def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict):
+def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,expectedShape):
     return Compose([
             # printTransform(keys=["seg"],info="loadAndtransform"),
 
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
-            monai.transforms.SpatialPadd(keys=["t2w","hbv","adc","seg"],spatial_size=(1,32,256,256)),
             concatImageMy(keys=["t2w","hbv","adc"]),
+            monai.transforms.SpatialPadd(keys=["t2w","hbv","adc","seg"],spatial_size=expectedShape),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             SelectItemsd(keys=["data","seg"])  ,      

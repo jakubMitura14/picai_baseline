@@ -102,7 +102,7 @@ def getPatientDict(index, image_files,seg_files):
 
 
 
-def prepare_datagens(args, fold_id,normalizationIndex):
+def prepare_datagens(args, fold_id,normalizationIndex,expectedShape):
     """Load data sheets --> Create datasets --> Create data loaders"""
 
     # load datasheets
@@ -161,9 +161,9 @@ def prepare_datagens(args, fold_id,normalizationIndex):
 
 
 
-    transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(),normalizationIndex,normalizerDict)
+    transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(),normalizationIndex,normalizerDict,expectedShape)
        
-    transfVal=loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,normalizerDict)
+    transfVal=loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,normalizerDict,expectedShape)
 
     transfTrain=Compose(transfTrain,monai.transforms.ToTensord(keys=["data","seg"])  )
     transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
