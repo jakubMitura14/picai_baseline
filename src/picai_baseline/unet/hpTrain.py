@@ -65,13 +65,13 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 
 def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape,f) -> float:
-
+    machine = os.environ['machine']
     expId=trial.number
     comet_logger = CometLogger(
         api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
         #workspace="OPI", # Optional
         project_name=project_name, # Optional
-        experiment_name=str(expId) # Optional
+        experiment_name=f"{machine}_{str(expId)}" # Optional
         #experiment_name=experiment_name # Optional
     )
     toMonitor="valid_ranking"
@@ -126,15 +126,14 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape,f) -> float
         #strategy='dp'
     )
 
+    
     experiment=trainer.logger.experiment
-    experiment.log_parameter('machine',os.environ['machine'])
+    experiment.log_parameter('machine',machine)
     experiment.log_parameter('base_lr_multi',base_lr_multi)
     experiment.log_parameter('swa_lrs',swa_lrs)
     experiment.log_parameter('schedulerIndex',schedulerIndex)
     experiment.log_parameter('normalizationIndex',normalizationIndex)
     experiment.log_parameter('modelIndex',modelIndex)
-
-
 
 
 
