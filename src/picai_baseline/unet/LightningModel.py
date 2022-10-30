@@ -180,7 +180,7 @@ class Model(pl.LightningModule):
         
         
 
-    def training_step(self, batch_data, batch_idx):        
+    def training_step(self, batch_data, batch_idx):
         epoch=self.current_epoch
         # train_loss, step = 0,  0
         
@@ -194,6 +194,8 @@ class Model(pl.LightningModule):
         # print(f" sssssssssss loss {type(loss)}  ")
 
         # return torch.Tensor([loss]).to(self.device)
+        torch.cuda.empty_cache()        
+
         return loss
 
     def _shared_eval_step(self, valid_data, batch_idx):
@@ -206,6 +208,7 @@ class Model(pl.LightningModule):
             for x in valid_images
         ]
         preds[1] = np.flip(preds[1], [3])
+        torch.cuda.empty_cache()
 
         return valid_labels[:, 0, ...], np.mean([
                                                         gaussian_filter(x, sigma=1.5)
