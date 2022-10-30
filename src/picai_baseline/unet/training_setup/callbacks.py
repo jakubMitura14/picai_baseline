@@ -102,26 +102,37 @@ def resume_or_restart_training_tracking(args, fold_id):
     metrics_file = args.weights_dir + args.model_type + '_F' + str(fold_id) + "_metrics.xlsx"
 
     if os.path.isfile(metrics_file):
+        try :
+            saved_metrics = pd.read_excel(metrics_file, engine='openpyxl')
+            all_epochs = (saved_metrics['epoch'].values).tolist()
+            all_valid_metrics_auroc = (saved_metrics['valid_auroc'].values).tolist()
+            all_valid_metrics_ap = (saved_metrics['valid_ap'].values).tolist()
+            all_valid_metrics_ranking = (saved_metrics['valid_ranking'].values).tolist()
 
-        saved_metrics = pd.read_excel(metrics_file, engine='openpyxl')
-        all_epochs = (saved_metrics['epoch'].values).tolist()
-        all_valid_metrics_auroc = (saved_metrics['valid_auroc'].values).tolist()
-        all_valid_metrics_ap = (saved_metrics['valid_ap'].values).tolist()
-        all_valid_metrics_ranking = (saved_metrics['valid_ranking'].values).tolist()
+            tracking_metrics = {
+                'fold_id':                   fold_id,
+                'start_epoch':               -1,  # resume at next epoch
+                'all_epochs':                all_epochs,
+                'all_train_loss':           (saved_metrics['train_loss'].values).tolist(),
+                'all_valid_metrics_auroc':   all_valid_metrics_auroc,
+                'all_valid_metrics_ap':      all_valid_metrics_ap,
+                'all_valid_metrics_ranking': all_valid_metrics_ranking,
+                'best_metric':               np.max(all_valid_metrics_ranking),
+                'best_metric_epoch':         all_epochs[all_valid_metrics_ranking.index(
+                    np.max(all_valid_metrics_ranking))]}
 
-        tracking_metrics = {
-            'fold_id':                   fold_id,
-            'start_epoch':               -1,  # resume at next epoch
-            'all_epochs':                all_epochs,
-            'all_train_loss':           (saved_metrics['train_loss'].values).tolist(),
-            'all_valid_metrics_auroc':   all_valid_metrics_auroc,
-            'all_valid_metrics_ap':      all_valid_metrics_ap,
-            'all_valid_metrics_ranking': all_valid_metrics_ranking,
-            'best_metric':               np.max(all_valid_metrics_ranking),
-            'best_metric_epoch':         all_epochs[all_valid_metrics_ranking.index(
-                np.max(all_valid_metrics_ranking))]}
-
-        print('Previous Record of Metrics Loaded:', metrics_file)
+            print('Previous Record of Metrics Loaded:', metrics_file)
+        except:
+            tracking_metrics = {
+            'fold_id':                    fold_id,
+            'start_epoch':                -1,
+            'all_epochs':                 [],
+            'all_train_loss':             [],
+            'all_valid_metrics_auroc':    [],
+            'all_valid_metrics_ap':       [],
+            'all_valid_metrics_ranking':  [],
+            'best_metric': -1,
+            'best_metric_epoch': -1}
     else:
         print('Previous Record of Metrics Not Found:', metrics_file)
 
