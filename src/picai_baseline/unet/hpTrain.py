@@ -75,7 +75,7 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
     # checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
     # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
     
-    swa_lrs=trial.suggest_float("base_lr_multi", 0.5, 1e-5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
+    swa_lrs=trial.suggest_float("base_lr_multi", 1e-5,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
     base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
     schedulerIndex=trial.suggest_int("scheduler_int", 0, 1)
     normalizationIndex=1#trial.suggest_int("normalizationIndex", 0, 1)
