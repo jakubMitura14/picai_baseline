@@ -251,7 +251,7 @@ def main():
             )
 
     def objective(trial: optuna.trial.Trial) -> float:
-        return hpTrain.mainTrain(project_name,experiment_name,args)
+        return hpTrain.mainTrain(project_name,experiment_name,args,trial)
 
 
 
