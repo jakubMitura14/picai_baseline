@@ -81,7 +81,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
     schedulerIndex=trial.suggest_int("scheduler_int", 0, 2)
     # modelIndex=trial.suggest_int("modelIndex", 0, 3)
-    modelIndex=1
+    modelIndex=0
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
 
 
