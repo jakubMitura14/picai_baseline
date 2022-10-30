@@ -68,8 +68,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     swa_lrs=trial.suggest_float("swa_lrs", 1e-5,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
     base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
     schedulerIndex=1#trial.suggest_int("scheduler_int", 0, 2)
-    # modelIndex=trial.suggest_int("modelIndex", 0, 4)
-    modelIndex=4
+    modelIndex=trial.suggest_int("modelIndex", 0, 4)
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
    
     machine = os.environ['machine']
