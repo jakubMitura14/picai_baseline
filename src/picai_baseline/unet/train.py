@@ -229,11 +229,11 @@ def main():
 
     args = parser.parse_args()
     
-    project_name= "pic_raw_3"
-    experiment_name="baseline_pl"
+    project_name= "pic_mono_1"
+    #experiment_name="baseline_pl"
     # args.batch_size=32
-
-    args.weights_dir=join(args.weights_dir,experiment_name )
+    imageShape=(256, 256,20)
+    args.weights_dir=join(args.weights_dir,project_name )
     args.model_strides = ast.literal_eval(args.model_strides)
     args.model_features = ast.literal_eval(args.model_features)
     
@@ -251,7 +251,7 @@ def main():
             )
 
     def objective(trial: optuna.trial.Trial) -> float:
-        return hpTrain.mainTrain(project_name,experiment_name,args,trial)
+        return hpTrain.mainTrain(project_name,args,trial,imageShape)
 
 
 

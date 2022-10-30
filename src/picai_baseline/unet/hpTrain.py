@@ -61,23 +61,26 @@ from optuna.visualization import plot_slice
 import importlib.util
 import sys
 import LightningModel
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 
-def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> float:
+def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape,f) -> float:
 
+    expId=trial.number
     comet_logger = CometLogger(
         api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
         #workspace="OPI", # Optional
         project_name=project_name, # Optional
-        experiment_name=experiment_name # Optional
+        experiment_name=str(expId) # Optional
+        #experiment_name=experiment_name # Optional
     )
     toMonitor="valid_ranking"
-    # checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
-    # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
+        # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
     
     swa_lrs=trial.suggest_float("base_lr_multi", 1e-5,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
     base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
     schedulerIndex=trial.suggest_int("scheduler_int", 0, 1)
+    modelIndex=trial.suggest_int("modelIndex", 0, 5)
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
 
     stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= swa_lrs )
@@ -96,20 +99,25 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
     # for each fold
     # for f in args.folds:
     f=args.folds[0]
+    fInd=0
 
-    model = LightningModel.Model(f,args,base_lr_multi,schedulerIndex,normalizationIndex)
+    checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
+    checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
+
+
+    model = LightningModel.Model(f,args,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape)
     trainer = pl.Trainer(
         #accelerator="cpu", #TODO(remove)
         max_epochs=1,#args.num_epochs,
         #gpus=1,
         #precision=experiment.get_parameter("precision"), 
-        callbacks=[early_stopping,stochasticAveraging], #optuna_prune
+        callbacks=[early_stopping,stochasticAveraging,checkpoint_callback], #optuna_prune
         logger=comet_logger,
         accelerator='auto',
         devices='auto',       
         default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
         # auto_scale_batch_size="binsearch",
-        auto_lr_find=True,
+        #auto_lr_find=True,
         check_val_every_n_epoch=check_eval_every_epoch,
         accumulate_grad_batches= 1,
         #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
@@ -124,6 +132,7 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
     experiment.log_parameter('swa_lrs',swa_lrs)
     experiment.log_parameter('schedulerIndex',schedulerIndex)
     experiment.log_parameter('normalizationIndex',normalizationIndex)
+    experiment.log_parameter('modelIndex',modelIndex)
 
 
 

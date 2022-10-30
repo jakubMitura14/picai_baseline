@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import monai
 from training_setup.callbacks import (
-    optimize_model, resume_or_restart_training, validate_model)
+    optimize_model, resume_or_restart_training, validate_model,resume_or_restart_training_tracking)
 from training_setup.compute_spec import \
     compute_spec_for_run
 from training_setup.data_generator import prepare_datagens
@@ -29,7 +29,7 @@ from scipy.ndimage import gaussian_filter
 import os
 
 
-def getSwinUNETR(dropout,input_image_size,in_channels,out_channels):
+def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
     return monai.networks.nets.SwinUNETR(
         spatial_dims=3,
         in_channels=in_channels,
@@ -39,7 +39,17 @@ def getSwinUNETR(dropout,input_image_size,in_channels,out_channels):
         depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
     )
 
-def getSegResNet(dropout,input_image_size,in_channels,out_channels):
+def getSwinUNETRb(dropout,input_image_size,in_channels,out_channels):
+    return monai.networks.nets.SwinUNETR(
+        spatial_dims=3,
+        in_channels=in_channels,
+        out_channels=out_channels,
+        img_size=input_image_size,
+        depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
+        #depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
+    )
+
+def getSegResNeta(dropout,input_image_size,in_channels,out_channels):
     return monai.networks.nets.SegResNet(
         spatial_dims=3,
         in_channels=in_channels,
@@ -49,14 +59,30 @@ def getSegResNet(dropout,input_image_size,in_channels,out_channels):
         blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
     )
 
-def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
-    if(index ==0):
-        return neural_network_for_run(args=args, device=devicee)
-    if(index==1):
-        return getSwinUNETR(dropout,input_image_size,in_channels,out_channels)
-    if(index==2):
-        return getSegResNet(dropout,input_image_size,in_channels,out_channels)
+def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
+    return monai.networks.nets.SegResNet(
+        spatial_dims=3,
+        in_channels=in_channels,
+        out_channels=out_channels,
+        dropout_prob=dropout,
+        blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
+        #blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
+    )
 
+def getUneta(args,devicee):
+    return neural_network_for_run(args=args, device=devicee)
+
+def getUnetb(args,devicee):
+    args.model_features = [ 64, 128, 256, 512, 1024,2048]
+    return neural_network_for_run(args=args, device=devicee)
+
+def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
+    models=[getSwinUNETRa(dropout,input_image_size,in_channels,out_channels),
+            getSwinUNETRb(dropout,input_image_size,in_channels,out_channels),
+            getSegResNeta(dropout,input_image_size,in_channels,out_channels),
+            getSegResNetb(dropout,input_image_size,in_channels,out_channels),
+            getUneta(args,devicee),
+            getUnetb(args,devicee)]
 
 def chooseScheduler(optimizer, schedulerIndex):
     schedulers = [torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
@@ -71,16 +97,19 @@ class Model(pl.LightningModule):
     ,args
     ,base_lr_multi
     , schedulerIndex
-    ,normalizationIndex):
+    ,normalizationIndex
+    ,modelIndex
+    ,imageShape):
         super().__init__()
-
+        in_channels=3
+        out_channels=2
         devicee, args = compute_spec_for_run(args=args)
         self.devicee=devicee
         self.args = args
         model = neural_network_for_run(args=args, device=devicee)
         base_lr= args.base_lr*base_lr_multi
         optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
-        
+
         # optimizer = torch.optim.NAdam(params=model.parameters(),momentum_decay=0.004, lr=base_lr)
         self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
         
@@ -90,13 +119,14 @@ class Model(pl.LightningModule):
         self.train_gen = []
         self.valid_gen = []
         self.normalizationIndex=normalizationIndex
-
+        dropout=0.0
         #optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
-        model, optimizer, tracking_metrics = resume_or_restart_training(
-            model=model, optimizer=optimizer,
-            device=devicee, args=args, fold_id=f
-        )
-
+        # model, optimizer, tracking_metrics = resume_or_restart_training(
+        #     model=model, optimizer=optimizer,
+        #     device=devicee, args=args, fold_id=f
+        # )
+        tracking_metrics=resume_or_restart_training_tracking(args, fold_id)
+        model=chooseModel(args,devicee,modelIndex, dropout, imageShape,in_channels,out_channels  )
         self.model=model
 
         self.optimizer=optimizer
