@@ -57,7 +57,7 @@ def getSegResNeta(dropout,input_image_size,in_channels,out_channels):
         dropout_prob=dropout,
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
-    ),(3,32,256,256),16)
+    ),(3,32,256,256),12)
 
 def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
     return (monai.networks.nets.SegResNet(
@@ -67,7 +67,7 @@ def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
         dropout_prob=dropout,
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         #blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
-    ),(3,32,256,256),22)
+    ),(3,32,256,256),16)
 
 def getUneta(args,devicee):
     return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),32)
@@ -82,7 +82,7 @@ def getVNet(dropout,input_image_size,in_channels,out_channels):
         in_channels=4,
         out_channels=out_channels,
         dropout_prob=dropout
-    ),(4,32,256,256),12)
+    ),(4,32,256,256),8)
 
 def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
     models=[#getSwinUNETRa(dropout,input_image_size,in_channels,out_channels),
