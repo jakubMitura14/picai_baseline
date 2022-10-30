@@ -83,6 +83,7 @@ def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_ch
             getSegResNetb(dropout,input_image_size,in_channels,out_channels),
             getUneta(args,devicee),
             getUnetb(args,devicee)]
+    return models[index]        
 
 def chooseScheduler(optimizer, schedulerIndex):
     schedulers = [torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
