@@ -73,7 +73,7 @@ class Model(pl.LightningModule):
     , schedulerIndex
     ,normalizationIndex):
         super().__init__()
-        
+
         devicee, args = compute_spec_for_run(args=args)
         self.devicee=devicee
         self.args = args
@@ -87,7 +87,7 @@ class Model(pl.LightningModule):
 
         self.train_gen = []
         self.valid_gen = []
-        self.normalizationIndex
+        self.normalizationIndex=normalizationIndex
 
         #optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
         model, optimizer, tracking_metrics = resume_or_restart_training(
