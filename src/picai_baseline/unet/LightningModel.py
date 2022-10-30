@@ -70,11 +70,11 @@ def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
     ),(3,32,256,256),22)
 
 def getUneta(args,devicee):
-    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),48)
+    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),32)
 
 def getUnetb(args,devicee):
     args.model_features = [ 64, 128, 256, 512, 1024,2048]
-    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),48)
+    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),32)
 
 def getVNet(dropout,input_image_size,in_channels,out_channels):
     return (monai.networks.nets.VNet(

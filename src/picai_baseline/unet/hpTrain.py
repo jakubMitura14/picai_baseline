@@ -65,24 +65,26 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 
 def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
+    swa_lrs=trial.suggest_float("swa_lrs", 1e-5,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
+    base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
+    schedulerIndex=1#trial.suggest_int("scheduler_int", 0, 2)
+    # modelIndex=trial.suggest_int("modelIndex", 0, 4)
+    modelIndex=4
+    normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
+   
     machine = os.environ['machine']
     expId=trial.number
     comet_logger = CometLogger(
         api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
         #workspace="OPI", # Optional
         project_name=project_name, # Optional
-        experiment_name=f"{machine}_{str(expId)}" # Optional
+        experiment_name=f"{machine}_{modelIndex}_{str(expId)}" # Optional
         #experiment_name=experiment_name # Optional
     )
     toMonitor="valid_ranking"
         # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
     
-    swa_lrs=trial.suggest_float("swa_lrs", 1e-5,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
-    base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
-    schedulerIndex=1#trial.suggest_int("scheduler_int", 0, 2)
-    # modelIndex=trial.suggest_int("modelIndex", 0, 3)
-    modelIndex=3
-    normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
+
 
 
     stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= swa_lrs )
