@@ -78,7 +78,7 @@ def mainTrain(project_name,experiment_name,args,trial: optuna.trial.Trial) -> fl
     swa_lrs=trial.suggest_float("base_lr_multi", 1e-5,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
     base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
     schedulerIndex=trial.suggest_int("scheduler_int", 0, 1)
-    normalizationIndex=1#trial.suggest_int("normalizationIndex", 0, 1)
+    normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
 
     stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= swa_lrs )
     early_stopping = pl.callbacks.early_stopping.EarlyStopping(
