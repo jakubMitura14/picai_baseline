@@ -251,10 +251,10 @@ class Model(pl.LightningModule):
         return loss
 
     def _shared_eval_step(self, valid_data, batch_idx):
-        print(f"ssshhh {valid_data['data'].shape}  {type(valid_data['data'])}  label {valid_data['seg'].shape} {type(valid_data['seg'])} " )
         valid_labels = valid_data['seg'][0,:,:,:,:].as_tensor()                
         valid_images = valid_data['data'][0,:,:,:,:].as_tensor()
-        t2w= torch.flip(valid_images[0,:,:,:], [4]).to(self.device)          
+        t2w= torch.flip(valid_images, [4]).to(self.device)[0,:,:,:]          
+        print(f"ssshhh {valid_data['data'].shape}  {type(valid_data['data'])}  label {valid_data['seg'].shape} {type(valid_data['seg'])} t2w {t2w.shape}" )
 
         label_name = valid_data['seg_name'][0] 
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
