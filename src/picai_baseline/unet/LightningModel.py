@@ -152,7 +152,7 @@ class Model(pl.LightningModule):
         devicee, args = compute_spec_for_run(args=args)
         self.learning_rate=args.base_lr
         self.normalizationIndex=normalizationIndex
-
+        self.logImageDir=logImageDir
         self.devicee=devicee
         self.args = args
         #model = neural_network_for_run(args=args, device=devicee)
