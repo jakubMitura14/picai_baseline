@@ -36,11 +36,11 @@ class FocalLoss(nn.Module):
 
         #print(f"in forward inputs{inputs.shape}  targets {targets.shape}  ")
         ce_loss = F.binary_cross_entropy(inputs, targets, reduction="none")
-        print(f" in loss ce_loss {type(ce_loss)}")
+        # print(f" in loss ce_loss {type(ce_loss)}")
 
         # p_t = (inputs[-1] * targets[-1]) + ((1 - inputs[-1]) * (1 - targets[-1]))
         p_t = torch.add( torch.mul(inputs[-1] , targets[-1])  , torch.mul((1 - inputs[-1]) , (1 - targets[-1])))
-        print(f" in loss p_t {type(p_t)}")
+        # print(f" in loss p_t {type(p_t)}")
 
         loss = ce_loss * ((1 - p_t) ** self.gamma)
         print(f" in loss aaa {type(loss)}")
@@ -49,12 +49,12 @@ class FocalLoss(nn.Module):
             loss = torch.mul(loss, alpha_t)
 
             #loss = alpha_t * loss
-            print(f" in loss bbb {type(loss)}")
+            # print(f" in loss bbb {type(loss)}")
 
         if self.reduction == "mean":
             loss = loss.mean()
         elif self.reduction == "sum":
             loss = loss.sum()
-        print(f" in loss ccc {type(loss)}")
+        # print(f" in loss ccc {type(loss)}")
 
         return loss

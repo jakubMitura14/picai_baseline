@@ -68,6 +68,7 @@ except ImportError:  # pragma: no cover
     pass
 from intensity_normalization.normalize.nyul import NyulNormalize
 import os
+from pathlib import Path
 
 def prepare_scan(path: str) -> "npt.NDArray[Any]":
     return np.expand_dims(
@@ -75,8 +76,6 @@ def prepare_scan(path: str) -> "npt.NDArray[Any]":
             sitk.ReadImage(path)
         ).astype(np.float32), axis=(0, 1)
     )
-
-
 
 class loadImageMy(MapTransform):
 
@@ -95,6 +94,7 @@ class loadImageMy(MapTransform):
 
         d = dict(data)
         for key in self.keys:
+            d[key+'_name']=Path(d[key]).stem
             if(self.normalizationIndex==0):    
                 d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
             if(self.normalizationIndex==1):    
@@ -112,15 +112,12 @@ class concatImageMy(MapTransform):
         super().__init__(keys, allow_missing_keys)
 
     def __call__(self, data):
-
         d = dict(data)
         img_t2w=d["t2w"]
         img_adc=d["adc"]
         img_hbv=d["hbv"]
         imgConc= np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
-
         d["data"]=np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
-
         return d
 
 
@@ -151,6 +148,7 @@ class loadlabelMy(MapTransform):
     def __call__(self, data):
         d = dict(data)
         for key in self.keys:
+            d[key+'_name']=Path(d[key]).stem
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
             d[key] = np.expand_dims(d[key], axis=(0, 1))
         return d
@@ -184,7 +182,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             ToNumpyd(keys=["data","seg"]),
             adaptor(batchTransforms, {"data": "data"}),
-            SelectItemsd(keys=["data","seg"]) ,
+            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name"])  ,      
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
              ]           )        
 def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,expectedShape):
@@ -203,7 +201,7 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
 
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
-            SelectItemsd(keys=["data","seg"])  ,      
+            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name"])  ,      
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
             ])        
 
