@@ -106,7 +106,7 @@ def chooseScheduler(optimizer, schedulerIndex):
 
 def save_heatmap(arr,dir,name,cmapp='gray'):
     path = join(dir,name+'.png')
-    arr = np.flip(np.transpose(arr),0)
+    #arr = np.flip(np.transpose(arr),0)
     plt.imshow(arr , interpolation = 'nearest' , cmap= cmapp)
     plt.title( name)
     plt.savefig(path)
@@ -120,7 +120,7 @@ def log_images(i,experiment,golds,extracteds ,labelNames, t2ws,directory,epoch):
     maxSlice = max(list(range(0,gold_arr_loc.shape[0])),key=lambda ind : np.sum(gold_arr_loc[ind,:,:]) )
     t2w = t2ws[i][0,maxSlice,:,:]
     t2wMax= np.max(t2w.flatten())
-    print(f"suuuum {np.sum(extracted)}")
+    # print(f"suuuum {np.sum(extracted)}")
     #logging only if it is non zero case
     if np.sum(gold_arr_loc)>0:
         experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
@@ -243,7 +243,7 @@ class Model(pl.LightningModule):
         loss = self.loss_func(torch.sigmoid(outputs), labels)
         #loss = self.loss_func(outputs, labels.long())
         # train_loss += loss.item()
-        #self.log('train_loss', loss.item())
+        self.log('train_loss', loss.item())
         # print(f" sssssssssss loss {type(loss)}  ")
 
         # return torch.Tensor([loss]).to(self.device)
@@ -287,8 +287,18 @@ class Model(pl.LightningModule):
         all_label_name=np.array(([x['label_name'] for x in outputs]))
         #all_t2w=np.array(([x['t2w'] for x in outputs]))
         all_t2w=np.array(([x['t2w'].cpu().detach().numpy() for x in outputs]))
-        for i in range(0,len(all_valid_preds)):
-            log_images(i,self.logger.experiment,all_valid_labels,all_valid_preds ,all_label_name,all_t2w, self.logImageDir,self.current_epoch)
+
+        with mp.Pool(processes = mp.cpu_count()) as pool:
+            pool.map(partial(log_images,
+            experiment=self.logger.experiment, golds=all_valid_labels,
+            extracteds=all_valid_preds, labelNames= all_label_name,
+            t2ws=all_t2w, directory= self.logImageDir, epoch=self.current_epoch
+               , list(range(0,len(all_valid_preds)))))
+
+        # for i in range(0,len(all_valid_preds)):
+        #     log_images(i,self.logger.experiment,all_valid_labels
+        #     ,all_valid_preds ,all_label_name
+        #     ,all_t2w, self.logImageDir,self.current_epoch)
 
 
         #print(f" all_valid_labels {all_valid_labels[0].shape}  all_valid_preds {all_valid_preds[0].shape} ")
