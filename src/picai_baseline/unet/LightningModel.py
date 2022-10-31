@@ -149,14 +149,27 @@ class Model(pl.LightningModule):
         self.devicee=devicee
         self.args = args
         model = neural_network_for_run(args=args, device=devicee)
-        self.base_lr_multi = base_lr_multi
-        self.learning_rate = learning_rate
-        base_lr= learning_rate*base_lr_multi
-        print(f"lr {self.learning_rate*self.base_lr_multi}")
-        self.base_lr = base_lr
-        optimizer = torch.optim.Adam(params=model.parameters(), lr=self.learning_rate*self.base_lr_multi , amsgrad=True)
-        self.optimizer =optimizer
-        # optimizer = torch.optim.NAdam(params=model.parameters(),momentum_decay=0.004, lr=base_lr)
+        self.train_gen = []
+        self.valid_gen = []
+        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
+        model, optimizer, tracking_metrics = resume_or_restart_training(
+            model=model, optimizer=optimizer,
+            device=devicee, args=args, fold_id=f
+        )
+        self.model=model
+        self.optimizer=optimizer
+        self.tracking_metrics=tracking_metrics
+
+
+
+        # self.base_lr_multi = base_lr_multi
+        # self.learning_rate = learning_rate
+        # base_lr= learning_rate*base_lr_multi
+        # print(f"lr {self.learning_rate*self.base_lr_multi}")
+        # self.base_lr = base_lr
+        # optimizer = torch.optim.Adam(params=model.parameters(), lr=self.learning_rate*self.base_lr_multi , amsgrad=True)
+        # self.optimizer =optimizer
+        # # optimizer = torch.optim.NAdam(params=model.parameters(),momentum_decay=0.004, lr=base_lr)
         self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
         
         self.f = f
@@ -166,17 +179,16 @@ class Model(pl.LightningModule):
         self.valid_gen = []
         self.normalizationIndex=normalizationIndex
         dropout=0.0
-        #optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
-        # model, optimizer, tracking_metrics = resume_or_restart_training(
-        #     model=model, optimizer=optimizer,
-        #     device=devicee, args=args, fold_id=f
-        # )
+
         tracking_metrics=resume_or_restart_training_tracking(args, fInd)
         model,expectedShape,newBatchSize=chooseModel(args,devicee,modelIndex, dropout, imageShape,in_channels,out_channels  )
         args.batch_size= newBatchSize
 
         model = neural_network_for_run(args=args, device=devicee)
         
+
+
+
         self.model=model
         self.expectedShape =expectedShape
         self.tracking_metrics=tracking_metrics
