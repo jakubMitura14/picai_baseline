@@ -29,6 +29,7 @@ from scipy.ndimage import gaussian_filter
 import os
 import matplotlib.pyplot as plt
 from os.path import basename, dirname, exists, isdir, join, split
+import tempfile
 
 
 # def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
@@ -177,6 +178,7 @@ class Model(pl.LightningModule):
         self.expectedShape =expectedShape
         self.tracking_metrics=tracking_metrics
         print(f"argssssssss pl {args}")
+        self.logImageDir=tempfile.mkdtemp()
 
 
     def setup(self, stage=None):
