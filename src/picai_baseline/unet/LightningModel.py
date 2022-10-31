@@ -116,7 +116,7 @@ def log_images(i,experiment,golds,extracteds ,labelNames, directory,epoch):
     gold_arr_loc=golds[i][0,:,:,:]
     extracted=extracteds[i][0,:,:,:]
     labelName=labelNames[i]
-    print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)}")
+    # print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)}")
     maxSlice = max(list(range(0,gold_arr_loc.shape[2])),key=lambda ind : np.sum(gold_arr_loc[:,:,ind]) )
 
     #logging only if it is non zero case

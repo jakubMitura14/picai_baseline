@@ -43,7 +43,7 @@ class FocalLoss(nn.Module):
         # print(f" in loss p_t {type(p_t)}")
 
         loss = ce_loss * ((1 - p_t) ** self.gamma)
-        print(f" in loss aaa {type(loss)}")
+        # print(f" in loss aaa {type(loss)}")
         if self.alpha >= 0:
             alpha_t = self.alpha * targets[-1] + (1 - self.alpha) * (1 - targets[-1])
             loss = torch.mul(loss, alpha_t)
