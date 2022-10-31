@@ -34,14 +34,16 @@ class FocalLoss(nn.Module):
         targets = torch.moveaxis(targets, (0, 1, 2, 3, 4,5), (0, 5, 2, 3, 4,1))[:, :, :, :, :, 0]
 
 
-        print(f"in forward inputs{inputs.shape}  targets {targets.shape}  ")
+        #print(f"in forward inputs{inputs.shape}  targets {targets.shape}  ")
         ce_loss = F.binary_cross_entropy(inputs, targets, reduction="none")
         p_t = (inputs[-1] * targets[-1]) + ((1 - inputs[-1]) * (1 - targets[-1]))
         loss = ce_loss * ((1 - p_t) ** self.gamma)
         print(f" in loss aaa {type(loss)}")
         if self.alpha >= 0:
             alpha_t = self.alpha * targets[-1] + (1 - self.alpha) * (1 - targets[-1])
-            loss = alpha_t * loss
+            loss = torch.mul(loss, alpha_t)
+
+            #loss = alpha_t * loss
             print(f" in loss bbb {type(loss)}")
 
         if self.reduction == "mean":
