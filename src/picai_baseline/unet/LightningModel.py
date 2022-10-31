@@ -1,6 +1,7 @@
 import pytorch_lightning as pl
 import argparse
 import ast
+from functools import partial
 
 import numpy as np
 import torch
