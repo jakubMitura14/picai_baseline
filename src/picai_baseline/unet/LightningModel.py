@@ -271,7 +271,7 @@ class Model(pl.LightningModule):
         # print(f"in validation dataloader_idx {dataloader_idx} ")
         # revert horizontally flipped tta image
         return {'valid_label': valid_label, 'val_preds' : preds ,'dataloader_idx' :dataloader_idx
-        ,'label_name':label_name,'t2w' : batch['data'][:,0,:,:,:].as_tensor()   }
+        ,'label_name':label_name,'t2w' : batch['data'].as_tensor()[:,0,:,:,:]  }
 
 
     def _eval_epoch_end(self, outputs,labelKey,predsKey, dataloader_idxx):
@@ -281,8 +281,8 @@ class Model(pl.LightningModule):
         all_valid_labels=np.array(([x[labelKey].cpu().detach().numpy() for x in outputs]))
         all_valid_preds=np.array(([x[predsKey] for x in outputs]))
         all_label_name=np.array(([x['label_name'] for x in outputs]))
-        all_t2w=np.array(([x['t2w'] for x in outputs]))
-        # all_t2w=np.array(([x['t2w'].cpu().detach().numpy() for x in outputs]))
+        #all_t2w=np.array(([x['t2w'] for x in outputs]))
+        all_t2w=np.array(([x['t2w'].cpu().detach().numpy() for x in outputs]))
         for i in range(0,len(all_valid_preds)):
             log_images(i,self.logger.experiment,all_valid_labels,all_valid_preds ,all_label_name,all_t2w, self.logImageDir,self.current_epoch)
 
