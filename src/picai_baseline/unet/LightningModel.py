@@ -123,8 +123,9 @@ def log_images(i,experiment,golds,extracteds ,labelNames, t2ws,directory,epoch):
     # print(f"suuuum {np.sum(extracted)}")
     #logging only if it is non zero case
     if np.sum(gold_arr_loc)>0:
-        experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
-        experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
+        experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*3,((extracted[maxSlice,:,:]).astype('float'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+        # experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+        # experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
 
 
 class Model(pl.LightningModule):
