@@ -116,7 +116,7 @@ def log_images(i,experiment,golds,extracteds ,labelNames, directory,epoch):
     gold_arr_loc=golds[i][0,:,:,:]
     extracted=extracteds[i][0,:,:,:]
     labelName=labelNames[i]
-    # print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)}")
+    print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)}")
     maxSlice = max(list(range(0,gold_arr_loc.shape[2])),key=lambda ind : np.sum(gold_arr_loc[:,:,ind]) )
 
     #logging only if it is non zero case
@@ -250,8 +250,8 @@ class Model(pl.LightningModule):
 
     def _shared_eval_step(self, valid_data, batch_idx):
         # print(f"ssshhh {valid_data['data'].shape}  label {valid_data['seg'].shape}")
-        valid_images = valid_data['data'][0,:,:,:,:]
-        valid_labels = valid_data['seg'][0,:,:,:,:]                
+        valid_images = valid_data['data'][0,:,:,:,:].as_tensor()
+        valid_labels = valid_data['seg'][0,:,:,:,:].as_tensor()                
         label_name = valid_data['seg_name'][0]             
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         preds = [
@@ -260,10 +260,8 @@ class Model(pl.LightningModule):
         ]
         preds[1] = np.flip(preds[1], [3])
 
-        return (valid_labels[:, 0, ...], np.mean([
-                                                        gaussian_filter(x, sigma=1.5)
-                                                        for x in preds
-                                                    ], axis=0), label_name )
+        return (valid_labels[:, 0, ...]
+                ,np.mean([gaussian_filter(x, sigma=1.5)for x in preds], axis=0), label_name )
 
 
 
