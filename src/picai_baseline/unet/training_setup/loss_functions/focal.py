@@ -38,14 +38,16 @@ class FocalLoss(nn.Module):
         ce_loss = F.binary_cross_entropy(inputs, targets, reduction="none")
         p_t = (inputs[-1] * targets[-1]) + ((1 - inputs[-1]) * (1 - targets[-1]))
         loss = ce_loss * ((1 - p_t) ** self.gamma)
-
+        print(f" in loss aaa {type(loss)}")
         if self.alpha >= 0:
             alpha_t = self.alpha * targets[-1] + (1 - self.alpha) * (1 - targets[-1])
             loss = alpha_t * loss
+        print(f" in loss bbb {type(loss)}")
 
         if self.reduction == "mean":
             loss = loss.mean()
         elif self.reduction == "sum":
             loss = loss.sum()
+        print(f" in loss ccc {type(loss)}")
 
         return loss
