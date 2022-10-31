@@ -159,7 +159,8 @@ class Model(pl.LightningModule):
         self.model=model
         self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
-
+        self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
+        
     def setup(self, stage=None):
         """
         setting up dataset

@@ -108,8 +108,8 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
     checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
     schedulerIndexToLog= schedulerIndex
-    # callbacks=[early_stopping,stochasticAveraging,checkpoint_callback]
-    callbacks=[early_stopping,checkpoint_callback]
+    callbacks=[early_stopping,stochasticAveraging,checkpoint_callback]
+    #callbacks=[early_stopping,checkpoint_callback]
     # if(schedulerIndex==2):
     #     schedulerIndex=1
     #     callbacks=[early_stopping,checkpoint_callback]
