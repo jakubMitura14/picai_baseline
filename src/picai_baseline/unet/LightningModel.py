@@ -149,6 +149,8 @@ class Model(pl.LightningModule):
         self.f = f
         devicee, args = compute_spec_for_run(args=args)
         self.learning_rate=args.base_lr
+        self.normalizationIndex=normalizationIndex
+
         self.devicee=devicee
         self.args = args
         model = neural_network_for_run(args=args, device=devicee)
@@ -159,9 +161,11 @@ class Model(pl.LightningModule):
             model=model, optimizer=optimizer,
             device=devicee, args=args, fold_id=f
         )
+        self.expectedShape=(3,20,256,256)
         # tracking_metrics=resume_or_restart_training_tracking(args, fInd)
         # model,expectedShape,newBatchSize=chooseModel(args,devicee,modelIndex, dropout, imageShape,in_channels,out_channels  )
         # args.batch_size= newBatchSize
+        #self.expectedShape=expectedShape
 
 
 
@@ -174,7 +178,9 @@ class Model(pl.LightningModule):
         """
         setting up dataset
         """
-        train_gen, valid_gen, test_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f)
+        train_gen, valid_gen, test_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex,expectedShape=self.expectedShape)
+
+        #train_gen, valid_gen, test_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f)
         # self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
         self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # integrate data augmentation pipeline from nnU-Net
