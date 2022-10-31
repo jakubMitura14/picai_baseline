@@ -174,6 +174,9 @@ class Model(pl.LightningModule):
         tracking_metrics=resume_or_restart_training_tracking(args, fInd)
         model,expectedShape,newBatchSize=chooseModel(args,devicee,modelIndex, dropout, imageShape,in_channels,out_channels  )
         args.batch_size= newBatchSize
+
+        model = neural_network_for_run(args=args, device=devicee)
+        
         self.model=model
         self.expectedShape =expectedShape
         self.tracking_metrics=tracking_metrics
