@@ -116,7 +116,7 @@ def log_images(i,experiment,golds,extracteds ,labelNames, t2ws,directory,epoch):
     gold_arr_loc=golds[i][0,:,:,:]
     extracted=extracteds[i][0,:,:,:]
     labelName=labelNames[i]
-    print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)} t2w {t2ws[i].shape}  ")
+    # print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)} t2w {t2ws[i].shape}  ")
     maxSlice = max(list(range(0,gold_arr_loc.shape[0])),key=lambda ind : np.sum(gold_arr_loc[ind,:,:]) )
     t2w = t2ws[i][0,maxSlice,:,:]
     t2wMax= np.max(t2w.flatten())
@@ -254,7 +254,7 @@ class Model(pl.LightningModule):
         valid_labels = valid_data['seg'][0,:,:,:,:].as_tensor()                
         valid_images = valid_data['data'][0,:,:,:,:].as_tensor()
         t2w= torch.flip(valid_images, [4]).to(self.device)[0,:,:,:]          
-        print(f"ssshhh {valid_data['data'].shape}  {type(valid_data['data'])}  label {valid_data['seg'].shape} {type(valid_data['seg'])} t2w {t2w.shape}" )
+        # print(f"ssshhh {valid_data['data'].shape}  {type(valid_data['data'])}  label {valid_data['seg'].shape} {type(valid_data['seg'])} t2w {t2w.shape}" )
 
         label_name = valid_data['seg_name'][0] 
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
