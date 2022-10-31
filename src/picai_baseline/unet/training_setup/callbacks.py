@@ -159,6 +159,7 @@ def validate_model(model, optimizer, valid_gen, args, tracking_metrics, device,w
             valid_images = torch.from_numpy(valid_data['data']).to(device)
             valid_labels = torch.from_numpy(valid_data['seg'])
 
+        
         # test-time augmentation
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(device)]
 
