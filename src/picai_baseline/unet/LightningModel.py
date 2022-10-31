@@ -157,16 +157,19 @@ class Model(pl.LightningModule):
         self.train_gen = []
         self.valid_gen = []
         optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
-        model, optimizer, tracking_metrics = resume_or_restart_training(
-            model=model, optimizer=optimizer,
-            device=devicee, args=args, fold_id=f
-        )
-        self.expectedShape=(3,20,256,256)
+        # model, optimizer, tracking_metrics = resume_or_restart_training(
+        #     model=model, optimizer=optimizer,
+        #     device=devicee, args=args, fold_id=f
+        # )
         tracking_metrics=resume_or_restart_training_tracking(args, fInd)
         # model,expectedShape,newBatchSize=chooseModel(args,devicee,modelIndex, dropout, imageShape,in_channels,out_channels  )
         # args.batch_size= newBatchSize
         #self.expectedShape=expectedShape
 
+        models=[getUneta(args,devicee),getUnetb(args,devicee)]
+        model,expectedShape,newBatchSize=models[0]
+        self.expectedShape=expectedShape
+        args.batch_size= newBatchSize
 
 
         self.model=model
