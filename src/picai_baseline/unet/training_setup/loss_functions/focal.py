@@ -38,8 +38,8 @@ class FocalLoss(nn.Module):
         ce_loss = F.binary_cross_entropy(inputs, targets, reduction="none")
         # print(f" in loss ce_loss {type(ce_loss)}")
 
-        # p_t = (inputs[-1] * targets[-1]) + ((1 - inputs[-1]) * (1 - targets[-1]))
-        p_t = torch.add( torch.mul(inputs[-1] , targets[-1])  , torch.mul((1 - inputs[-1]) , (1 - targets[-1])))
+        p_t = (inputs[-1] * targets[-1]) + ((1 - inputs[-1]) * (1 - targets[-1]))
+        #p_t = torch.add( torch.mul(inputs[-1] , targets[-1])  , torch.mul((1 - inputs[-1]) , (1 - targets[-1])))
         # print(f" in loss p_t {type(p_t)}")
 
         loss = ce_loss * ((1 - p_t) ** self.gamma)
