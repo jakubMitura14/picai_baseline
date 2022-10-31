@@ -1,12 +1,13 @@
 import pytorch_lightning as pl
 import argparse
 import ast
+from functools import partial
 
 import numpy as np
 import torch
 import monai
 from training_setup.callbacks import (
-    optimize_model, resume_or_restart_training, validate_model)
+    optimize_model, resume_or_restart_training, validate_model,resume_or_restart_training_tracking)
 from training_setup.compute_spec import \
     compute_spec_for_run
 from training_setup.data_generator import prepare_datagens
@@ -27,12 +28,120 @@ from picai_eval import evaluate
 from report_guided_annotation import extract_lesion_candidates
 from scipy.ndimage import gaussian_filter
 import os
+import matplotlib.pyplot as plt
+from os.path import basename, dirname, exists, isdir, join, split
+import tempfile
+import multiprocessing as mp
+
+
+# def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
+#     return monai.networks.nets.SwinUNETR(
+#         spatial_dims=3,
+#         in_channels=in_channels,
+#         out_channels=out_channels,
+#         img_size=input_image_size,
+#         #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
+#         #depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
+#     )
+
+# def getSwinUNETRb(dropout,input_image_size,in_channels,out_channels):
+#     return monai.networks.nets.SwinUNETR(
+#         spatial_dims=3,
+#         in_channels=in_channels,
+#         out_channels=out_channels,
+#         img_size=input_image_size,
+#         #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
+#         depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
+#     )
+
+def getSegResNeta(dropout,input_image_size,in_channels,out_channels):
+    return (monai.networks.nets.SegResNet(
+        spatial_dims=3,
+        in_channels=in_channels,
+        out_channels=out_channels,
+        dropout_prob=dropout,
+        # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
+        blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
+    ),(3,32,256,256),10)
+
+def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
+    return (monai.networks.nets.SegResNet(
+        spatial_dims=3,
+        in_channels=in_channels,
+        out_channels=out_channels,
+        dropout_prob=dropout,
+        # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
+        #blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
+    ),(3,32,256,256),14)
+
+def getUneta(args,devicee):
+    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),32)
+
+def getUnetb(args,devicee):
+    args.model_features = [ 64, 128, 256, 512, 1024,2048]
+    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),32)
+
+def getVNet(dropout,input_image_size,in_channels,out_channels):
+    return (monai.networks.nets.VNet(
+        spatial_dims=3,
+        in_channels=4,
+        out_channels=out_channels,
+        dropout_prob=dropout
+    ),(4,32,256,256),6)
+
+def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
+    models=[#getSwinUNETRa(dropout,input_image_size,in_channels,out_channels),
+            #getSwinUNETRb(dropout,input_image_size,in_channels,out_channels),
+            getSegResNeta(dropout,input_image_size,in_channels,out_channels),
+            getSegResNetb(dropout,input_image_size,in_channels,out_channels),
+            getUneta(args,devicee),
+            getUnetb(args,devicee),
+            getVNet(dropout,input_image_size,in_channels,out_channels)
+            ]
+    return models[index]        
+
+def chooseScheduler(optimizer, schedulerIndex):
+    schedulers = [torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+                 ,torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )                  ]
+    return schedulers[schedulerIndex]
+
+
+def save_heatmap(arr,dir,name,cmapp='gray'):
+    path = join(dir,name+'.png')
+    #arr = np.flip(np.transpose(arr),0)
+    plt.imshow(arr , interpolation = 'nearest' , cmap= cmapp)
+    plt.title( name)
+    plt.savefig(path)
+    return path
+
+def log_images(i,experiment,golds,extracteds ,labelNames, t2ws,directory,epoch):
+    gold_arr_loc=golds[i][0,:,:,:]
+    extracted=extracteds[i][0,:,:,:]
+    labelName=labelNames[i]
+    # print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)} t2w {t2ws[i].shape}  ")
+    maxSlice = max(list(range(0,gold_arr_loc.shape[0])),key=lambda ind : np.sum(gold_arr_loc[ind,:,:]) )
+    t2w = t2ws[i][0,maxSlice,:,:]
+    t2wMax= np.max(t2w.flatten())
+    # print(f"suuuum {np.sum(extracted)}")
+    #logging only if it is non zero case
+    if np.sum(gold_arr_loc)>0:
+        experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*2,((extracted[maxSlice,:,:]).astype('float'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+        # experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+        # experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
 
 
 class Model(pl.LightningModule):
     def __init__(self
     ,f
-    ,args):
+    ,args
+    ,learning_rate
+    ,base_lr_multi
+    ,schedulerIndex
+    ,normalizationIndex
+    ,modelIndex
+    ,imageShape
+    ,fInd
+    ,logImageDir):
         super().__init__()
         self.f = f
         devicee, args = compute_spec_for_run(args=args)
