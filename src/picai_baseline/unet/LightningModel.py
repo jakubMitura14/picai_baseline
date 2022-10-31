@@ -156,8 +156,8 @@ class Model(pl.LightningModule):
         setting up dataset
         """
         train_gen, valid_gen, test_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex,expectedShape=self.expectedShape)
-        # self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
-        self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
+        self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
+        #self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # integrate data augmentation pipeline from nnU-Net
         # train_gen = apply_augmentations(
         #     dataloader=train_gen,
