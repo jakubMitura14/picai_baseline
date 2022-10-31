@@ -28,8 +28,8 @@ class FocalLoss(nn.Module):
         self.reduction = reduction
 
     def forward(self, inputs, targets):
-        inputs = torch.sigmoid(inputs).as_tensor()
-        targets = F.one_hot(targets, num_classes=self.num_classes).float().as_tensor()
+        inputs = torch.sigmoid(inputs)
+        targets = F.one_hot(targets, num_classes=self.num_classes).float()
         # targets = torch.moveaxis(targets, (0, 1, 2, 3, 4), (0, 2, 3, 4, 1))
         targets = torch.moveaxis(targets, (0, 1, 2, 3, 4,5), (0, 5, 2, 3, 4,1))[:, :, :, :, :, 0]
 

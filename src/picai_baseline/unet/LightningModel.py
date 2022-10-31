@@ -230,8 +230,8 @@ class Model(pl.LightningModule):
         epoch=self.current_epoch
         # train_loss, step = 0,  0
         
-        inputs = batch_data['data'][:,0,:,:,:,:]
-        labels = batch_data['seg'][:,0,:,:,:,:]
+        inputs = batch_data['data'][:,0,:,:,:,:].as_tensor()
+        labels = batch_data['seg'][:,0,:,:,:,:].as_tensor()
         
         #inputs = batch_data['data']
         #labels = batch_data['seg']
