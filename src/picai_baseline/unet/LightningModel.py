@@ -112,17 +112,18 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
     plt.savefig(path)
     return path
 
-def log_images(i,experiment,golds,extracteds ,labelNames, directory,epoch):
+def log_images(i,experiment,golds,extracteds ,labelNames, t2ws,directory,epoch):
     gold_arr_loc=golds[i][0,:,:,:]
     extracted=extracteds[i][0,:,:,:]
     labelName=labelNames[i]
     print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)}")
-    maxSlice = max(list(range(0,gold_arr_loc.shape[2])),key=lambda ind : np.sum(gold_arr_loc[:,:,ind]) )
-
+    maxSlice = max(list(range(0,gold_arr_loc.shape[0])),key=lambda ind : np.sum(gold_arr_loc[ind,:,:]) )
+    t2w = t2ws[i][0,maxSlice,:,:].cpu().detach().numpy()
+    t2wMax= np.max(t2w.flatten())
     #logging only if it is non zero case
     if np.sum(gold_arr_loc)>0:
-        experiment.log_image( save_heatmap(np.add(gold_arr_loc[:,:,maxSlice]*3,((extracted[:,:,maxSlice]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
-        # experiment.log_image( save_heatmap(gold,directory,f"gold_{curr_studyId}_{epoch}",numLesions[i]))
+        experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+        experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{curr_studyId}_{epoch}",numLesions[i]))
 
 
 class Model(pl.LightningModule):
@@ -269,7 +270,8 @@ class Model(pl.LightningModule):
         valid_label, preds,label_name = self._shared_eval_step(batch, batch_idx)
         # print(f"in validation dataloader_idx {dataloader_idx} ")
         # revert horizontally flipped tta image
-        return {'valid_label': valid_label, 'val_preds' : preds ,'dataloader_idx' :dataloader_idx, 'label_name':label_name}
+        return {'valid_label': valid_label, 'val_preds' : preds ,'dataloader_idx' :dataloader_idx
+        ,'label_name':label_name,'t2w' : valid_data['data'][:,0,:,:,:].as_tensor()   }
 
 
     def _eval_epoch_end(self, outputs,labelKey,predsKey, dataloader_idxx):
@@ -279,8 +281,9 @@ class Model(pl.LightningModule):
         all_valid_labels=np.array(([x[labelKey].cpu().detach().numpy() for x in outputs]))
         all_valid_preds=np.array(([x[predsKey] for x in outputs]))
         all_label_name=np.array(([x['label_name'] for x in outputs]))
+        all_t2w=np.array(([x['t2w'].cpu().detach().numpy() for x in outputs]))
         for i in range(0,len(all_valid_preds)):
-            log_images(i,self.logger.experiment,all_valid_labels,all_valid_preds ,all_label_name, self.logImageDir,self.current_epoch)
+            log_images(i,self.logger.experiment,all_valid_labels,all_valid_preds ,all_label_name,all_t2w, self.logImageDir,self.current_epoch)
 
 
         #print(f" all_valid_labels {all_valid_labels[0].shape}  all_valid_preds {all_valid_preds[0].shape} ")
