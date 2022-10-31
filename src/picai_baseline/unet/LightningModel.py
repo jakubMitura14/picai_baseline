@@ -293,8 +293,8 @@ class Model(pl.LightningModule):
             pool.map(partial(log_images,
             experiment=self.logger.experiment, golds=all_valid_labels,
             extracteds=all_valid_preds, labelNames= all_label_name,
-            t2ws=all_t2w, directory= self.logImageDir, epoch=self.current_epoch
-               , list(range(0,len(all_valid_preds)))))
+            t2ws=all_t2w, directory= self.logImageDir, epoch=self.current_epoch)
+               , list(range(0,len(all_valid_preds))))
 
         # for i in range(0,len(all_valid_preds)):
         #     log_images(i,self.logger.experiment,all_valid_labels
