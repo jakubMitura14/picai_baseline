@@ -236,6 +236,7 @@ class Model(pl.LightningModule):
         
         inputs = batch_data['data'][:,0,:,:,:,:]
         labels = batch_data['seg'][:,0,:,:,:,:]
+        print(f"ssshhh {batch_data['data'].shape}  label {batch_data['seg'].shape}")
         
         #inputs = batch_data['data']
         #labels = batch_data['seg']
