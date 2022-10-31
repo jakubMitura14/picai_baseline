@@ -114,7 +114,10 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
     plt.savefig(path)
     return path
 
-def log_images(experiment,golds,extracteds ,labelNames, directory,epoch):
+def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataloaderIdx):
+    valTr='val'
+    if(dataloaderIdx==1):
+        valTr='train'
     for batchInd in range(0,golds.shape[0]):
         if(batchInd<10):
             gold_arr_loc=golds[batchInd,:,:,:]
@@ -127,7 +130,7 @@ def log_images(experiment,golds,extracteds ,labelNames, directory,epoch):
             # print(f"suuuum {np.sum(extracted)}")
             #logging only if it is non zero case
             if np.sum(gold_arr_loc)>0:
-                experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*2,((extracted[maxSlice,:,:]).astype('float'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+                experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*2,((extracted[maxSlice,:,:]).astype('float'))),directory,f"{valTr}_{labelName}_{epoch}",'plasma'))
                 # experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
                 # experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
 
@@ -243,7 +246,7 @@ class Model(pl.LightningModule):
         # return torch.Tensor([loss]).to(self.device)
         return loss
 
-    def _shared_eval_step(self, valid_data, batch_idx):
+    def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
         valid_images = valid_data['data'][:,0,:,:,:,:]
         valid_labels = valid_data['seg'][:,0,:,:,:,:]                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
@@ -256,7 +259,7 @@ class Model(pl.LightningModule):
         res= (valid_labels[:, 0, ...]
                 , np.mean([ gaussian_filter(x, sigma=1.5)for x in preds], axis=0))
         if(batch_idx<3):
-            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch)
+            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx)
         
         return res
 
@@ -271,7 +274,7 @@ class Model(pl.LightningModule):
 
 
     def validation_step(self, batch, batch_idx, dataloader_idx):
-        valid_label, preds = self._shared_eval_step(batch, batch_idx)
+        valid_label, preds = self._shared_eval_step(batch, batch_idx,dataloader_idx)
         # print(f"in validation dataloader_idx {dataloader_idx} ")
         # revert horizontally flipped tta image
         return {'valid_label': valid_label, 'val_preds' : preds ,'dataloader_idx' :dataloader_idx}
