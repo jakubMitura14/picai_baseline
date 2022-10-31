@@ -126,7 +126,7 @@ class Model(pl.LightningModule):
         print(f"lr {self.learning_rate*self.base_lr_multi}")
         self.base_lr = base_lr
         optimizer = torch.optim.Adam(params=model.parameters(), lr=self.learning_rate*self.base_lr_multi , amsgrad=True)
-
+        self.optimizer =optimizer
         # optimizer = torch.optim.NAdam(params=model.parameters(),momentum_decay=0.004, lr=base_lr)
         self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
         
