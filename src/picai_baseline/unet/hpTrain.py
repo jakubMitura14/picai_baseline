@@ -66,8 +66,8 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     swa_lrs=trial.suggest_float("swa_lrs", 1e-5,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
-    base_lr_multi =trial.suggest_float("base_lr_multi", 0.0001, 1.0)
-    schedulerIndex=1#trial.suggest_int("scheduler_int", 0, 2)
+    base_lr_multi =trial.suggest_float("base_lr_multi", 0.01, 10.0)
+    schedulerIndex=1#trial.suggest_int("scheduler_int", 0, 1)
     modelIndex=trial.suggest_int("modelIndex", 0, 4)
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
    
@@ -89,7 +89,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= swa_lrs )
     early_stopping = pl.callbacks.early_stopping.EarlyStopping(
         monitor=toMonitor,
-        patience=7,
+        patience=15,
         mode="max",
         #divergence_threshold=(-0.1)
     )
@@ -97,7 +97,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     # if(swa_lrs>0.0):
     #     callbacks=[early_stopping,stochasticAveraging], #optuna_prune
     # check_eval_every_epoch=40
-    check_eval_every_epoch=40
+    check_eval_every_epoch=10
 
     # for each fold
     # for f in args.folds:
@@ -124,16 +124,16 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
         devices='auto',       
         default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
         # auto_scale_batch_size="binsearch",
-        #auto_lr_find=True,
+        auto_lr_find=True,
         check_val_every_n_epoch=check_eval_every_epoch,
         accumulate_grad_batches= 1,
         #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
         log_every_n_steps=5
-        #,reload_dataloaders_every_n_epochs=40
+        ,reload_dataloaders_every_n_epochs=1
         #strategy='dp'
     )
 
-    
+    trainer.tune(model)
     experiment=trainer.logger.experiment
     experiment.log_parameter('machine',machine)
     experiment.log_parameter('base_lr_multi',base_lr_multi)

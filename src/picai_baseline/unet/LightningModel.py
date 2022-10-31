@@ -106,8 +106,9 @@ class Model(pl.LightningModule):
     def __init__(self
     ,f
     ,args
+    ,learning_rate
     ,base_lr_multi
-    , schedulerIndex
+    ,schedulerIndex
     ,normalizationIndex
     ,modelIndex
     ,imageShape
