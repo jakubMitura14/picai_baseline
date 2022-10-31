@@ -261,7 +261,7 @@ def main():
             # auto_scale_batch_size="binsearch",
             auto_lr_find=True,
             check_val_every_n_epoch=check_eval_every_epoch,
-            #accumulate_grad_batches= 1,
+            accumulate_grad_batches= 1,
             #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
             log_every_n_steps=5
             ,reload_dataloaders_every_n_epochs=1
@@ -269,70 +269,6 @@ def main():
         )
         trainer.fit(model)
 
-        # # --------------------------------------------------------------------------------------------------------------------------
-        # # GPU/CPU specifications
-        # device, args = compute_spec_for_run(args=args)
-
-        # # derive dataLoaders
-        # train_gen, valid_gen, class_weights = prepare_datagens(args=args, fold_id=f)
-
-        # # integrate data augmentation pipeline from nnU-Net
-        # train_gen = apply_augmentations(
-        #     dataloader=train_gen,
-        #     num_threads=args.num_threads,
-        #     disable=(not bool(args.enable_da))
-        # )
-        
-        # # initialize multi-threaded augmenter in background
-        # train_gen.restart()
-
-        # # model definition
-        # model = neural_network_for_run(args=args, device=device)
-        # # loss function + optimizer 
-        # loss_func = FocalLoss(alpha=class_weights[-1], gamma=args.focal_loss_gamma).to(device)      
-        # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
-        # # --------------------------------------------------------------------------------------------------------------------------
-        # # training loop
-        # #resume or restart training model, based on whether checkpoint exists
-        # model, optimizer, tracking_metrics = resume_or_restart_training(
-        #     model=model, optimizer=optimizer,
-        #     device=device, args=args, fold_id=f
-        # )
-        # # writer = SummaryWriter()
-        # writer = []
-
-
-
-        # # for each epoch
-        # for epoch in range(tracking_metrics['start_epoch'], args.num_epochs):
-        #     # optimize model x N training steps + update learning rate
-        #     model.train()
-        #     tracking_metrics['epoch'] = epoch
-
-        #     model, optimizer, train_gen, tracking_metrics = optimize_model(
-        #         model=model, optimizer=optimizer, loss_func=loss_func, train_gen=train_gen,
-        #         args=args, tracking_metrics=tracking_metrics, device=device, writer=writer
-        #     )
-
-        #     # ----------------------------------------------------------------------------------------------------------------------
-        #     # for each round of validation
-        #     if ((epoch+1) % args.validate_n_epochs == 0) and ((epoch+1) >= args.validate_min_epoch):
-
-        #         # validate model per N epochs + export model weights
-        #         model.eval()
-        #         with torch.no_grad():  # no gradient updates during validation
-
-        #             model, optimizer, valid_gen, tracking_metrics = validate_model(
-        #                 model=model, optimizer=optimizer, valid_gen=valid_gen, args=args,
-        #                 tracking_metrics=tracking_metrics, device=device,writer=writer
-        #             )
-
-        # # --------------------------------------------------------------------------------------------------------------------------
-        # print(
-        #     f"Training Complete! Peak Validation Ranking Score: {tracking_metrics['best_metric']:.4f} "
-        #     f"@ Epoch: {tracking_metrics['best_metric_epoch']}")
-        # # writer.close()
-        # # --------------------------------------------------------------------------------------------------------------------------
 
 
 if __name__ == '__main__':
