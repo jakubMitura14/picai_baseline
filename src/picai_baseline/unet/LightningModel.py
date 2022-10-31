@@ -27,6 +27,8 @@ from picai_eval import evaluate
 from report_guided_annotation import extract_lesion_candidates
 from scipy.ndimage import gaussian_filter
 import os
+import matplotlib.pyplot as plt
+from os.path import basename, dirname, exists, isdir, join, split
 
 
 # def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
@@ -100,6 +102,32 @@ def chooseScheduler(optimizer, schedulerIndex):
                  ,torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )                  ]
     return schedulers[schedulerIndex]
 
+
+def save_heatmap(arr,dir,name,numLesions,cmapp='gray'):
+    path = join(dir,name+'.png')
+    arr = np.flip(np.transpose(arr),0)
+    plt.imshow(arr , interpolation = 'nearest' , cmap= cmapp)
+    plt.title( name+'__'+str(numLesions))
+    plt.savefig(path)
+    return path
+
+
+def log_images(i,experiment,golds,extracteds ,t2ws, directory,patIds,epoch,numLesions):
+    goldChannel=1
+    gold_arr_loc=golds[i]
+    maxSlice = max(list(range(0,gold_arr_loc.size(dim=3))),key=lambda ind : torch.sum(gold_arr_loc[goldChannel,:,:,ind]).item() )
+    
+    t2w = t2ws[i][0,:,:,maxSlice].cpu().detach().numpy()
+    t2wMax= np.max(t2w.flatten())
+
+    curr_studyId=patIds[i]
+    gold=golds[i][goldChannel,:,:,maxSlice].cpu().detach().numpy()
+    extracted=extracteds[i]
+    #logging only if it is non zero case
+    if np.sum(gold)>0:
+        experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{curr_studyId}_{epoch}",numLesions[i]))
+        experiment.log_image( save_heatmap(np.add(gold*3,((extracted[:,:,maxSlice]>0).astype('int8'))),directory,f"gold_plus_extracted_{curr_studyId}_{epoch}",numLesions[i],'plasma'))
+        # experiment.log_image( save_heatmap(gold,directory,f"gold_{curr_studyId}_{epoch}",numLesions[i]))
 
 
 class Model(pl.LightningModule):
@@ -207,7 +235,8 @@ class Model(pl.LightningModule):
         labels = batch_data['seg'][:,0,:,:,:,:]
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         outputs = self.model(inputs)
-        loss = self.loss_func(outputs, labels)
+        # loss = self.loss_func(outputs, labels)
+        loss = self.loss_func(labels,outputs)
         # train_loss += loss.item()
         self.log('train_loss', loss.item())
         # print(f" sssssssssss loss {type(loss)}  ")
