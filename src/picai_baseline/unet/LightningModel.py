@@ -116,9 +116,9 @@ def log_images(i,experiment,golds,extracteds ,labelNames, t2ws,directory,epoch):
     gold_arr_loc=golds[i][0,:,:,:]
     extracted=extracteds[i][0,:,:,:]
     labelName=labelNames[i]
-    print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)}")
+    print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)} t2w {t2ws[i].shape}  ")
     maxSlice = max(list(range(0,gold_arr_loc.shape[0])),key=lambda ind : np.sum(gold_arr_loc[ind,:,:]) )
-    t2w = t2ws[i][:,:,maxSlice]
+    t2w = t2ws[i][maxSlice,:,:]
     t2wMax= np.max(t2w.flatten())
     print(f"suuuum {np.sum(extracted)}")
     #logging only if it is non zero case
@@ -252,11 +252,11 @@ class Model(pl.LightningModule):
 
     def _shared_eval_step(self, valid_data, batch_idx):
         print(f"ssshhh {valid_data['data'].shape}  {type(valid_data['data'])}  label {valid_data['seg'].shape} {type(valid_data['seg'])} " )
-        valid_images = valid_data['data'][0,:,:,:,:].as_tensor()
         valid_labels = valid_data['seg'][0,:,:,:,:].as_tensor()                
         label_name = valid_data['seg_name'][0] 
         t2w= valid_images[0,:,:,:]          
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
+        valid_images = valid_data['data'][0,:,:,:,:].as_tensor()
         preds = [
             torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy().astype(np.float32)
             for x in valid_images
