@@ -60,7 +60,7 @@ def getSegResNeta(dropout,input_image_size,in_channels,out_channels):
         dropout_prob=dropout,
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
-    ),(3,32,256,256),12)
+    ),(3,32,256,256),10)
 
 def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
     return (monai.networks.nets.SegResNet(
@@ -70,7 +70,7 @@ def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
         dropout_prob=dropout,
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         #blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
-    ),(3,32,256,256),16)
+    ),(3,32,256,256),14)
 
 def getUneta(args,devicee):
     return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),32)
@@ -256,8 +256,8 @@ class Model(pl.LightningModule):
 
     def _shared_eval_step(self, valid_data, batch_idx):
         # print(f"ssshhh {valid_data['data'].shape}  label {valid_data['seg'].shape}")
-        valid_images = valid_data['data'][:,0,:,:,:,:]
-        valid_labels = valid_data['seg'][:,0,:,:,:,:]                
+        valid_images = valid_data['data'][0,0,:,:,:,:]
+        valid_labels = valid_data['seg'][0,0,:,:,:,:]                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         preds = [
             torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy().astype(np.float32)
@@ -270,13 +270,6 @@ class Model(pl.LightningModule):
                                                         for x in preds
                                                     ], axis=0)
 
-    # def test_step(self, batch, batch_idx):
-    #     valid_labels, preds = self._shared_eval_step(batch, batch_idx)
-    #     # revert horizontally flipped tta image
-    #     return {'train_label': valid_labels[:, 0, ...], 'trainPred' :np.mean([
-    #                                                     gaussian_filter(x, sigma=1.5)
-    #                                                     for x in preds
-    #                                                 ], axis=0)  }
 
 
     def validation_step(self, batch, batch_idx, dataloader_idx):

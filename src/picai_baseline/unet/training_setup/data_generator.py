@@ -180,8 +180,8 @@ def prepare_datagens(args, fold_id,normalizationIndex,expectedShape):
 
     print(f"aaaaaaaaaaaaaa batchh {batchh}")
     train_ldr=DataLoader(train_ds,batch_size=batchh, num_workers=args.num_threads, shuffle=True,collate_fn=list_data_collate )
-    valid_ldr=DataLoader(valid_ds,batch_size=batchh, num_workers=args.num_threads,shuffle=False,collate_fn=list_data_collate)
-    test_gen=DataLoader(test_ds,batch_size=batchh, num_workers=args.num_threads,shuffle=False,collate_fn=list_data_collate)
+    valid_ldr=DataLoader(valid_ds,batch_size=1, num_workers=args.num_threads,shuffle=False,collate_fn=list_data_collate)
+    test_gen=DataLoader(test_ds,batch_size=1, num_workers=args.num_threads,shuffle=False,collate_fn=list_data_collate)
 
 
 
