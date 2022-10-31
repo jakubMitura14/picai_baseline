@@ -120,7 +120,11 @@ class Model(pl.LightningModule):
         self.devicee=devicee
         self.args = args
         model = neural_network_for_run(args=args, device=devicee)
-        base_lr= args.base_lr*base_lr_multi
+        self.base_lr_multi = base_lr_multi
+        base_lr= learning_rate*base_lr_multi
+        print(f"lr {self.learning_rate*self.base_lr_multi}")
+        self.base_lr = base_lr
+        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=self.learning_rate*self.base_lr_multi , amsgrad=True)
 
         # optimizer = torch.optim.NAdam(params=model.parameters(),momentum_decay=0.004, lr=base_lr)
         self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
@@ -165,6 +169,9 @@ class Model(pl.LightningModule):
         self.train_gen=train_gen
         self.valid_gen=valid_gen
         self.test_gen=test_gen
+        experiment=self.logger.experiment
+        experiment.log_parameter('lr',self.base_lr)
+
     def train_dataloader(self):
         return self.train_gen
     
@@ -175,8 +182,7 @@ class Model(pl.LightningModule):
     #     return self.test_gen
 
     def configure_optimizers(self):
-        #optimizer = self.optimizer
-        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=self.learning_rate*self.base_lr_multi , amsgrad=True)
+        optimizer = self.optimizer
 
         # optimizer = self.optimizer(self.parameters(), lr=self.learning_rate)
         # hyperparameters from https://www.kaggle.com/code/isbhargav/guide-to-pytorch-learning-rate-scheduling/notebook
