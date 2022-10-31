@@ -47,6 +47,7 @@ from monai.transforms import (
     
 )
 from monai.transforms import Randomizable, apply_transform
+import torch
 
 from monai.config import KeysCollection
 from monai.data import MetaTensor
@@ -65,7 +66,9 @@ try:
     import numpy.typing as npt
 except ImportError:  # pragma: no cover
     pass
-
+from intensity_normalization.normalize.nyul import NyulNormalize
+import os
+from pathlib import Path
 
 def prepare_scan(path: str) -> "npt.NDArray[Any]":
     return np.expand_dims(
@@ -74,22 +77,29 @@ def prepare_scan(path: str) -> "npt.NDArray[Any]":
         ).astype(np.float32), axis=(0, 1)
     )
 
-
-
 class loadImageMy(MapTransform):
 
     def __init__(
         self,
         keys: KeysCollection,
+        normalizationIndex,
+        normalizerDict,
         allow_missing_keys: bool = False,
     ):
         super().__init__(keys, allow_missing_keys)
+        self.normalizationIndex=normalizationIndex
+        self.normalizerDict=normalizerDict
 
     def __call__(self, data):
 
         d = dict(data)
         for key in self.keys:
-            d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
+            d[key+'_name']=Path(d[key]).stem
+            if(self.normalizationIndex==0):    
+                d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
+            if(self.normalizationIndex==1):    
+                nyul_normalizer=  self.normalizerDict[key]
+                d[key]=nyul_normalizer(prepare_scan(d[key])).astype(np.float32)          
         return d
 
 class concatImageMy(MapTransform):
@@ -102,15 +112,12 @@ class concatImageMy(MapTransform):
         super().__init__(keys, allow_missing_keys)
 
     def __call__(self, data):
-
         d = dict(data)
         img_t2w=d["t2w"]
         img_adc=d["adc"]
         img_hbv=d["hbv"]
         imgConc= np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
-
         d["data"]=np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
-
         return d
 
 
@@ -141,6 +148,7 @@ class loadlabelMy(MapTransform):
     def __call__(self, data):
         d = dict(data)
         for key in self.keys:
+            d[key+'_name']=Path(d[key]).stem
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
             d[key] = np.expand_dims(d[key], axis=(0, 1))
         return d
@@ -159,30 +167,42 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
         for key in self.keys:
             d[key] =  apply_transform(self.transform, d[key], map_items=False)
         return d
-def loadTrainTransform(transform,seg_transform,batchTransforms):
+def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex,normalizerDict,expectedShape):
+    # print(f"hhhh {expectedShape}")
     return Compose([
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
-            loadImageMy(keys=["t2w","hbv","adc"]),
+            loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
+            #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc"]),
+            ToNumpyd(keys=["data","seg"]),
+            monai.transforms.SpatialPadd(keys=["data"],spatial_size=expectedShape),#(3,32,256,256)
+            monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(1,expectedShape[1],expectedShape[2],expectedShape[3])),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             ToNumpyd(keys=["data","seg"]),
             adaptor(batchTransforms, {"data": "data"}),
-            SelectItemsd(keys=["data","seg"]) ,
-            monai.transforms.ToTensord(keys=["data","seg"]) 
+            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name"])  ,      
+            monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
              ]           )        
-def loadValTransform(transform,seg_transform):
+def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,expectedShape):
+    # print(f"hhhh {expectedShape}")
+
     return Compose([
             # printTransform(keys=["seg"],info="loadAndtransform"),
 
-            loadImageMy(keys=["t2w","hbv","adc"]),
+            loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"]),
+            #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc"]),
+            ToNumpyd(keys=["data","seg"]),
+            monai.transforms.SpatialPadd(keys=["data"],spatial_size=expectedShape),
+            monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(1,expectedShape[1],expectedShape[2],expectedShape[3])),
+
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
-            SelectItemsd(keys=["data","seg"])  ,      
-            monai.transforms.ToTensord(keys=["data","seg"]) 
+            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name"])  ,      
+            monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
             ])        
 
 # def addBatchAugmentations(transforms,batchTransforms): 
