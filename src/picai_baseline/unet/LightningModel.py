@@ -166,6 +166,8 @@ class Model(pl.LightningModule):
         # args.batch_size= newBatchSize
         #self.expectedShape=expectedShape
 
+
+        self.expectedShape=expectedShape= (3,20,256,256)
         # models=[getUneta(args,devicee),getUnetb(args,devicee)]
         # model,expectedShape,newBatchSize=models[0]
         # self.expectedShape=expectedShape
