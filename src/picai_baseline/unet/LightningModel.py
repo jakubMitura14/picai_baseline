@@ -116,7 +116,7 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
 
 def log_images(experiment,golds,extracteds ,labelNames, directory,epoch):
     for batchInd in range(0,golds.shape[0]):
-        if(batchInd<10)
+        if(batchInd<10):
             gold_arr_loc=golds[batchInd,:,:,:]
             extracted=extracteds[batchInd,:,:,:]
             labelName=labelNames[batchInd]
