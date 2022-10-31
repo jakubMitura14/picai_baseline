@@ -114,12 +114,11 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
 
 
 def log_images(i,experiment,golds,extracteds ,labelNames, directory,epoch):
-    goldChannel=1
     gold_arr_loc=golds[i]
     extracted=extracteds[i]
     labelName=labelNames[i]
     print(f"gggg gold_arr_loc {gold_arr_loc.shape} extracted {extracted.shape}")
-    maxSlice = max(list(range(0,gold_arr_loc.size(dim=3))),key=lambda ind : torch.sum(gold_arr_loc[goldChannel,:,:,ind]).item() )
+    maxSlice = max(list(range(0,gold_arr_loc.size(dim=3))),key=lambda ind : torch.sum(gold_arr_loc[:,:,ind]).item() )
 
     #logging only if it is non zero case
     if np.sum(gold)>0:
