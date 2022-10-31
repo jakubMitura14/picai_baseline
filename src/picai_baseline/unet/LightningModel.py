@@ -245,28 +245,37 @@ class Model(pl.LightningModule):
         
 
     def training_step(self, batch_data, batch_idx):
-        epoch=self.current_epoch
-        # train_loss, step = 0,  0
+        # epoch=self.current_epoch
+        # # train_loss, step = 0,  0
         
-        inputs = batch_data['data'][:,0,:,:,:,:].as_tensor()
-        labels = batch_data['seg'][:,0,:,:,:,:].as_tensor()
+        # inputs = batch_data['data'][:,0,:,:,:,:].as_tensor()
+        # labels = batch_data['seg'][:,0,:,:,:,:].as_tensor()
         
-        #inputs = batch_data['data']
-        #labels = batch_data['seg']
-        # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
-        outputs = self.model(inputs)
-        # print(f"ssshhh {batch_data['data'].shape} {type(batch_data['data'])} label {batch_data['seg'].shape} {type(batch_data['seg'])}  outputs {outputs.shape} {type(outputs)} ")
+        # #inputs = batch_data['data']
+        # #labels = batch_data['seg']
+        # # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
+        # outputs = self.model(inputs)
+        # # print(f"ssshhh {batch_data['data'].shape} {type(batch_data['data'])} label {batch_data['seg'].shape} {type(batch_data['seg'])}  outputs {outputs.shape} {type(outputs)} ")
 
     
-        # loss = self.loss_func(torch.sigmoid(outputs), labels)
+        # # loss = self.loss_func(torch.sigmoid(outputs), labels)
+        # loss = self.loss_func(outputs, labels)
+        # #loss = self.loss_func(outputs, labels.long())
+        # # train_loss += loss.item()
+        # self.log('train_loss', loss.item())
+        # # print(f" sssssssssss loss {type(loss)}  ")
+
+        # # return torch.Tensor([loss]).to(self.device)
+        inputs = batch_data['data'][:,0,:,:,:,:]
+        labels = batch_data['seg'][:,0,:,:,:,:]
+        # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
+        outputs = self.model(inputs)
         loss = self.loss_func(outputs, labels)
-        #loss = self.loss_func(outputs, labels.long())
         # train_loss += loss.item()
         self.log('train_loss', loss.item())
         # print(f" sssssssssss loss {type(loss)}  ")
 
         # return torch.Tensor([loss]).to(self.device)
-
         return loss
 
     def _shared_eval_step(self, valid_data, batch_idx):
