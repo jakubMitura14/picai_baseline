@@ -118,8 +118,9 @@ def log_images(i,experiment,golds,extracteds ,labelNames, t2ws,directory,epoch):
     labelName=labelNames[i]
     print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)}")
     maxSlice = max(list(range(0,gold_arr_loc.shape[0])),key=lambda ind : np.sum(gold_arr_loc[ind,:,:]) )
-    t2w = t2ws[i][maxSlice,:,:]
+    t2w = t2ws[i][:,:,maxSlice]
     t2wMax= np.max(t2w.flatten())
+    print(f"suuuum {np.sum(extracted)}")
     #logging only if it is non zero case
     if np.sum(gold_arr_loc)>0:
         experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
