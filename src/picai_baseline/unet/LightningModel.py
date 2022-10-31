@@ -166,10 +166,10 @@ class Model(pl.LightningModule):
         # args.batch_size= newBatchSize
         #self.expectedShape=expectedShape
 
-        models=[getUneta(args,devicee),getUnetb(args,devicee)]
-        model,expectedShape,newBatchSize=models[0]
-        self.expectedShape=expectedShape
-        args.batch_size= newBatchSize
+        # models=[getUneta(args,devicee),getUnetb(args,devicee)]
+        # model,expectedShape,newBatchSize=models[0]
+        # self.expectedShape=expectedShape
+        # args.batch_size= newBatchSize
 
 
         self.model=model
