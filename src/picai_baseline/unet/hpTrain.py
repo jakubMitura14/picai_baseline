@@ -112,7 +112,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     #     schedulerIndex=1
     #     callbacks=[early_stopping,checkpoint_callback]
 
-    model = LightningModel.Model(f,args,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape,fInd)
+    model = LightningModel.Model(f,args,args.base_lr,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape,fInd)
     trainer = pl.Trainer(
         #accelerator="cpu", #TODO(remove)
         max_epochs=3000,#args.num_epochs,
@@ -134,6 +134,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     )
 
     trainer.tune(model)
+
     experiment=trainer.logger.experiment
     experiment.log_parameter('machine',machine)
     experiment.log_parameter('base_lr_multi',base_lr_multi)

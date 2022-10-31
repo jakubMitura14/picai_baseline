@@ -121,13 +121,12 @@ class Model(pl.LightningModule):
         self.args = args
         model = neural_network_for_run(args=args, device=devicee)
         base_lr= args.base_lr*base_lr_multi
-        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
 
         # optimizer = torch.optim.NAdam(params=model.parameters(),momentum_decay=0.004, lr=base_lr)
         self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
         
         self.f = f
-        self.learning_rate=args.base_lr
+        self.learning_rate=learning_rate#args.base_lr
         self.modelIndex=modelIndex
         self.train_gen = []
         self.valid_gen = []
@@ -143,7 +142,6 @@ class Model(pl.LightningModule):
         args.batch_size= newBatchSize
         self.model=model
         self.expectedShape =expectedShape
-        self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
         print(f"argssssssss pl {args}")
 
@@ -177,7 +175,9 @@ class Model(pl.LightningModule):
     #     return self.test_gen
 
     def configure_optimizers(self):
-        optimizer = self.optimizer
+        #optimizer = self.optimizer
+        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=self.learning_rate*self.base_lr_multi , amsgrad=True)
+
         # optimizer = self.optimizer(self.parameters(), lr=self.learning_rate)
         # hyperparameters from https://www.kaggle.com/code/isbhargav/guide-to-pytorch-learning-rate-scheduling/notebook
         # lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )
