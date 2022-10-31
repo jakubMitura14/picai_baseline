@@ -162,7 +162,7 @@ class Model(pl.LightningModule):
             device=devicee, args=args, fold_id=f
         )
         self.expectedShape=(3,20,256,256)
-        # tracking_metrics=resume_or_restart_training_tracking(args, fInd)
+        tracking_metrics=resume_or_restart_training_tracking(args, fInd)
         # model,expectedShape,newBatchSize=chooseModel(args,devicee,modelIndex, dropout, imageShape,in_channels,out_channels  )
         # args.batch_size= newBatchSize
         #self.expectedShape=expectedShape
