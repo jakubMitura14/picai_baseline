@@ -253,10 +253,12 @@ class Model(pl.LightningModule):
     def _shared_eval_step(self, valid_data, batch_idx):
         print(f"ssshhh {valid_data['data'].shape}  {type(valid_data['data'])}  label {valid_data['seg'].shape} {type(valid_data['seg'])} " )
         valid_labels = valid_data['seg'][0,:,:,:,:].as_tensor()                
-        label_name = valid_data['seg_name'][0] 
-        t2w= valid_images[0,:,:,:]          
-        valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         valid_images = valid_data['data'][0,:,:,:,:].as_tensor()
+
+        label_name = valid_data['seg_name'][0] 
+        valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
+        t2w= valid_images[0,:,:,:]          
+
         preds = [
             torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy().astype(np.float32)
             for x in valid_images
