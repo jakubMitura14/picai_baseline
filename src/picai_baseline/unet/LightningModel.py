@@ -118,7 +118,7 @@ def log_images(i,experiment,golds,extracteds ,labelNames, t2ws,directory,epoch):
     labelName=labelNames[i]
     print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)}")
     maxSlice = max(list(range(0,gold_arr_loc.shape[0])),key=lambda ind : np.sum(gold_arr_loc[ind,:,:]) )
-    t2w = t2ws[i][0,maxSlice,:,:].cpu().detach().numpy()
+    t2w = t2ws[i][maxSlice,:,:].cpu().detach().numpy()
     t2wMax= np.max(t2w.flatten())
     #logging only if it is non zero case
     if np.sum(gold_arr_loc)>0:
@@ -250,10 +250,11 @@ class Model(pl.LightningModule):
         return loss
 
     def _shared_eval_step(self, valid_data, batch_idx):
-        # print(f"ssshhh {valid_data['data'].shape}  label {valid_data['seg'].shape}")
+        print(f"ssshhh {valid_data['data'].shape}  {type(valid_data['data'])}  label {valid_data['seg'].shape} {type()} " )
         valid_images = valid_data['data'][0,:,:,:,:].as_tensor()
         valid_labels = valid_data['seg'][0,:,:,:,:].as_tensor()                
-        label_name = valid_data['seg_name'][0]             
+        label_name = valid_data['seg_name'][0] 
+        t2w= valid_images[0,:,:,:]          
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         preds = [
             torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy().astype(np.float32)
@@ -262,16 +263,16 @@ class Model(pl.LightningModule):
         preds[1] = np.flip(preds[1], [3])
 
         return (valid_labels[:, 0, ...]
-                ,np.mean([gaussian_filter(x, sigma=1.5)for x in preds], axis=0), label_name )
+                ,np.mean([gaussian_filter(x, sigma=1.5)for x in preds], axis=0), label_name,t2w )
 
 
 
     def validation_step(self, batch, batch_idx, dataloader_idx):
-        valid_label, preds,label_name = self._shared_eval_step(batch, batch_idx)
+        valid_label, preds,label_name,t2w = self._shared_eval_step(batch, batch_idx)
         # print(f"in validation dataloader_idx {dataloader_idx} ")
         # revert horizontally flipped tta image
         return {'valid_label': valid_label, 'val_preds' : preds ,'dataloader_idx' :dataloader_idx
-        ,'label_name':label_name,'t2w' : batch['data'].as_tensor()[:,0,:,:,:]  }
+        ,'label_name':label_name,'t2w' : t2w }
 
 
     def _eval_epoch_end(self, outputs,labelKey,predsKey, dataloader_idxx):
