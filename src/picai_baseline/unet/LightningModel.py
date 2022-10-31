@@ -282,7 +282,7 @@ class Model(pl.LightningModule):
         all_valid_preds=np.array(([x[predsKey] for x in outputs]))
         all_label_name=np.array(([x['label_name'] for x in outputs]))
         for i in range(0,len(all_label_name)):
-            log_images(i,self.logger.experiment,all_valid_labels,all_valid_preds , self.logImageDir,self.current_epoch):
+            log_images(i,self.logger.experiment,all_valid_labels,all_valid_preds , self.logImageDir,self.current_epoch)
 
 
         #print(f" all_valid_labels {all_valid_labels[0].shape}  all_valid_preds {all_valid_preds[0].shape} ")
