@@ -271,7 +271,7 @@ class Model(pl.LightningModule):
         # print(f"in validation dataloader_idx {dataloader_idx} ")
         # revert horizontally flipped tta image
         return {'valid_label': valid_label, 'val_preds' : preds ,'dataloader_idx' :dataloader_idx
-        ,'label_name':label_name,'t2w' : valid_data['data'][:,0,:,:,:].as_tensor()   }
+        ,'label_name':label_name,'t2w' : batch['data'][:,0,:,:,:].as_tensor()   }
 
 
     def _eval_epoch_end(self, outputs,labelKey,predsKey, dataloader_idxx):
