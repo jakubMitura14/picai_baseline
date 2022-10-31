@@ -233,15 +233,18 @@ class Model(pl.LightningModule):
         epoch=self.current_epoch
         # train_loss, step = 0,  0
         
-        inputs = batch_data['data'][:,0,:,:,:,:]
-        labels = batch_data['seg'][:,0,:,:,:,:]
+        # inputs = batch_data['data'][:,0,:,:,:,:]
+        # labels = batch_data['seg'][:,0,:,:,:,:]
+        
+        inputs = batch_data['data']
+        labels = batch_data['seg']
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         outputs = self.model(inputs)
-        loss = self.loss_func(outputs, labels)
-        
+        # loss = self.loss_func(outputs, labels)
+        loss = self.loss_func(outputs, labels[:, 0, ...].long())
         # train_loss += loss.item()
         self.log('train_loss', loss.item())
-        # print(f" sssssssssss loss {type(loss)}  ")
+        print(f" sssssssssss loss {type(loss)}  ")
 
         # return torch.Tensor([loss]).to(self.device)
 
