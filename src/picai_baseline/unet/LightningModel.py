@@ -114,20 +114,22 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
     plt.savefig(path)
     return path
 
-def log_images(i,experiment,golds,extracteds ,labelNames, t2ws,directory,epoch):
-    gold_arr_loc=golds[i][0,:,:,:]
-    extracted=extracteds[i][0,:,:,:]
-    labelName=labelNames[i]
-    # print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)} t2w {t2ws[i].shape}  ")
-    maxSlice = max(list(range(0,gold_arr_loc.shape[0])),key=lambda ind : np.sum(gold_arr_loc[ind,:,:]) )
-    t2w = t2ws[i][0,maxSlice,:,:]
-    t2wMax= np.max(t2w.flatten())
-    # print(f"suuuum {np.sum(extracted)}")
-    #logging only if it is non zero case
-    if np.sum(gold_arr_loc)>0:
-        experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*2,((extracted[maxSlice,:,:]).astype('float'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
-        # experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
-        # experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
+def log_images(experiment,golds,extracteds ,labelNames, directory,epoch):
+    for batchInd in range(0,golds.shape[0]):
+        if(batchInd<10)
+            gold_arr_loc=golds[batchInd,:,:,:]
+            extracted=extracteds[batchInd,:,:,:]
+            labelName=labelNames[batchInd]
+            # print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)} t2w {t2ws[i].shape}  ")
+            maxSlice = max(list(range(0,gold_arr_loc.shape[0])),key=lambda ind : np.sum(gold_arr_loc[ind,:,:]) )
+            # t2w = t2ws[i][0,maxSlice,:,:]
+            # t2wMax= np.max(t2w.flatten())
+            # print(f"suuuum {np.sum(extracted)}")
+            #logging only if it is non zero case
+            if np.sum(gold_arr_loc)>0:
+                experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*2,((extracted[maxSlice,:,:]).astype('float'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+                # experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+                # experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
 
 
 class Model(pl.LightningModule):
@@ -250,11 +252,14 @@ class Model(pl.LightningModule):
             for x in valid_images
         ]
         preds[1] = np.flip(preds[1], [3])
+        label_name = valid_data['seg_name']
+        res= (valid_labels[:, 0, ...]
+                , np.mean([ gaussian_filter(x, sigma=1.5)for x in preds], axis=0))
+        if(batch_idx<3):
+            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch)
+        
+        return res
 
-        return valid_labels[:, 0, ...], np.mean([
-                                                        gaussian_filter(x, sigma=1.5)
-                                                        for x in preds
-                                                    ], axis=0)
 
     # def test_step(self, batch, batch_idx):
     #     valid_labels, preds = self._shared_eval_step(batch, batch_idx)
