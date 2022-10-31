@@ -41,7 +41,7 @@ from statistics import mean
 from typing import (Callable, Dict, Hashable, Iterable, List, Optional,
                     Sequence, Sized, Tuple, Union)
 
-import gdown
+
 import matplotlib.pyplot as plt
 import monai
 import numpy as np
@@ -122,7 +122,7 @@ from datetime import datetime
 from glob import glob
 from pathlib import Path
 
-import gdown
+
 import matplotlib.pyplot as plt
 import monai
 import numpy as np
@@ -161,7 +161,21 @@ from functools import partial
 from optuna.integration import PyTorchLightningPruningCallback
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import CometLogger
+import optuna
+from optuna.integration import PyTorchLightningPruningCallback
+# from ray import air, tune
+# from ray.air import session
+# from ray.tune import CLIReporter
+from optuna.visualization import plot_contour
+from optuna.visualization import plot_edf
+from optuna.visualization import plot_intermediate_values
+from optuna.visualization import plot_optimization_history
+from optuna.visualization import plot_parallel_coordinate
+from optuna.visualization import plot_param_importances
+from optuna.visualization import plot_slice
 
+
+import hpTrain
 
 def main():
     # command line arguments for hyperparameters and I/O paths
@@ -215,63 +229,35 @@ def main():
 
     args = parser.parse_args()
     
-    project_name= "pic_raw_3"
-    experiment_name="baseline_pC"
-    args.batch_size=32
-
-
-    args.weights_dir=join(args.weights_dir,experiment_name )
+    project_name= "pic_mono_6"
+    #experiment_name="baseline_pl"
+    # args.batch_size=32
+    # imageShape=(256, 256,20)
+    imageShape=(256, 256,20)
+    args.weights_dir=join(args.weights_dir,project_name )
     args.model_strides = ast.literal_eval(args.model_strides)
     args.model_features = ast.literal_eval(args.model_features)
     
     # retrieve default set of hyperparam (architecture, batch size) for given neural network
-    if bool(args.use_def_model_hp):
-        args = get_default_hyperparams(args)
+    # if bool(args.use_def_model_hp):
+    #     args = get_default_hyperparams(args)
+    
+    study = optuna.create_study(
+            study_name=project_name
+            ,sampler=optuna.samplers.NSGAIISampler()    
+            ,pruner=optuna.pruners.HyperbandPruner()
+            ,storage=f"mysql://root:jm@34.91.215.109:3306/{project_name}"
+            ,load_if_exists=True
+            ,direction="maximize"
+            )
 
-    comet_logger = CometLogger(
-        api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
-        #workspace="OPI", # Optional
-        project_name=project_name, # Optional
-        experiment_name=experiment_name # Optional
-    )
-    toMonitor="valid_ranking"
-    # checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
-    # stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs=trial.suggest_float("swa_lrs", 1e-6, 1e-4))
-    # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
-    early_stopping = pl.callbacks.early_stopping.EarlyStopping(
-        monitor=toMonitor,
-        patience=7,
-        mode="max",
-        #divergence_threshold=(-0.1)
-    )
-    check_eval_every_epoch=40
-    # for each fold
-    for f in args.folds:
-        model = LightningModel.Model(f,args)
-        trainer = pl.Trainer(
-            #accelerator="cpu", #TODO(remove)
-            max_epochs=2000,#args.num_epochs,
-            #gpus=1,
-            #precision=experiment.get_parameter("precision"), 
-            callbacks=[early_stopping ], #optuna_prune
-            logger=comet_logger,
-            accelerator='auto',
-            devices='auto',       
-            default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
-            # auto_scale_batch_size="binsearch",
-            auto_lr_find=True,
-            check_val_every_n_epoch=check_eval_every_epoch,
-            accumulate_grad_batches= 1,
-            #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
-            log_every_n_steps=5
-            ,reload_dataloaders_every_n_epochs=1
-            #strategy='dp'
-        )
-        trainer.fit(model)
+    def objective(trial: optuna.trial.Trial) -> float:
+        return hpTrain.mainTrain(project_name,args,trial,imageShape)
 
 
+
+    study.optimize(objective, n_trials=400)
 
 if __name__ == '__main__':
     main()
-
 
