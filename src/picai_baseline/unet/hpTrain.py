@@ -111,8 +111,8 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     # if(schedulerIndex==2):
     #     schedulerIndex=1
     #     callbacks=[early_stopping,checkpoint_callback]
-
-    model = LightningModel.Model(f,args,args.base_lr,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape,fInd)
+    logImageDir=tempfile.mkdtemp()
+    model = LightningModel.Model(f,args,args.base_lr,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape,fInd,logImageDir)
     trainer = pl.Trainer(
         #accelerator="cpu", #TODO(remove)
         max_epochs=3000,#args.num_epochs,
@@ -151,5 +151,6 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
 
     res = model.tracking_metrics['best_metric']
+    shutil.rmtree(logImageDir) 
     print(f"best_metric {res}")
     return res

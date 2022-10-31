@@ -141,7 +141,8 @@ class Model(pl.LightningModule):
     ,normalizationIndex
     ,modelIndex
     ,imageShape
-    ,fInd):
+    ,fInd
+    ,logImageDir):
         super().__init__()
         in_channels=3
         out_channels=2
@@ -178,7 +179,7 @@ class Model(pl.LightningModule):
         self.expectedShape =expectedShape
         self.tracking_metrics=tracking_metrics
         print(f"argssssssss pl {args}")
-        self.logImageDir=tempfile.mkdtemp()
+        self.logImageDir=logImageDir#tempfile.mkdtemp()
 
 
     def setup(self, stage=None):
@@ -233,10 +234,10 @@ class Model(pl.LightningModule):
         epoch=self.current_epoch
         # train_loss, step = 0,  0
         
-        # inputs = batch_data['data'][:,0,:,:,:,:]
+        inputs = batch_data['data'][:,0,:,:,:,:]
         # labels = batch_data['seg'][:,0,:,:,:,:]
         
-        inputs = batch_data['data']
+        #inputs = batch_data['data']
         labels = batch_data['seg']
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         outputs = self.model(inputs)
