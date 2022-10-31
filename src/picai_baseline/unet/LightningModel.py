@@ -113,15 +113,17 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
     return path
 
 
-def log_images(i,experiment,golds,extracteds , directory,epoch):
+def log_images(i,experiment,golds,extracteds ,labelNames, directory,epoch):
     goldChannel=1
-    gold_arr_loc=golds[i][1,:,:,:]
+    gold_arr_loc=golds[i]
+    extracted=extracteds[i]
+    labelName=labelNames[i]
+    print(f"gggg gold_arr_loc {gold_arr_loc.shape} extracted {extracted.shape}")
     maxSlice = max(list(range(0,gold_arr_loc.size(dim=3))),key=lambda ind : torch.sum(gold_arr_loc[goldChannel,:,:,ind]).item() )
 
-    extracted=extracteds[i][0,:,:,:]
     #logging only if it is non zero case
     if np.sum(gold)>0:
-        experiment.log_image( save_heatmap(np.add(gold*3,((extracted[:,:,maxSlice]>0).astype('int8'))),directory,f"gold_plus_extracted_{curr_studyId}_{epoch}",numLesions[i],'plasma'))
+        experiment.log_image( save_heatmap(np.add(gold*3,((extracted[:,:,maxSlice]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
         # experiment.log_image( save_heatmap(gold,directory,f"gold_{curr_studyId}_{epoch}",numLesions[i]))
 
 
@@ -281,8 +283,8 @@ class Model(pl.LightningModule):
         all_valid_labels=np.array(([x[labelKey].cpu().detach().numpy() for x in outputs]))
         all_valid_preds=np.array(([x[predsKey] for x in outputs]))
         all_label_name=np.array(([x['label_name'] for x in outputs]))
-        for i in range(0,len(all_label_name)):
-            log_images(i,self.logger.experiment,all_valid_labels,all_valid_preds , self.logImageDir,self.current_epoch)
+        for i in range(0,len(all_valid_preds)):
+            log_images(i,self.logger.experiment,all_valid_labels,all_valid_preds ,all_label_name, self.logImageDir,self.current_epoch)
 
 
         #print(f" all_valid_labels {all_valid_labels[0].shape}  all_valid_preds {all_valid_preds[0].shape} ")
