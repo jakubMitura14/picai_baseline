@@ -124,7 +124,7 @@ def log_images(i,experiment,golds,extracteds ,labelNames, t2ws,directory,epoch):
     #logging only if it is non zero case
     if np.sum(gold_arr_loc)>0:
         experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
-        experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{curr_studyId}_{epoch}",numLesions[i]))
+        experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
 
 
 class Model(pl.LightningModule):
@@ -183,8 +183,8 @@ class Model(pl.LightningModule):
         setting up dataset
         """
         train_gen, valid_gen, test_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex,expectedShape=self.expectedShape)
-        self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
-        #self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
+        #self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
+        self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # integrate data augmentation pipeline from nnU-Net
         # train_gen = apply_augmentations(
         #     dataloader=train_gen,
@@ -240,10 +240,10 @@ class Model(pl.LightningModule):
         # print(f"ssshhh {batch_data['data'].shape} {type(batch_data['data'])} label {batch_data['seg'].shape} {type(batch_data['seg'])}  outputs {outputs.shape} {type(outputs)} ")
 
     
-        # loss = self.loss_func(outputs, labels)
-        loss = self.loss_func(outputs, labels.long())
+        loss = self.loss_func(torch.sigmoid(outputs), labels)
+        #loss = self.loss_func(outputs, labels.long())
         # train_loss += loss.item()
-        self.log('train_loss', loss.item())
+        #self.log('train_loss', loss.item())
         # print(f" sssssssssss loss {type(loss)}  ")
 
         # return torch.Tensor([loss]).to(self.device)
