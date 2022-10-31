@@ -121,6 +121,7 @@ class Model(pl.LightningModule):
         self.args = args
         model = neural_network_for_run(args=args, device=devicee)
         self.base_lr_multi = base_lr_multi
+        self.learning_rate = learning_rate
         base_lr= learning_rate*base_lr_multi
         print(f"lr {self.learning_rate*self.base_lr_multi}")
         self.base_lr = base_lr
