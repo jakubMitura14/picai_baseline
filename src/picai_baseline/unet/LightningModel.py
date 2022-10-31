@@ -172,7 +172,7 @@ class Model(pl.LightningModule):
         #model,expectedShape,newBatchSize=getUneta(args,devicee) #models[0]
         self.expectedShape=expectedShape
         args.batch_size= newBatchSize
-        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
+        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr*base_lr_multi, amsgrad=True)
 
 
         self.model=model
