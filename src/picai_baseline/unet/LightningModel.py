@@ -121,7 +121,7 @@ def log_images(i,experiment,golds,extracteds ,labelNames, directory,epoch):
 
     #logging only if it is non zero case
     if np.sum(gold)>0:
-        experiment.log_image( save_heatmap(np.add(gold*3,((extracted[:,:,maxSlice]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+        experiment.log_image( save_heatmap(np.add(gold_arr_loc[:,:,maxSlice]*3,((extracted[:,:,maxSlice]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
         # experiment.log_image( save_heatmap(gold,directory,f"gold_{curr_studyId}_{epoch}",numLesions[i]))
 
 
