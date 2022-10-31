@@ -285,6 +285,7 @@ class Model(pl.LightningModule):
         outputs = outputs[dataloader_idxx]#list(filter( lambda entry : entry['dataloader_idx']==dataloader_idxx,outputs))
         all_valid_labels=np.array(([x[labelKey].cpu().detach().numpy() for x in outputs]))
         all_valid_preds=np.array(([x[predsKey] for x in outputs]))
+        print(f" all_valid_labels {all_valid_labels[0].shape}  all_valid_preds {all_valid_preds[0].shape} ")
         # all_valid_labels=np.array(([x['valid_label'].cpu().detach().numpy() for x in outputs]))
         # all_valid_preds=np.array(([x['val_preds']for x in outputs]))
 
