@@ -153,10 +153,10 @@ class Model(pl.LightningModule):
 
         self.devicee=devicee
         self.args = args
-        model = neural_network_for_run(args=args, device=devicee)
+        #model = neural_network_for_run(args=args, device=devicee)
         self.train_gen = []
         self.valid_gen = []
-        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
+        # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
         # model, optimizer, tracking_metrics = resume_or_restart_training(
         #     model=model, optimizer=optimizer,
         #     device=devicee, args=args, fold_id=f
@@ -169,9 +169,10 @@ class Model(pl.LightningModule):
 
         self.expectedShape=expectedShape= (3,20,256,256)
         # models=[getUneta(args,devicee),getUnetb(args,devicee)]
-        # model,expectedShape,newBatchSize=models[0]
-        # self.expectedShape=expectedShape
-        # args.batch_size= newBatchSize
+        model,expectedShape,newBatchSize=getUneta(args,devicee) #models[0]
+        self.expectedShape=expectedShape
+        args.batch_size= newBatchSize
+        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
 
 
         self.model=model
