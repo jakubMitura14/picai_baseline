@@ -216,7 +216,7 @@ class Model(pl.LightningModule):
         self.valid_gen=valid_gen
         self.test_gen=test_gen
         experiment=self.logger.experiment
-        experiment.log_parameter('lr',self.base_lr)
+        #experiment.log_parameter('lr',self.base_lr)
 
     def train_dataloader(self):
         return self.train_gen
