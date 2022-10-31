@@ -243,7 +243,8 @@ class Model(pl.LightningModule):
         # print(f"ssshhh {batch_data['data'].shape} {type(batch_data['data'])} label {batch_data['seg'].shape} {type(batch_data['seg'])}  outputs {outputs.shape} {type(outputs)} ")
 
     
-        loss = self.loss_func(torch.sigmoid(outputs), labels)
+        # loss = self.loss_func(torch.sigmoid(outputs), labels)
+        loss = self.loss_func(outputs, labels)
         #loss = self.loss_func(outputs, labels.long())
         # train_loss += loss.item()
         self.log('train_loss', loss.item())
