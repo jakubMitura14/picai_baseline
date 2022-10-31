@@ -42,7 +42,7 @@ class FocalLoss(nn.Module):
         if self.alpha >= 0:
             alpha_t = self.alpha * targets[-1] + (1 - self.alpha) * (1 - targets[-1])
             loss = alpha_t * loss
-        print(f" in loss bbb {type(loss)}")
+            print(f" in loss bbb {type(loss)}")
 
         if self.reduction == "mean":
             loss = loss.mean()
