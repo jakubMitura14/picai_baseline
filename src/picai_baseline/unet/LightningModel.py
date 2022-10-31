@@ -114,7 +114,7 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
 
 
 def log_images(i,experiment,golds,extracteds ,labelNames, directory,epoch):
-    gold_arr_loc=golds[i]
+    gold_arr_loc=golds[i].int()
     extracted=extracteds[i]
     labelName=labelNames[i]
     print(f"gggg gold_arr_loc {gold_arr_loc.shape} extracted {extracted.shape}")
