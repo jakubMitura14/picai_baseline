@@ -112,7 +112,6 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
     plt.savefig(path)
     return path
 
-
 def log_images(i,experiment,golds,extracteds ,labelNames, directory,epoch):
     gold_arr_loc=golds[i].int()
     extracted=extracteds[i]
