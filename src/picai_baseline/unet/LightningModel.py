@@ -291,12 +291,12 @@ class Model(pl.LightningModule):
         #all_t2w=np.array(([x['t2w'] for x in outputs]))
         all_t2w=np.array(([x['t2w'].cpu().detach().numpy() for x in outputs]))
 
-        with mp.Pool(processes = mp.cpu_count()) as pool:
-            pool.map(partial(log_images,
-            experiment=self.logger.experiment, golds=all_valid_labels,
-            extracteds=all_valid_preds, labelNames= all_label_name,
-            t2ws=all_t2w, directory= self.logImageDir, epoch=self.current_epoch)
-               , list(range(0,len(all_valid_preds))))
+        # with mp.Pool(processes = mp.cpu_count()) as pool:
+        list(map(partial(log_images,
+        experiment=self.logger.experiment, golds=all_valid_labels,
+        extracteds=all_valid_preds, labelNames= all_label_name,
+        t2ws=all_t2w, directory= self.logImageDir, epoch=self.current_epoch)
+            , list(range(0,   min(len(all_valid_preds),15)  ))))
 
         # for i in range(0,len(all_valid_preds)):
         #     log_images(i,self.logger.experiment,all_valid_labels
