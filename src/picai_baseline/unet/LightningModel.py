@@ -33,7 +33,8 @@ from os.path import basename, dirname, exists, isdir, join, split
 import tempfile
 import multiprocessing as mp
 from torchmetrics.classification import BinaryF1Score
-
+import torch.nn as nn
+import torch.nn.functional as F
 
 class UNetToRegresion(nn.Module):
     def __init__(self,
