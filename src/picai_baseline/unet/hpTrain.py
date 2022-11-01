@@ -118,7 +118,9 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     #     schedulerIndex=1
     #     callbacks=[early_stopping,checkpoint_callback]
     logImageDir=tempfile.mkdtemp()
-    model = LightningModel.Model(f,args,args.base_lr,base_lr_multi,schedulerIndex,normalizationIndex,modelIndex,imageShape,fInd,logImageDir,dropout)
+    model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
+            ,schedulerIndex,normalizationIndex,modelIndex,imageShape
+            ,fInd,logImageDir,dropout,regression_channels)
     #model = LightningModel.Model(f,args)
     trainer = pl.Trainer(
         #accelerator="cpu", #TODO(remove)
