@@ -32,6 +32,37 @@ import matplotlib.pyplot as plt
 from os.path import basename, dirname, exists, isdir, join, split
 import tempfile
 import multiprocessing as mp
+from torchmetrics.classification import BinaryF1Score
+
+
+class UNetToRegresion(nn.Module):
+    def __init__(self,
+        in_channels,
+        regression_channels
+        ,segmModel
+    ) -> None:
+        super().__init__()
+        print(" in UNetToRegresion {in_channels}")
+        self.segmModel=segmModel
+        self.model = nn.Sequential(
+            ConvBnReLU3d(in_channels=in_channels, out_channels=regression_channels[0], kernel_size=3, stride=2,qconfig = torch.quantization.get_default_qconfig('fbgemm')),
+            ConvBnReLU3d(in_channels=regression_channels[0], out_channels=regression_channels[1], kernel_size=3, stride=2,qconfig = torch.quantization.get_default_qconfig('fbgemm')),
+            ConvBnReLU3d(in_channels=regression_channels[1], out_channels=regression_channels[2], kernel_size=3, stride=1,qconfig = torch.quantization.get_default_qconfig('fbgemm')),
+            ConvBnReLU3d(in_channels=regression_channels[2], out_channels=1, kernel_size=3, stride=2,qconfig = torch.quantization.get_default_qconfig('fbgemm')),
+            nn.AdaptiveMaxPool3d((8,8,2)),#ensuring such dimension 
+            nn.Flatten(),
+            #nn.BatchNorm3d(8*8*4),
+            nn.Linear(in_features=8*8*2, out_features=100),
+            #nn.BatchNorm3d(100),
+            nn.ReLU(inplace=True),
+            nn.Linear(in_features=100, out_features=1)
+            # ,torch.nn.Sigmoid()
+        )
+    def forward(self, x):
+        segmMap=self.segmModel(x)
+        #print(f"segmMap  {segmMap}")
+        return (segmMap,self.model(segmMap))
+
 
 
 # def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
@@ -121,7 +152,7 @@ def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataload
     for batchInd in range(0,golds.shape[0]):
         if(batchInd<10):
             gold_arr_loc=golds[batchInd,:,:,:]
-            extracted=extracteds[batchInd,:,:,:]
+            extracted=extract_lesion_candidates(extracteds[batchInd,:,:,:])[0]
             labelName=labelNames[batchInd]
             # print(f"gggg gold_arr_loc {gold_arr_loc.shape} {type(gold_arr_loc)} extracted {extracted.shape} {type(extracted)} t2w {t2ws[i].shape}  ")
             maxSlice = max(list(range(0,gold_arr_loc.shape[0])),key=lambda ind : np.sum(gold_arr_loc[ind,:,:]) )
@@ -130,8 +161,8 @@ def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataload
             # print(f"suuuum {np.sum(extracted)}")
             #logging only if it is non zero case
             if np.sum(gold_arr_loc)>0:
-                experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*2,((extracted[maxSlice,:,:]).astype('float'))),directory,f"{valTr}_{labelName}_{epoch}",'plasma'))
-                # experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*3,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+                # experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*2,((extracted[maxSlice,:,:]).astype('float'))),directory,f"{valTr}_{labelName}_{epoch}",'plasma'))
+                experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*2,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
                 # experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
 
 
@@ -171,13 +202,15 @@ class Model(pl.LightningModule):
         # args.batch_size= newBatchSize
         #self.expectedShape=expectedShape
 
-
+        self.modelRegression = UNetToRegresion(2,regression_channels,model)
+        self.regressionMetric_val=BinaryF1Score()
+        self.regressionMetric_train=BinaryF1Score()
         #self.expectedShape=expectedShape= (3,20,256,256)
         # models=[getUneta(args,devicee),getUnetb(args,devicee)]
         #model,expectedShape,newBatchSize=getUneta(args,devicee) #models[0]
         self.expectedShape=expectedShape
         args.batch_size= newBatchSize
-        optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr*base_lr_multi, amsgrad=True)
+        optimizer = torch.optim.Adam(params=self.modelRegression.parameters(), lr=args.base_lr*base_lr_multi, amsgrad=True)
 
 
         self.model=model
@@ -189,8 +222,8 @@ class Model(pl.LightningModule):
         """
         setting up dataset
         """
-        train_gen, valid_gen, test_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex,expectedShape=self.expectedShape)
-
+        train_gen, valid_gen, test_gen, class_weights,df = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex,expectedShape=self.expectedShape)
+        self.df = df
         #train_gen, valid_gen, test_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f)
         # self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
         self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
@@ -236,9 +269,15 @@ class Model(pl.LightningModule):
         # train_loss, step = 0,  0
         inputs = batch_data['data'][:,0,:,:,:,:]
         labels = batch_data['seg'][:,0,:,:,:,:]
+        isCa = batch_data['isCa']
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
-        outputs = self.model(inputs)
-        loss = self.loss_func(outputs, labels)
+        # outputs = self.modelRegression(inputs)
+        segmMap,reg_hat = self.modelRegression(inputs)
+        
+        lossSegm = self.loss_func(segmMap, labels)
+        lossRegr=self.regLoss(reg_hat.flatten().float(),torch.Tensor(isCa).to(self.device).flatten().float() )
+
+        loss=torch.add(lossSegm,lossRegr)
         # train_loss += loss.item()
         self.log('train_loss', loss.item())
         # print(f" sssssssssss loss {type(loss)}  ")
@@ -250,15 +289,22 @@ class Model(pl.LightningModule):
         valid_images = valid_data['data'][:,0,:,:,:,:]
         valid_labels = valid_data['seg'][:,0,:,:,:,:]                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
+        isCa = batch_data['isCa']
+        label_name = valid_data['seg_name']
+        segmMap,reg_hat = self.modelRegression(inputs)
+        if(dataloader_idx==0):
+            self.regressionMetric_val(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())
+        if(dataloader_idx==1):
+            self.regressionMetric_train(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())        
+
         preds = [
-            torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy()
+            torch.sigmoid(segmMap)[:, 1, ...].detach().cpu().numpy()
             for x in valid_images
         ]
         preds[1] = np.flip(preds[1], [3])
-        label_name = valid_data['seg_name']
         res= (valid_labels[:, 0, ...]
-                , np.mean([ gaussian_filter(x, sigma=1.5)for x in preds], axis=0))
-        if(batch_idx<3):
+                , np.mean([ gaussian_filter(x, sigma=1.5)for x in preds], axis=0), )
+        if(batch_idx<4):
             log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx)
         
         return res
@@ -326,6 +372,15 @@ class Model(pl.LightningModule):
         self.log('train_AP',valid_metrics_train.AP  )
         self.log('train_ranking',valid_metrics_train.score  )    
         
+        
+        regressionMetric_val=self.regressionMetric_val.compute()
+        self.regressionMetric_val.reset()
+        self.log('val_F1', regressionMetric_val)
+        
+        regressionMetric_train=self.regressionMetric_train.compute()
+        self.regressionMetric_train.reset()
+        self.log('train_F1', regressionMetric_train)
+
         # export train-time + validation metrics as .xlsx sheet
         metricsData = pd.DataFrame(list(zip(self.tracking_metrics['all_epochs'],
                                             # self.tracking_metrics['all_train_loss'],

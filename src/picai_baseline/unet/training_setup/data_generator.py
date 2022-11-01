@@ -105,6 +105,9 @@ def getPatientDict(index, image_files,seg_files):
 def prepare_datagens(args, fold_id,normalizationIndex,expectedShape):
     """Load data sheets --> Create datasets --> Create data loaders"""
 
+    #load dataset
+    df = pd.read_csv('/home/sliceruser/data/metadata/processedMetaData.csv')
+
     # load datasheets
     with open(args.overviews_dir+'PI-CAI_train-fold-'+str(fold_id)+'.json') as fp:
         train_json = json.load(fp)
@@ -161,9 +164,9 @@ def prepare_datagens(args, fold_id,normalizationIndex,expectedShape):
 
 
 
-    transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(),normalizationIndex,normalizerDict,expectedShape)
+    transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(),normalizationIndex,normalizerDict,expectedShape,df)
        
-    transfVal=loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,normalizerDict,expectedShape)
+    transfVal=loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,normalizerDict,expectedShape,df)
 
     transfTrain=Compose(transfTrain,monai.transforms.ToTensord(keys=["data","seg"])  )
     transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
@@ -187,7 +190,7 @@ def prepare_datagens(args, fold_id,normalizationIndex,expectedShape):
 
 
 
-    return train_ldr, valid_ldr, test_gen, class_weights.astype(np.float32)
+    return train_ldr, valid_ldr, test_gen, class_weights.astype(np.float32),df
 
 
     # actual dataloaders used at train-time

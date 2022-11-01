@@ -94,7 +94,8 @@ class loadImageMy(MapTransform):
 
         d = dict(data)
         for key in self.keys:
-            d[key+'_name']=Path(d[key]).stem
+            stemm= Path(d[key]).stem
+            d[key+'_name']=stemm
             if(self.normalizationIndex==0):    
                 d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
             if(self.normalizationIndex==1):    
@@ -143,12 +144,21 @@ class loadlabelMy(MapTransform):
     def __init__(
     self,
     keys: KeysCollection,
+    df,
     allow_missing_keys: bool = False):
         super().__init__(keys, allow_missing_keys)
+        self.df= df
     def __call__(self, data):
         d = dict(data)
         for key in self.keys:
-            d[key+'_name']=Path(d[key]).stem
+            stemm= Path(d[key]).stem
+            d[key+'_name']=stemm
+            patient_id, study_id= stemm.split('_')
+            locDf = df.loc[df['study_id'] == study_id]
+            case_csPCa= (locDf['case_csPCa'].to_numpy())[0]
+            isCa=(case_csPCa== 'YES')
+            print(f"list case_csPCa {case_csPCa} isCa {isCa}")
+            d['isCa']=int(isCa)
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
             d[key] = np.expand_dims(d[key], axis=(0, 1))
         return d
@@ -167,12 +177,12 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
         for key in self.keys:
             d[key] =  apply_transform(self.transform, d[key], map_items=False)
         return d
-def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex,normalizerDict,expectedShape):
+def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex,normalizerDict,expectedShape,df):
     # print(f"hhhh {expectedShape}")
     return Compose([
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
-            loadlabelMy(keys=["seg"]),
+            loadlabelMy(keys=["seg"],df=df),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc"]),
             ToNumpyd(keys=["data","seg"]),
@@ -182,17 +192,17 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             ToNumpyd(keys=["data","seg"]),
             adaptor(batchTransforms, {"data": "data"}),
-            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name"])  ,      
+            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa"])  ,      
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
              ]           )        
-def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,expectedShape):
+def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,expectedShape,df):
     # print(f"hhhh {expectedShape}")
 
     return Compose([
             # printTransform(keys=["seg"],info="loadAndtransform"),
 
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
-            loadlabelMy(keys=["seg"]),
+            loadlabelMy(keys=["seg"],df=df),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc"]),
             ToNumpyd(keys=["data","seg"]),
@@ -201,7 +211,7 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
 
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
-            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name"])  ,      
+            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa"])  ,      
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
             ])        
 
