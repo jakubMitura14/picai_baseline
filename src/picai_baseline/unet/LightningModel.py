@@ -178,7 +178,8 @@ class Model(pl.LightningModule):
     ,imageShape
     ,fInd
     ,logImageDir
-    ,dropout):
+    ,dropout
+    ,regression_channels):
         super().__init__()
         in_channels=3
         out_channels=2

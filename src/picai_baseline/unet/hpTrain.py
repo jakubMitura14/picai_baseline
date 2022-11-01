@@ -69,9 +69,12 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     base_lr_multi =trial.suggest_float("base_lr_multi", 0.01, 10.0)
     schedulerIndex=0#trial.suggest_int("scheduler_int", 0, 1)
     #modelIndex=2
-    modelIndex=trial.suggest_int("modelIndex", 0, 4)
+    # modelIndex=trial.suggest_int("modelIndex", 0, 4)
+    modelIndex=0
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
     dropout=0.0
+    regression_channels=[64,128,256]
+
 
     machine = os.environ['machine']
     expId=trial.number
