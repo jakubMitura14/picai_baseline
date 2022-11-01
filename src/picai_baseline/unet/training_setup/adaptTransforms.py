@@ -153,7 +153,7 @@ class loadlabelMy(MapTransform):
         for key in self.keys:
             stemm= Path(d[key]).stem
             d[key+'_name']=stemm
-            patient_id, study_id= stemm.split('_')
+            patient_id, study_id= stemm.replace('.nii','').split('_')
             patient_id=int(patient_id)
             study_id= int(study_id)
             print(f"ppppp {patient_id} study_id {study_id}   ")
