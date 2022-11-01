@@ -208,6 +208,7 @@ class Model(pl.LightningModule):
         self.modelRegression = UNetToRegresion(2,regression_channels,model)
         self.regressionMetric_val=BinaryF1Score()
         self.regressionMetric_train=BinaryF1Score()
+        self.regLoss = nn.BCEWithLogitsLoss()
         #self.expectedShape=expectedShape= (3,20,256,256)
         # models=[getUneta(args,devicee),getUnetb(args,devicee)]
         #model,expectedShape,newBatchSize=getUneta(args,devicee) #models[0]
