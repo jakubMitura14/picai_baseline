@@ -154,6 +154,7 @@ class loadlabelMy(MapTransform):
             stemm= Path(d[key]).stem
             d[key+'_name']=stemm
             patient_id, study_id= stemm.split('_')
+            df=self.df
             locDf = df.loc[df['study_id'] == study_id]
             case_csPCa= (locDf['case_csPCa'].to_numpy())[0]
             isCa=(case_csPCa== 'YES')
