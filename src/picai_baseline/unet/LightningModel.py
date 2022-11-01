@@ -94,8 +94,8 @@ def getSegResNeta(dropout,input_image_size,in_channels,out_channels):
         out_channels=out_channels,
         dropout_prob=dropout,
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
-        blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
-    ),(3,32,256,256),10)
+        blocks_down=(4, 8,8, 16), blocks_up=(4, 4, 4)
+    ),(3,32,256,256),8)
 
 def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
     return (monai.networks.nets.SegResNet(
@@ -103,6 +103,8 @@ def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
         in_channels=in_channels,
         out_channels=out_channels,
         dropout_prob=dropout,
+        blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
+
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         #blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
     ),(3,32,256,256),14)
