@@ -217,7 +217,7 @@ class Model(pl.LightningModule):
         optimizer = torch.optim.Adam(params=self.modelRegression.parameters(), lr=args.base_lr*base_lr_multi, amsgrad=True)
 
 
-        self.model=model
+        #self.model=model
         self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
         self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
@@ -281,13 +281,13 @@ class Model(pl.LightningModule):
         lossSegm = self.loss_func(segmMap, labels)
         lossRegr=self.regLoss(reg_hat.flatten().float(),torch.Tensor(isCa).to(self.device).flatten().float() )
 
-        loss=torch.add(lossSegm,lossRegr)
+        #loss=torch.add(lossSegm,lossRegr)
         # train_loss += loss.item()
-        self.log('train_loss', loss.item())
+        #self.log('train_loss', loss.item())
         # print(f" sssssssssss loss {type(loss)}  ")
 
         # return torch.Tensor([loss]).to(self.device)
-        return loss
+        return lossSegm
 
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
         valid_images = valid_data['data'][:,0,:,:,:,:]
@@ -414,10 +414,10 @@ class Model(pl.LightningModule):
             self.tracking_metrics['best_metric'] = valid_metrics.score
             self.tracking_metrics['best_metric_epoch'] = epoch + 1
             if bool(self.args.export_best_model):
-                torch.save({'epoch':                epoch,
-                            'model_state_dict':     self.model.state_dict(),
-                            'optimizer_state_dict': self.optimizer.state_dict()},
-                        self.args.weights_dir + self.args.model_type + '_F' + str(self.f) + ".pt")
+                # torch.save({'epoch':                epoch,
+                #             'model_state_dict':     self.model.state_dict(),
+                #             'optimizer_state_dict': self.optimizer.state_dict()},
+                #         self.args.weights_dir + self.args.model_type + '_F' + str(self.f) + ".pt")
                 print("Validation Ranking Score Improved! Saving New Best Model", flush=True)
 
 
