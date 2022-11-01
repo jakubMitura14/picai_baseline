@@ -277,17 +277,19 @@ class Model(pl.LightningModule):
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         # outputs = self.modelRegression(inputs)
         segmMap,reg_hat = self.modelRegression(inputs)
-        
-        lossSegm = self.loss_func(segmMap, labels)
-        lossRegr=self.regLoss(reg_hat.flatten().float(),torch.Tensor(isCa).to(self.device).flatten().float() )
 
-        loss=torch.add(lossSegm,lossRegr)
+        if(epoch%2==0):
+            lossSegm = self.loss_func(segmMap, labels)
+            self.log('train_loss', lossSegm.item())
+            return loss
+
+        lossRegr=self.regLoss(reg_hat.flatten().float(),torch.Tensor(isCa).to(self.device).flatten().float() )
         # train_loss += loss.item()
-        self.log('train_loss', loss.item())
+        self.log('train_loss', lossRegr.item())
         # print(f" sssssssssss loss {type(loss)}  ")
 
         # return torch.Tensor([loss]).to(self.device)
-        return loss
+        return lossRegr
 
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
         valid_images = valid_data['data'][:,0,:,:,:,:]
