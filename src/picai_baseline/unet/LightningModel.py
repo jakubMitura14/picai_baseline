@@ -281,7 +281,7 @@ class Model(pl.LightningModule):
         if(epoch%2==0):
             lossSegm = self.loss_func(segmMap, labels)
             self.log('train_loss', lossSegm.item())
-            return loss
+            return lossSegm
 
         lossRegr=self.regLoss(reg_hat.flatten().float(),torch.Tensor(isCa).to(self.device).flatten().float() )
         # train_loss += loss.item()
