@@ -35,6 +35,7 @@ import multiprocessing as mp
 from torchmetrics.classification import BinaryF1Score
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.intrinsic.qat import ConvBnReLU3d
 
 class UNetToRegresion(nn.Module):
     def __init__(self,
