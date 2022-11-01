@@ -156,12 +156,12 @@ class loadlabelMy(MapTransform):
             patient_id, study_id= stemm.replace('.nii','').split('_')
             patient_id=int(patient_id)
             study_id= int(study_id)
-            print(f"ppppp {patient_id} study_id {study_id}   ")
+            # print(f"ppppp {patient_id} study_id {study_id}   ")
             df=self.df
             locDf = df.loc[df['study_id'] == study_id]
             case_csPCa= (locDf['case_csPCa'].to_numpy())[0]
             isCa=(case_csPCa== 'YES')
-            print(f"list case_csPCa {case_csPCa} isCa {isCa}")
+            # print(f"list case_csPCa {case_csPCa} isCa {isCa}")
             d['isCa']=int(isCa)
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
             d[key] = np.expand_dims(d[key], axis=(0, 1))
