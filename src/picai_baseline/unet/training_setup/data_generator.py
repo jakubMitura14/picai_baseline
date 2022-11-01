@@ -107,7 +107,8 @@ def prepare_datagens(args, fold_id,normalizationIndex,expectedShape):
     """Load data sheets --> Create datasets --> Create data loaders"""
 
     #load dataset
-    df = pd.read_csv('/home/sliceruser/data/metadata/processedMetaData.csv')
+    csvPath='/home/sliceruser/labels/clinical_information/marksheet.csv'
+    df = pd.read_csv(csvPath)
 
     # load datasheets
     with open(args.overviews_dir+'PI-CAI_train-fold-'+str(fold_id)+'.json') as fp:
