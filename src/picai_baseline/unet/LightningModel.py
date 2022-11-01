@@ -281,13 +281,13 @@ class Model(pl.LightningModule):
         lossSegm = self.loss_func(segmMap, labels)
         lossRegr=self.regLoss(reg_hat.flatten().float(),torch.Tensor(isCa).to(self.device).flatten().float() )
 
-        #loss=torch.add(lossSegm,lossRegr)
+        loss=torch.add(lossSegm,lossRegr)
         # train_loss += loss.item()
-        #self.log('train_loss', loss.item())
+        self.log('train_loss', loss.item())
         # print(f" sssssssssss loss {type(loss)}  ")
 
         # return torch.Tensor([loss]).to(self.device)
-        return lossSegm
+        return loss
 
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
         valid_images = valid_data['data'][:,0,:,:,:,:]
