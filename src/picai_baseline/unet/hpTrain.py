@@ -70,7 +70,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     schedulerIndex=0#trial.suggest_int("scheduler_int", 0, 1)
     #modelIndex=2
     modelIndex=trial.suggest_int("modelIndex", 0, 4)
-    normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
+    normalizationIndex=1#trial.suggest_int("normalizationIndex", 0, 1)
     dropout=0.0
 
     machine = os.environ['machine']
