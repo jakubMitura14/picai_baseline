@@ -40,9 +40,9 @@ import modelsToChoose
 
 
 def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
-    models=[modelsToChoose.getSegResNeta(dropout,in_channels,out_channels),
+    models=[modelsToChoose.getUneta(args,devicee),
+            modelsToChoose.getSegResNeta(dropout,in_channels,out_channels),
             modelsToChoose.getSegResNetb(dropout,in_channels,out_channels),
-            modelsToChoose.getUneta(args,devicee),
             modelsToChoose.getVneta(dropout,in_channels,out_channels),
             modelsToChoose.getVnetb(dropout,in_channels,out_channels),
             modelsToChoose.getVnetc(dropout,in_channels,out_channels),
