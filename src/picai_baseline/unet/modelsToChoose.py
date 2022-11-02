@@ -144,7 +144,7 @@ def getVneta(dropout,input_image_size,in_channels,out_channels):
     ,input_image_size_min=input_image_size_min
     , feature_size=16, num_heads=12 
     , dropout_rate=dropout,patch_size=(16,16,16) ) 
-    ,input_image_size,24)
+    ,input_image_size,16)
 
 
 def getVnetb(dropout,input_image_size,in_channels,out_channels):
@@ -154,7 +154,7 @@ def getVnetb(dropout,input_image_size,in_channels,out_channels):
     return (myVit(in_channels=in_channels, num_classes=out_channels
     ,input_image_size_min=input_image_size_min
     , feature_size=32, num_heads=24 , dropout_rate=dropout,patch_size=(16,16,16) ) 
-    ,input_image_size,16)
+    ,input_image_size,12)
     
 
 def getVnetc(dropout,input_image_size,in_channels,out_channels):
@@ -164,7 +164,7 @@ def getVnetc(dropout,input_image_size,in_channels,out_channels):
     return (myVit(in_channels=in_channels, num_classes=out_channels
     ,input_image_size_min=input_image_size_min
     , feature_size=64, num_heads=48 , dropout_rate=dropout,patch_size=(16,16,16) ) 
-    ,input_image_size,12)
+    ,input_image_size,8)
     
 
 
