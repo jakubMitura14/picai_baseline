@@ -233,8 +233,8 @@ class Model(pl.LightningModule):
         # return lossRegr
 
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
-        valid_images = valid_data['data'][:,0,:,:,:,:]
-        valid_labels = valid_data['seg'][:,0,:,:,:,:]
+        valid_images = valid_data['data'][:,0,:,:,:,:].float()
+        valid_labels = valid_data['seg'][:,0,:,:,:,:].float()
         #segmMap = self.model(valid_images)                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         isCa = valid_data['isCa']
