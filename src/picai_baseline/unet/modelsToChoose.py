@@ -186,7 +186,7 @@ def getUneta(args,devicee):
 #     ),(4,32,256,256),6)
 
 
-class UnetWithTransformerA(nn.Module):
+class UnetWithTransformer(nn.Module):
     def __init__(self,
         dropout
         ,input_image_size
@@ -194,38 +194,53 @@ class UnetWithTransformerA(nn.Module):
         ,out_channels
         ,args
         ,devicee
+        ,outer
+        ,inner
     ) -> None:
         super().__init__()
-        self.unet = getUneta(args,devicee)
-        self.tranformer = getVneta(dropout,input_image_size,2,out_channels)
+        self.outer=outer
+        self.inner=inner
+        # self.unet = getUneta(args,devicee)
+        # self.tranformer = getVneta(dropout,input_image_size,2,out_channels)
+        # self.unet = getUneta(args,devicee)
+        # self.tranformer = getVneta(dropout,input_image_size,3,3)
         
+
     def forward(self, x):
-        return self.tranformer(self.unet(x))
+        return outer( inner(x))#   self.tranformer(self.unet(x))
 
 
-class UnetWithTransformerB(nn.Module):
-    def __init__(self,
-        dropout
-        ,input_image_size
-        ,in_channels
-        ,out_channels
-        ,args
-        ,devicee
-    ) -> None:
-        super().__init__()
-        self.unet = getUneta(args,devicee)
-        self.tranformer = getVneta(dropout,input_image_size,3,3)
+# class UnetWithTransformerB(nn.Module):
+#     def __init__(self,
+#         dropout
+#         ,input_image_size
+#         ,in_channels
+#         ,out_channels
+#         ,args
+#         ,devicee
+#     ) -> None:
+#         super().__init__()
+#         self.unet = getUneta(args,devicee)
+#         self.tranformer = getVneta(dropout,input_image_size,3,3)
         
-    def forward(self, x):
-        return self.unet(self.tranformer(x))        
+#     def forward(self, x):
+#         return self.unet(self.tranformer(x))        
 
 
 def getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,20,256,256)
-    return (UnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee),
+    
+    inner = getUneta(args,devicee)
+    outer = getVneta(dropout,input_image_size,2,out_channels)
+    
+    return (UnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee,outer,inner),
     input_image_size,4)
 
 def getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,20,256,256)
-    return (UnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee),
+
+    outer = getUneta(args,devicee)
+    inner = getVneta(dropout,input_image_size,3,3)
+
+    return (UnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee,outer,inner),
     input_image_size,4)    
