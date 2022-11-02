@@ -251,7 +251,7 @@ def getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,ar
     , feature_size=16, num_heads=12 
     , dropout_rate=dropout,patch_size=(16,16,16) ) 
 
-    return (nn.Sequential(outer,inner ), input_image_size,4)
+    return (nn.Sequential(inner,outer ), input_image_size,4)
 
 def getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,32,256,256)
