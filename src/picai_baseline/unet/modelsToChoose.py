@@ -113,27 +113,38 @@ def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
     ),input_image_size,8)
  
 
-class myVit(nn.Module):
-    def __init__(self,
-    in_channels
+def myVit(in_channels
     ,num_classes
     ,feature_size
     ,num_heads
     ,dropout_rate
     ,patch_size
-    ,input_image_size_min
-    ) -> None:
-        super().__init__()
-        self.net=monai.networks.nets.UNETR(in_channels=in_channels, out_channels=num_classes
+    ,input_image_size_min):
+    return monai.networks.nets.UNETR(in_channels=in_channels, out_channels=num_classes
     ,img_size=input_image_size_min, spatial_dims=3
     , feature_size=16, num_heads=num_heads , dropout_rate=dropout_rate)
-    #     self.net=monai.networks.nets.ViT(in_channels=in_channels, num_classes=num_classes
-    # ,img_size=input_image_size_min, pos_embed='conv', classification=False, spatial_dims=3
-    # , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate
-    # ,patch_size=patch_size)
+
+# class myVit(nn.Module):
+#     def __init__(self,
+#     in_channels
+#     ,num_classes
+#     ,feature_size
+#     ,num_heads
+#     ,dropout_rate
+#     ,patch_size
+#     ,input_image_size_min
+#     ) -> None:
+#         super().__init__()
+#         self.net=monai.networks.nets.UNETR(in_channels=in_channels, out_channels=num_classes
+#     ,img_size=input_image_size_min, spatial_dims=3
+#     , feature_size=16, num_heads=num_heads , dropout_rate=dropout_rate)
+#     #     self.net=monai.networks.nets.ViT(in_channels=in_channels, num_classes=num_classes
+#     # ,img_size=input_image_size_min, pos_embed='conv', classification=False, spatial_dims=3
+#     # , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate
+#     # ,patch_size=patch_size)
         
-    def forward(self, x):
-        return self.net(x)
+#     def forward(self, x):
+#         return self.net(x)
 
 
 
