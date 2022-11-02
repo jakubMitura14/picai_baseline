@@ -261,8 +261,8 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa"])  ,      
-            monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
-            getToShape(keys=["data","seg"]),
+            monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float),
+            getToShape(keys=["data","seg"])
 
             ])        
 
