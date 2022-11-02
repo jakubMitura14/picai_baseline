@@ -210,8 +210,8 @@ class Model(pl.LightningModule):
     def training_step(self, batch_data, batch_idx):        
         epoch=self.current_epoch
         # train_loss, step = 0,  0
-        inputs = batch_data['data'][:,0,:,:,:,:]
-        labels = batch_data['seg'][:,0,:,:,:,:]
+        inputs = batch_data['data']#[:,0,:,:,:,:]
+        labels = batch_data['seg']#[:,0,:,:,:,:]
         isCa = batch_data['isCa']
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         # outputs = self.modelRegression(inputs)
@@ -233,8 +233,8 @@ class Model(pl.LightningModule):
         # return lossRegr
 
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
-        valid_images = valid_data['data'][:,0,:,:,:,:].to(torch.float32)
-        valid_labels = valid_data['seg'][:,0,:,:,:,:].to(torch.float32)
+        valid_images = valid_data['data']#[:,0,:,:,:,:].to(torch.float32)
+        valid_labels = valid_data['seg']#[:,0,:,:,:,:].to(torch.float32)
         #segmMap = self.model(valid_images)                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         isCa = valid_data['isCa']

@@ -204,6 +204,23 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
         for key in self.keys:
             d[key] =  apply_transform(self.transform, d[key], map_items=False)
         return d
+
+class getToShape(MapTransform): #RandomizableTransform
+    def __init__(
+    self,
+    keys: KeysCollection,
+    allow_missing_keys: bool = False):
+        super().__init__(keys, allow_missing_keys)
+        self.transform=transform
+
+    def __call__(self, data):
+        d = dict(data)
+        for key in self.keys:
+            d[key] =  d[key][:,0,:,:,:,:]
+        return d
+
+
+        
 def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex
 ,normalizerDict,expectedShape,df,RandomBiasField_prob
     ,RandomAnisotropy_prob):
@@ -223,6 +240,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             adaptor(batchTransforms, {"data": "data"}),
             SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa"])  ,      
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float),
+            getToShape(keys=["data","seg"]),
             wrapTorchio(torchio.transforms.RandomAnisotropy(include=["data"],p=RandomAnisotropy_prob)),
             wrapTorchio(torchio.transforms.RandomBiasField(include=["data"],p=RandomBiasField_prob))
              ]           )        
@@ -244,6 +262,8 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa"])  ,      
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
+            getToShape(keys=["data","seg"]),
+
             ])        
 
 # def addBatchAugmentations(transforms,batchTransforms): 
