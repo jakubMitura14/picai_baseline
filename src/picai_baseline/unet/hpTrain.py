@@ -69,7 +69,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     base_lr_multi =1.0#trial.suggest_float("base_lr_multi", 0.1, 3.0)
     schedulerIndex=trial.suggest_int("scheduler_int", 0, 2)
     #modelIndex=2
-    modelIndex=0#trial.suggest_int("modelIndex", 0, 7)
+    modelIndex=1#trial.suggest_int("modelIndex", 0, 7)
     #modelIndex=0
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
     dropout=trial.suggest_float("dropout", 0.0,0.4)
@@ -166,6 +166,15 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     experiment.log_parameter('schedulerIndex',schedulerIndexToLog)
     experiment.log_parameter('normalizationIndex',normalizationIndex)
     experiment.log_parameter('modelIndex',modelIndex)
+
+    experiment.log_parameter('dropout',dropout)
+    experiment.log_parameter('RicianNoiseTransformProb',RicianNoiseTransformProb)
+    experiment.log_parameter('LocalSmoothingTransformProb',LocalSmoothingTransformProb)
+    experiment.log_parameter('RandomBiasField_prob',RandomBiasField_prob)
+    experiment.log_parameter('RandomAnisotropy_prob',RandomAnisotropy_prob)
+    experiment.log_parameter('Random_GaussNoiseProb',Random_GaussNoiseProb)
+
+
 
 
 
