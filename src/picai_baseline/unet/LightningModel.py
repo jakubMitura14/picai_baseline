@@ -243,7 +243,7 @@ class Model(pl.LightningModule):
         #     self.regressionMetric_val(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())
         # if(dataloader_idx==1):
         #     self.regressionMetric_train(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())        
-        print(f"wwwwwwwwwwww {self.model(valid_images).shape}")
+        # print(f"wwwwwwwwwwww {self.model(valid_images).shape}")
         preds = [
             torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy()
             for x in valid_images
