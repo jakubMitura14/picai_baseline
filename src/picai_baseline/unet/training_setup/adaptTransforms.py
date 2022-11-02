@@ -211,7 +211,6 @@ class getToShape(MapTransform): #RandomizableTransform
     keys: KeysCollection,
     allow_missing_keys: bool = False):
         super().__init__(keys, allow_missing_keys)
-        self.transform=transform
 
     def __call__(self, data):
         d = dict(data)
