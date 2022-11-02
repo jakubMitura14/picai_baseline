@@ -243,7 +243,8 @@ class UnetWithTransformer(nn.Module):
 
 def getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,32,256,256)
-    
+    input_image_size_min=(32,256,256)
+
     inner = neural_network_for_run(args=args, device=devicee)
     outer = myVit(in_channels=2, num_classes=2
     ,input_image_size_min=input_image_size_min
