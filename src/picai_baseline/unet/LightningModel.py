@@ -115,7 +115,7 @@ class Model(pl.LightningModule):
         out_channels=2
         self.f = f
         devicee, args = compute_spec_for_run(args=args)
-        self.learning_rate=args.base_lr
+        self.learning_rate=learning_rate
         self.normalizationIndex=normalizationIndex
         self.logImageDir=logImageDir
         self.devicee=devicee
@@ -159,7 +159,7 @@ class Model(pl.LightningModule):
         """
         setting up dataset
         """
-        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=self.args.base_lr*self.base_lr_multi, amsgrad=True)
+        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=self.args.base_lr*self.learning_rate, amsgrad=True)
         self.optimizer=optimizer
 
         train_gen, valid_gen, test_gen, class_weights,df = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex
