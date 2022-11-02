@@ -99,7 +99,7 @@ def getSegResNeta(dropout,input_image_size,in_channels,out_channels):
         dropout_prob=dropout,
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         blocks_down=(8, 16,16, 32), blocks_up=(8, 8, 8)
-    ),input_image_size,3)
+    ),input_image_size,2)
 
 def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
     input_image_size=(3,32,256,256)
