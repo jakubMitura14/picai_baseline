@@ -125,9 +125,8 @@ class myVit(nn.Module):
     ) -> None:
         super().__init__()
         self.net=monai.networks.nets.ViT(in_channels=in_channels, num_classes=num_classes
-    ,img_size=input_image_size_min, pos_embed='conv', classification=True, spatial_dims=3
+    ,img_size=input_image_size_min, pos_embed='conv', classification=True, spatial_dims=4
     , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate
-    ,spatial_dims=4
     ,patch_size=patch_size)
         
     def forward(self, x):
