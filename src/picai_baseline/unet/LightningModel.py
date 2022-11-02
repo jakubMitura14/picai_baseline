@@ -45,7 +45,7 @@ def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_ch
             modelsToChoose.getSegResNetb(dropout, input_image_size,in_channels,out_channels),
             modelsToChoose.getVneta(dropout, input_image_size,in_channels,out_channels),
             modelsToChoose.getVnetb(dropout, input_image_size,in_channels,out_channels),
-            modelsToChoose.getVnetc(dropout, input_image_size,in_channels,out_channels),
+            #modelsToChoose.getVnetc(dropout, input_image_size,in_channels,out_channels),
             modelsToChoose.getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee),
             modelsToChoose.getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee)]
     
