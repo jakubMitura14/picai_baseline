@@ -233,7 +233,7 @@ def getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,ar
     inner = getUneta(args,devicee)
     outer = getVneta(dropout,input_image_size,2,out_channels)
     
-    return (UnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee,outer,inner),
+    return (UnetWithTransformer(dropout,input_image_size,in_channels,out_channels,args,devicee,outer,inner),
     input_image_size,4)
 
 def getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee):
@@ -242,5 +242,5 @@ def getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,ar
     outer = getUneta(args,devicee)
     inner = getVneta(dropout,input_image_size,3,3)
 
-    return (UnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee,outer,inner),
+    return (UnetWithTransformer(dropout,input_image_size,in_channels,out_channels,args,devicee,outer,inner),
     input_image_size,4)    
