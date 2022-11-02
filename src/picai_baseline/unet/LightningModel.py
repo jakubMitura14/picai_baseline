@@ -36,108 +36,26 @@ from torchmetrics.classification import BinaryF1Score
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.intrinsic.qat import ConvBnReLU3d
+import modelsToChoose 
 
-class UNetToRegresion(nn.Module):
-    def __init__(self,
-        in_channels,
-        regression_channels
-        ,segmModel
-    ) -> None:
-        super().__init__()
-        print(" in UNetToRegresion {in_channels}")
-        self.segmModel=segmModel
-        self.model = nn.Sequential(
-            ConvBnReLU3d(in_channels=in_channels, out_channels=regression_channels[0], kernel_size=3, stride=2,qconfig = torch.quantization.get_default_qconfig('fbgemm')),
-            ConvBnReLU3d(in_channels=regression_channels[0], out_channels=regression_channels[1], kernel_size=3, stride=2,qconfig = torch.quantization.get_default_qconfig('fbgemm')),
-            ConvBnReLU3d(in_channels=regression_channels[1], out_channels=regression_channels[2], kernel_size=3, stride=1,qconfig = torch.quantization.get_default_qconfig('fbgemm')),
-            ConvBnReLU3d(in_channels=regression_channels[2], out_channels=1, kernel_size=3, stride=2,qconfig = torch.quantization.get_default_qconfig('fbgemm')),
-            nn.AdaptiveMaxPool3d((8,8,2)),#ensuring such dimension 
-            nn.Flatten(),
-            #nn.BatchNorm3d(8*8*4),
-            nn.Linear(in_features=8*8*2, out_features=100),
-            #nn.BatchNorm3d(100),
-            nn.ReLU(inplace=True),
-            nn.Linear(in_features=100, out_features=1)
-            # ,torch.nn.Sigmoid()
-        )
-    def forward(self, x):
-        segmMap=self.segmModel(x)
-        #print(f"segmMap  {segmMap}")
-        return (segmMap,self.model(segmMap))
-
-
-
-# def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
-#     return monai.networks.nets.SwinUNETR(
-#         spatial_dims=3,
-#         in_channels=in_channels,
-#         out_channels=out_channels,
-#         img_size=input_image_size,
-#         #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
-#         #depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
-#     )
-
-# def getSwinUNETRb(dropout,input_image_size,in_channels,out_channels):
-#     return monai.networks.nets.SwinUNETR(
-#         spatial_dims=3,
-#         in_channels=in_channels,
-#         out_channels=out_channels,
-#         img_size=input_image_size,
-#         #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
-#         depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
-#     )
-
-def getSegResNeta(dropout,input_image_size,in_channels,out_channels):
-    return (monai.networks.nets.SegResNet(
-        spatial_dims=3,
-        in_channels=in_channels,
-        out_channels=out_channels,
-        dropout_prob=dropout,
-        # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
-        blocks_down=(4, 8,8, 16), blocks_up=(4, 4, 4)
-    ),(3,32,256,256),8)
-
-def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
-    return (monai.networks.nets.SegResNet(
-        spatial_dims=3,
-        in_channels=in_channels,
-        out_channels=out_channels,
-        dropout_prob=dropout,
-        blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
-
-        # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
-        #blocks_down=(2, 4, 4, 8), blocks_up=(2, 2, 2)
-    ),(3,32,256,256),14)
-
-def getUneta(args,devicee):
-    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),32)
-
-def getUnetb(args,devicee):
-    args.model_features = [ 64, 128, 256, 512, 1024,2048]
-    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),32)
-
-def getVNet(dropout,input_image_size,in_channels,out_channels):
-    return (monai.networks.nets.VNet(
-        spatial_dims=3,
-        in_channels=4,
-        out_channels=out_channels,
-        dropout_prob=dropout
-    ),(4,32,256,256),6)
 
 def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
-    models=[#getSwinUNETRa(dropout,input_image_size,in_channels,out_channels),
-            #getSwinUNETRb(dropout,input_image_size,in_channels,out_channels),
-            getSegResNeta(dropout,input_image_size,in_channels,out_channels),
-            getSegResNetb(dropout,input_image_size,in_channels,out_channels),
-            getUneta(args,devicee),
-            getUnetb(args,devicee),
-            getVNet(dropout,input_image_size,in_channels,out_channels)
-            ]
+    models=[modelsToChoose.getSegResNeta(dropout,in_channels,out_channels),
+            modelsToChoose.getSegResNetb(dropout,in_channels,out_channels),
+            modelsToChoose.getUneta(args,devicee),
+            modelsToChoose.getVneta(dropout,in_channels,out_channels),
+            modelsToChoose.getVnetb(dropout,in_channels,out_channels),
+            modelsToChoose.getVnetc(dropout,in_channels,out_channels)
+            modelsToChoose.getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee)
+            modelsToChoose.getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee)]
+    
     return models[index]        
 
 def chooseScheduler(optimizer, schedulerIndex):
-    schedulers = [torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+    schedulers = [torch.optim.lr_scheduler.PolynomialLR(optimizer, total_iters=300)
+                  ,torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
                  ,torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )                  ]
+    
     return schedulers[schedulerIndex]
 
 
@@ -148,6 +66,7 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
     plt.title( name)
     plt.savefig(path)
     return path
+
 
 def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataloaderIdx):
     valTr='val'
@@ -183,8 +102,15 @@ class Model(pl.LightningModule):
     ,fInd
     ,logImageDir
     ,dropout
-    ,regression_channels):
+    ,regression_channels
+    ,RicianNoiseTransformProb
+    ,LocalSmoothingTransformProb
+    ,RandomBiasField_prob
+    ,RandomAnisotropy_prob
+    ,Random_GaussNoiseProb
+    ):
         super().__init__()
+        self.save_hyperparameters()
         in_channels=3
         out_channels=2
         self.f = f
@@ -197,6 +123,14 @@ class Model(pl.LightningModule):
         #model = neural_network_for_run(args=args, device=devicee)
         self.train_gen = []
         self.valid_gen = []
+        self.RicianNoiseTransformProb=RicianNoiseTransformProb
+        self.LocalSmoothingTransformProb=LocalSmoothingTransformProb
+        self.RandomBiasField_prob=RandomBiasField_prob
+        self.RandomAnisotropy_prob=RandomAnisotropy_prob
+        self.Random_GaussNoiseProb=Random_GaussNoiseProb
+
+
+
         # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
         # model, optimizer, tracking_metrics = resume_or_restart_training(
         #     model=model, optimizer=optimizer,
@@ -218,19 +152,19 @@ class Model(pl.LightningModule):
         args.batch_size= newBatchSize
         self.model=model
         optimizer = torch.optim.Adam(params=self.model.parameters(), lr=args.base_lr*base_lr_multi, amsgrad=True)
-
-
+        # self.lr_scheduler = chooseScheduler(optimizer,schedulerIndex )
         self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
-        self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
 
     def setup(self, stage=None):
         """
         setting up dataset
         """
-        train_gen, valid_gen, test_gen, class_weights,df = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex,expectedShape=self.expectedShape)
+        train_gen, valid_gen, test_gen, class_weights,df = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex
+            ,expectedShape=self.expectedShape,RicianNoiseTransformProb=self.RicianNoiseTransformProb
+            , LocalSmoothingTransformProb=self.LocalSmoothingTransformProb ,RandomBiasField_prob=self.RandomBiasField_prob
+            ,RandomAnisotropy_prob=self.RandomAnisotropy_prob, Random_GaussNoiseProb=self.Random_GaussNoiseProb  )
         self.df = df
-        #train_gen, valid_gen, test_gen, class_weights = prepare_datagens(args=self.args, fold_id=self.f)
         # self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
         self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # integrate data augmentation pipeline from nnU-Net
@@ -260,10 +194,11 @@ class Model(pl.LightningModule):
         # hyperparameters from https://www.kaggle.com/code/isbhargav/guide-to-pytorch-learning-rate-scheduling/notebook
         # lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )
         #lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+        lr_scheduler = chooseScheduler(optimizer,schedulerIndex )
         return {
             "optimizer": optimizer,
             "lr_scheduler": {
-                "scheduler": self.lr_scheduler,
+                "scheduler": lr_scheduler,
                 "monitor": "train_loss",
                 "frequency": 1
             }}
@@ -278,10 +213,10 @@ class Model(pl.LightningModule):
         isCa = batch_data['isCa']
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         # outputs = self.modelRegression(inputs)
-        segmMap,reg_hat = self.modelRegression(inputs)
+        segmMap = self.model(inputs)
         lossSegm = self.loss_func(segmMap, labels)
         self.log('train_loss', lossSegm.item())
-
+        return lossSegm
         # if(epoch%2==0):
         #     lossSegm = self.loss_func(segmMap, labels)
         #     self.log('train_loss', lossSegm.item())
@@ -298,18 +233,18 @@ class Model(pl.LightningModule):
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
         valid_images = valid_data['data'][:,0,:,:,:,:]
         valid_labels = valid_data['seg'][:,0,:,:,:,:]
-        segmMap,reg_hat = self.modelRegression(valid_images)                
+        #segmMap = self.model(valid_images)                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         isCa = valid_data['isCa']
         label_name = valid_data['seg_name']
         
-        if(dataloader_idx==0):
-            self.regressionMetric_val(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())
-        if(dataloader_idx==1):
-            self.regressionMetric_train(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())        
+        # if(dataloader_idx==0):
+        #     self.regressionMetric_val(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())
+        # if(dataloader_idx==1):
+        #     self.regressionMetric_train(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())        
 
         preds = [
-            torch.sigmoid(self.modelRegression(x)[0])[:, 1, ...].detach().cpu().numpy()
+            torch.sigmoid(self.model(x))[:, 1, ...].detach().cpu().numpy()
             for x in valid_images
         ]
         preds[1] = np.flip(preds[1], [3])
@@ -384,13 +319,13 @@ class Model(pl.LightningModule):
         self.log('train_ranking',valid_metrics_train.score  )    
         
         
-        regressionMetric_val=self.regressionMetric_val.compute()
-        self.regressionMetric_val.reset()
-        self.log('val_F1', regressionMetric_val)
+        # regressionMetric_val=self.regressionMetric_val.compute()
+        # self.regressionMetric_val.reset()
+        # self.log('val_F1', regressionMetric_val)
         
-        regressionMetric_train=self.regressionMetric_train.compute()
-        self.regressionMetric_train.reset()
-        self.log('train_F1', regressionMetric_train)
+        # regressionMetric_train=self.regressionMetric_train.compute()
+        # self.regressionMetric_train.reset()
+        # self.log('train_F1', regressionMetric_train)
 
         # export train-time + validation metrics as .xlsx sheet
         metricsData = pd.DataFrame(list(zip(self.tracking_metrics['all_epochs'],

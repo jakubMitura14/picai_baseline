@@ -65,15 +65,25 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 
 def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
-    swa_lrs=trial.suggest_float("swa_lrs", 1e-1,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
-    base_lr_multi =trial.suggest_float("base_lr_multi", 0.1, 3.0)
-    schedulerIndex=0#trial.suggest_int("scheduler_int", 0, 1)
+    swa_lrs=0.01#trial.suggest_float("swa_lrs", 1e-1,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
+    #base_lr_multi =trial.suggest_float("base_lr_multi", 0.1, 3.0)
+    schedulerIndex=trial.suggest_int("scheduler_int", 0, 7)
     #modelIndex=2
-    modelIndex=0#trial.suggest_int("modelIndex", 0, 3)
+    modelIndex=0#trial.suggest_int("modelIndex", 0, 7)
     #modelIndex=0
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
-    dropout=0.0
+    dropout=trial.suggest_float("dropout", 0.0,0.4)
+    RicianNoiseTransformProb=0.0
+    LocalSmoothingTransformProb=0.0
+    RandomBiasField_prob=0.0
+    RandomAnisotropy_prob=0.0
+    Random_GaussNoiseProb=0.1
+
+
+
+
     regression_channels=[64,128,256]
+
 
 
     machine = os.environ['machine']
@@ -91,10 +101,10 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
 
 
-    stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= swa_lrs )
+    # stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= swa_lrs )
     early_stopping = pl.callbacks.early_stopping.EarlyStopping(
         monitor=toMonitor,
-        patience=10,
+        patience=8,
         mode="max",
         #divergence_threshold=(-0.1)
     )
@@ -112,7 +122,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
     checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
     schedulerIndexToLog= schedulerIndex
-    callbacks=[early_stopping,stochasticAveraging,checkpoint_callback]
+    callbacks=[early_stopping,checkpoint_callback]#stochasticAveraging
     #callbacks=[early_stopping,checkpoint_callback]
     # if(schedulerIndex==2):
     #     schedulerIndex=1
@@ -120,7 +130,12 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     logImageDir=tempfile.mkdtemp()
     model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
             ,schedulerIndex,normalizationIndex,modelIndex,imageShape
-            ,fInd,logImageDir,dropout,regression_channels)
+            ,fInd,logImageDir,dropout,regression_channels
+            ,RicianNoiseTransformProb
+            ,LocalSmoothingTransformProb
+            ,RandomBiasField_prob
+            ,RandomAnisotropy_prob
+            ,Random_GaussNoiseProb)
     #model = LightningModel.Model(f,args)
     trainer = pl.Trainer(
         #accelerator="cpu", #TODO(remove)
@@ -142,7 +157,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
         #strategy='dp'
     )
 
-    # trainer.tune(model)
+    trainer.tune(model)
 
     experiment=trainer.logger.experiment
     experiment.log_parameter('machine',machine)

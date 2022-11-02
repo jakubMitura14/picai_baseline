@@ -103,7 +103,15 @@ def getPatientDict(index, image_files,seg_files):
 
 
 
-def prepare_datagens(args, fold_id,normalizationIndex,expectedShape):
+def prepare_datagens(args
+    ,fold_id
+    ,normalizationIndex
+    ,expectedShape
+    ,RicianNoiseTransformProb
+    ,LocalSmoothingTransformProb
+    ,RandomBiasField_prob
+    ,RandomAnisotropy_prob
+    ,Random_GaussNoiseProb):
     """Load data sheets --> Create datasets --> Create data loaders"""
 
     #load dataset
@@ -166,7 +174,8 @@ def prepare_datagens(args, fold_id,normalizationIndex,expectedShape):
 
 
 
-    transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(),normalizationIndex,normalizerDict,expectedShape,df)
+    transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(RicianNoiseTransformProb, LocalSmoothingTransformProb,Random_GaussNoiseProb),normalizationIndex,normalizerDict,expectedShape,df    ,RandomBiasField_prob
+    ,RandomAnisotropy_prob)
        
     transfVal=loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,normalizerDict,expectedShape,df)
 

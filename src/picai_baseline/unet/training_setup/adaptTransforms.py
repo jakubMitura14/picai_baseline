@@ -48,6 +48,7 @@ from monai.transforms import (
 )
 from monai.transforms import Randomizable, apply_transform
 import torch
+import torchio
 
 from monai.config import KeysCollection
 from monai.data import MetaTensor
@@ -76,6 +77,28 @@ def prepare_scan(path: str) -> "npt.NDArray[Any]":
             sitk.ReadImage(path)
         ).astype(np.float32), axis=(0, 1)
     )
+
+
+class wrapTorchio(MapTransform):
+    def __init__(
+        self,
+        torchioObj,
+        keys: KeysCollection = "chan3_col_name",
+        # p: float=0.2,
+        allow_missing_keys: bool = False,
+        
+    ):
+        super().__init__(keys, allow_missing_keys)
+        self.keys=keys
+        self.torchioObj=torchioObj
+
+    def __call__(self, data):
+        return self.torchioObj(data)
+        # d = dict(data)
+        # for key in self.keys:
+        #     d[key] = torchioObj()   (d[key] > 0.5).astype('int8')
+        # return d
+
 
 class loadImageMy(MapTransform):
 
@@ -181,7 +204,9 @@ class applyOrigTransforms(MapTransform): #RandomizableTransform
         for key in self.keys:
             d[key] =  apply_transform(self.transform, d[key], map_items=False)
         return d
-def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex,normalizerDict,expectedShape,df):
+def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex
+,normalizerDict,expectedShape,df,RandomBiasField_prob
+    ,RandomAnisotropy_prob):
     # print(f"hhhh {expectedShape}")
     return Compose([
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
@@ -197,7 +222,9 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             ToNumpyd(keys=["data","seg"]),
             adaptor(batchTransforms, {"data": "data"}),
             SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa"])  ,      
-            monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float) 
+            monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float),
+            wrapTorchio(torchio.transforms.RandomAnisotropy(include=["data"],p=RandomAnisotropy_prob)),
+            wrapTorchio(torchio.transforms.RandomBiasField(include=["data"],p=RandomBiasField_prob))
              ]           )        
 def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,expectedShape,df):
     # print(f"hhhh {expectedShape}")
