@@ -99,7 +99,7 @@ def getSegResNeta(dropout,input_image_size,in_channels,out_channels):
         dropout_prob=dropout,
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         blocks_down=(8, 16,16, 32), blocks_up=(8, 8, 8)
-    ),input_image_size,4)
+    ),input_image_size,3)
 
 def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
     input_image_size=(3,32,256,256)
@@ -110,7 +110,7 @@ def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
         dropout_prob=dropout,
         # blocks_down=(1, 2, 2, 4), blocks_up=(1, 1, 1)
         blocks_down=(4, 8, 8, 16), blocks_up=(4, 4, 4)
-    ),input_image_size,8)
+    ),input_image_size,7)
  
 
 def myVit(in_channels
@@ -157,7 +157,7 @@ def getVneta(dropout,input_image_size,in_channels,out_channels):
     ,input_image_size_min=input_image_size_min
     , feature_size=16, num_heads=12 
     , dropout_rate=dropout,patch_size=(16,16,16) ) 
-    ,input_image_size,10)
+    ,input_image_size,8)
 
 
 def getVnetb(dropout,input_image_size,in_channels,out_channels):
@@ -167,7 +167,7 @@ def getVnetb(dropout,input_image_size,in_channels,out_channels):
     return (myVit(in_channels=in_channels, num_classes=out_channels
     ,input_image_size_min=input_image_size_min
     , feature_size=32, num_heads=24 , dropout_rate=dropout,patch_size=(16,16,16) ) 
-    ,input_image_size,8)
+    ,input_image_size,6)
     
 
 # def getVnetc(dropout,input_image_size,in_channels,out_channels):
@@ -251,7 +251,7 @@ def getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,ar
     , feature_size=16, num_heads=12 
     , dropout_rate=dropout,patch_size=(16,16,16) ) 
 
-    return (nn.Sequential(inner,outer ), input_image_size,4)
+    return (nn.Sequential(inner,outer ), input_image_size,3)
 
 def getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,32,256,256)
