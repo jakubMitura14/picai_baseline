@@ -215,7 +215,7 @@ class getToShape(MapTransform): #RandomizableTransform
     def __call__(self, data):
         d = dict(data)
         for key in self.keys:
-            d[key] =  d[key][:,0,:,:,:,:]
+            d[key] =  d[key][0,:,:,:,:]
         return d
 
 
