@@ -126,7 +126,9 @@ class myVit(nn.Module):
         super().__init__()
         self.net=monai.networks.nets.ViT(in_channels=in_channels, num_classes=num_classes
     ,img_size=input_image_size_min, pos_embed='conv', classification=True, spatial_dims=3
-    , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate,patch_size=patch_size)
+    , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate
+    ,spatial_dims=4
+    ,patch_size=patch_size)
         
     def forward(self, x):
         return self.net(x)[0]
@@ -138,7 +140,8 @@ def getVneta(dropout,input_image_size,in_channels,out_channels):
     input_image_size_min=(3,20,256,256)
     return (myVit(in_channels=in_channels, num_classes=out_channels
     ,input_image_size_min=input_image_size_min
-    , num_layers=12, num_heads=12 , dropout_rate=dropout,patch_size=(3,16,16,16) ) 
+    , num_layers=12, num_heads=12 
+    , dropout_rate=dropout,patch_size=(3,16,16,16) ) 
     ,input_image_size,32)
 
 
