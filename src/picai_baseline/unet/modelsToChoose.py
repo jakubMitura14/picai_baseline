@@ -141,8 +141,8 @@ def myVit(in_channels
 #     #     self.net=monai.networks.nets.ViT(in_channels=in_channels, num_classes=num_classes
 #     # ,img_size=input_image_size_min, pos_embed='conv', classification=False, spatial_dims=3
 #    monai.networks.nets.UNETR(in_channels=in_channels, out_channels=num_classes
-    ,img_size=input_image_size_min, spatial_dims=3
-    , feature_size=16, num_heads=num_heads , dropout_rate=dropout_rate) # , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate
+    # ,img_size=input_image_size_min, spatial_dims=3
+    # , feature_size=16, num_heads=num_heads , dropout_rate=dropout_rate) # , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate
 #     # ,patch_size=patch_size)
         
 #     def forward(self, x):
