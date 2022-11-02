@@ -129,7 +129,7 @@ class myVit(nn.Module):
     , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate,patch_size=patch_size)
         
     def forward(self, x):
-        return self.net[0]
+        return self.net(x)[0]
 
 
 
