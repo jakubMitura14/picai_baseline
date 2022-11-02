@@ -219,7 +219,7 @@ def main():
 
     args = parser.parse_args()
     
-    project_name= "mono_network"
+    project_name= "mono_augment"
     #experiment_name="baseline_pl"
     # args.batch_size=32
     # imageShape=(256, 256,20)
@@ -234,7 +234,7 @@ def main():
     
     study = optuna.create_study(
             study_name=project_name
-            ,sampler=optuna.samplers.NSGAIISampler()    
+            ,sampler=optuna.samplers.QMCSampler()    
             ,pruner=optuna.pruners.HyperbandPruner()
             ,storage=f"mysql://root:jm@34.91.215.109:3306/{project_name}"
             ,load_if_exists=True

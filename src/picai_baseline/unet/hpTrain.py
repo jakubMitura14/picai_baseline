@@ -67,17 +67,17 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     swa_lrs=0.01#trial.suggest_float("swa_lrs", 1e-1,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
     base_lr_multi =1.0#trial.suggest_float("base_lr_multi", 0.1, 3.0)
-    schedulerIndex=trial.suggest_int("scheduler_int", 0, 2)
+    schedulerIndex=0#trial.suggest_int("scheduler_int", 0, 2)
     #modelIndex=2
-    modelIndex=trial.suggest_int("modelIndex", 0, 5)
+    modelIndex=0#trial.suggest_int("modelIndex", 0, 5)
     #modelIndex=0
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
-    dropout=trial.suggest_float("dropout", 0.0,0.4)
-    RicianNoiseTransformProb=0.0
-    LocalSmoothingTransformProb=0.0
-    RandomBiasField_prob=0.0
-    RandomAnisotropy_prob=0.0
-    Random_GaussNoiseProb=0.1
+    dropout=0.0#trial.suggest_float("dropout", 0.0,0.4)
+    RicianNoiseTransformProb=trial.suggest_float("dropout", 0.0,0.35)
+    LocalSmoothingTransformProb=trial.suggest_float("dropout", 0.0,0.35)
+    RandomBiasField_prob=trial.suggest_float("dropout", 0.0,0.35)
+    RandomAnisotropy_prob=trial.suggest_float("dropout", 0.0,0.35)
+    Random_GaussNoiseProb=trial.suggest_float("dropout", 0.0,0.15)
 
 
 
