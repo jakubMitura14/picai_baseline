@@ -193,9 +193,9 @@ def prepare_datagens(args
     batchh= args.batch_size
 
     print(f"aaaaaaaaaaaaaa batchh {batchh}")
-    train_ldr=DataLoader(train_ds,batch_size=batchh, num_workers=args.num_threads, shuffle=True,collate_fn=list_data_collate )
-    valid_ldr=DataLoader(valid_ds,batch_size=batchh, num_workers=args.num_threads,shuffle=False,collate_fn=list_data_collate)
-    test_gen=DataLoader(test_ds,batch_size=batchh, num_workers=args.num_threads,shuffle=False,collate_fn=list_data_collate)
+    train_ldr=DataLoader(train_ds,batch_size=batchh, num_workers=args.num_threads, shuffle=True)#,collate_fn=list_data_collate 
+    valid_ldr=DataLoader(valid_ds,batch_size=batchh, num_workers=args.num_threads,shuffle=False)
+    test_gen=DataLoader(test_ds,batch_size=batchh, num_workers=args.num_threads,shuffle=False)
 
 
 
