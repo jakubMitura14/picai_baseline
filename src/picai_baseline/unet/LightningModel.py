@@ -207,7 +207,7 @@ class Model(pl.LightningModule):
         # args.batch_size= newBatchSize
         #self.expectedShape=expectedShape
 
-        self.modelRegression = UNetToRegresion(2,regression_channels,model)
+        #self.modelRegression = UNetToRegresion(2,regression_channels,model)
         self.regressionMetric_val=BinaryF1Score()
         self.regressionMetric_train=BinaryF1Score()
         self.regLoss = nn.BCEWithLogitsLoss()
@@ -216,10 +216,10 @@ class Model(pl.LightningModule):
         #model,expectedShape,newBatchSize=getUneta(args,devicee) #models[0]
         self.expectedShape=expectedShape
         args.batch_size= newBatchSize
-        optimizer = torch.optim.Adam(params=self.modelRegression.parameters(), lr=args.base_lr*base_lr_multi, amsgrad=True)
+        self.model=model
+        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=args.base_lr*base_lr_multi, amsgrad=True)
 
 
-        #self.model=model
         self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
         self.scheduler = chooseScheduler(optimizer,schedulerIndex )    
@@ -259,11 +259,11 @@ class Model(pl.LightningModule):
         # optimizer = self.optimizer(self.parameters(), lr=self.learning_rate)
         # hyperparameters from https://www.kaggle.com/code/isbhargav/guide-to-pytorch-learning-rate-scheduling/notebook
         # lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )
-        lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+        #lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
         return {
             "optimizer": optimizer,
             "lr_scheduler": {
-                "scheduler": lr_scheduler,
+                "scheduler": self.lr_scheduler,
                 "monitor": "train_loss",
                 "frequency": 1
             }}
@@ -279,19 +279,21 @@ class Model(pl.LightningModule):
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         # outputs = self.modelRegression(inputs)
         segmMap,reg_hat = self.modelRegression(inputs)
+        lossSegm = self.loss_func(segmMap, labels)
+        self.log('train_loss', lossSegm.item())
 
-        if(epoch%2==0):
-            lossSegm = self.loss_func(segmMap, labels)
-            self.log('train_loss', lossSegm.item())
-            return lossSegm
+        # if(epoch%2==0):
+        #     lossSegm = self.loss_func(segmMap, labels)
+        #     self.log('train_loss', lossSegm.item())
+        #     return lossSegm
 
-        lossRegr=self.regLoss(reg_hat.flatten().float(),torch.Tensor(isCa).to(self.device).flatten().float() )
-        # train_loss += loss.item()
-        self.log('train_loss', lossRegr.item())
-        # print(f" sssssssssss loss {type(loss)}  ")
+        # lossRegr=self.regLoss(reg_hat.flatten().float(),torch.Tensor(isCa).to(self.device).flatten().float() )
+        # # train_loss += loss.item()
+        # self.log('train_loss', lossRegr.item())
+        # # print(f" sssssssssss loss {type(loss)}  ")
 
-        # return torch.Tensor([loss]).to(self.device)
-        return lossRegr
+        # # return torch.Tensor([loss]).to(self.device)
+        # return lossRegr
 
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
         valid_images = valid_data['data'][:,0,:,:,:,:]
