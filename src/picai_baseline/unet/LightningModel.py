@@ -153,6 +153,7 @@ class Model(pl.LightningModule):
         self.model=model
         optimizer = torch.optim.Adam(params=self.model.parameters(), lr=args.base_lr*base_lr_multi, amsgrad=True)
         # self.lr_scheduler = chooseScheduler(optimizer,schedulerIndex )
+        self.schedulerIndex=schedulerIndex
         self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
 
@@ -194,7 +195,7 @@ class Model(pl.LightningModule):
         # hyperparameters from https://www.kaggle.com/code/isbhargav/guide-to-pytorch-learning-rate-scheduling/notebook
         # lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer,T_0=10, T_mult=1, eta_min=0.001, last_epoch=-1 )
         #lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
-        lr_scheduler = chooseScheduler(optimizer,schedulerIndex )
+        lr_scheduler = chooseScheduler(optimizer,self.schedulerIndex )
         return {
             "optimizer": optimizer,
             "lr_scheduler": {
