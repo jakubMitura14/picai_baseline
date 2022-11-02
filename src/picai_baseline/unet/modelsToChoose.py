@@ -112,11 +112,32 @@ def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
         blocks_down=(4, 8, 8, 16), blocks_up=(4, 4, 4)
     ),input_image_size,8)
  
+
+class myVit(nn.Module):
+    def __init__(self,
+    in_channels
+    ,num_classes
+    ,num_layers
+    ,num_heads
+    ,dropout_rate
+    ,patch_size
+    ,input_image_size_min
+    ) -> None:
+        super().__init__()
+        self.net=monai.networks.nets.ViT(in_channels=in_channels, num_classes=num_classes
+    ,img_size=input_image_size_min, pos_embed='conv', classification=True, spatial_dims=3
+    , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate,patch_size=patch_size)
+        
+    def forward(self, x):
+        return self.net[0]
+
+
+
 def getVneta(dropout,input_image_size,in_channels,out_channels):
     input_image_size=(3,20,256,256)
     input_image_size_min=(20,256,256)
-    return (monai.networks.nets.ViT(in_channels=in_channels, num_classes=out_channels
-    ,img_size=input_image_size_min, pos_embed='conv', classification=True, spatial_dims=3
+    return (myVit(in_channels=in_channels, num_classes=out_channels
+    ,input_image_size_min=input_image_size_min
     , num_layers=12, num_heads=12 , dropout_rate=dropout,patch_size=(16,16,16) ) 
     ,input_image_size,32)
 
@@ -125,20 +146,21 @@ def getVnetb(dropout,input_image_size,in_channels,out_channels):
     input_image_size=(3,20,256,256)
     input_image_size_min=(20,256,256)
 
-    return (monai.networks.nets.ViT(in_channels=in_channels, num_classes=out_channels
-    ,img_size=input_image_size_min, pos_embed='conv', classification=True, spatial_dims=3
-    , num_layers=24, num_heads=24 , dropout_rate=dropout,patch_size=(16,16,16)) 
-    ,input_image_size,30)
+    return (myVit(in_channels=in_channels, num_classes=out_channels
+    ,input_image_size_min=input_image_size_min
+    , num_layers=24, num_heads=24 , dropout_rate=dropout,patch_size=(16,16,16) ) 
+    ,input_image_size,22)
     
 
 def getVnetc(dropout,input_image_size,in_channels,out_channels):
     input_image_size=(3,20,256,256)
     input_image_size_min=(20,256,256)
 
-    return (monai.networks.nets.ViT(in_channels=in_channels, num_classes=out_channels
-    ,img_size=input_image_size_min, pos_embed='conv', classification=True, spatial_dims=3
-    , num_layers=48, num_heads=24 , dropout_rate=dropout,patch_size=(16,16,16)) 
-    ,input_image_size,22)
+    return (myVit(in_channels=in_channels, num_classes=out_channels
+    ,input_image_size_min=input_image_size_min
+    , num_layers=48, num_heads=48 , dropout_rate=dropout,patch_size=(16,16,16) ) 
+    ,input_image_size,18)
+    
 
 
 
@@ -196,9 +218,9 @@ class UnetWithTransformerB(nn.Module):
 def getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,20,256,256)
     return (UnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee),
-    input_image_size,22)
+    input_image_size,16)
 
 def getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,20,256,256)
     return (UnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee),
-    input_image_size,22)    
+    input_image_size,16)    
