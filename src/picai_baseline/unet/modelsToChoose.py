@@ -198,8 +198,9 @@ class UnetWithTransformer(nn.Module):
         ,inner
     ) -> None:
         super().__init__()
-        self.outer=outer
-        self.inner=inner
+        self.model = nn.Sequential(outer,inner )
+        # self.outer=outer
+        # self.inner=inner
         # self.unet = getUneta(args,devicee)
         # self.tranformer = getVneta(dropout,input_image_size,2,out_channels)
         # self.unet = getUneta(args,devicee)
@@ -207,7 +208,7 @@ class UnetWithTransformer(nn.Module):
         
 
     def forward(self, x):
-        return outer( inner(x))#   self.tranformer(self.unet(x))
+        return sel.model(x)#   self.tranformer(self.unet(x))
 
 
 # class UnetWithTransformerB(nn.Module):
