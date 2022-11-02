@@ -73,7 +73,7 @@ def getSegResNetb(dropout,input_image_size,in_channels,out_channels):
         blocks_down=(4, 8, 8, 16), blocks_up=(4, 4, 4)
     ),input_image_size,14)
  
-def getVneta(dropout,input_image_size,in_channels,out_channels)
+def getVneta(dropout,input_image_size,in_channels,out_channels):
     input_image_size=(3,20,256,256)
     return (monai.networks.nets.ViT(in_channels=in_channels, out_channels=out_channels
     ,img_size=input_image_size, pos_embed='conv', classification=True, spatial_dims=3
@@ -81,7 +81,7 @@ def getVneta(dropout,input_image_size,in_channels,out_channels)
     ,input_image_size,32)
 
 
-def getVnetb(dropout,input_image_size,in_channels,out_channels)
+def getVnetb(dropout,input_image_size,in_channels,out_channels):
     input_image_size=(3,20,256,256)
     return (monai.networks.nets.ViT(in_channels=in_channels, out_channels=out_channels
     ,img_size=input_image_size, pos_embed='conv', classification=True, spatial_dims=3
@@ -89,7 +89,7 @@ def getVnetb(dropout,input_image_size,in_channels,out_channels)
     ,input_image_size,30)
     
 
-def getVnetc(dropout,input_image_size,in_channels,out_channels)
+def getVnetc(dropout,input_image_size,in_channels,out_channels):
     input_image_size=(3,20,256,256)
     return (monai.networks.nets.ViT(in_channels=in_channels, out_channels=out_channels
     ,img_size=input_image_size, pos_embed='conv', classification=True, spatial_dims=3
