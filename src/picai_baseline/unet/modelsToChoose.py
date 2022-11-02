@@ -149,12 +149,12 @@ class UnetWithTransformerB(nn.Module):
         return self.unet(self.tranformer(x))        
 
 
-def getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee)
+def getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,20,256,256)
     return (UnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee),
     input_image_size,22)
 
-def getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee)
+def getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,20,256,256)
     return (UnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee),
     input_image_size,22)    
