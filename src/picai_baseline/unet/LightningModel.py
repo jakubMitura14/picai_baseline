@@ -128,7 +128,7 @@ class Model(pl.LightningModule):
         self.RandomBiasField_prob=RandomBiasField_prob
         self.RandomAnisotropy_prob=RandomAnisotropy_prob
         self.Random_GaussNoiseProb=Random_GaussNoiseProb
-
+        self.base_lr_multi=base_lr_multi
 
 
         # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
@@ -151,16 +151,17 @@ class Model(pl.LightningModule):
         self.expectedShape=expectedShape
         args.batch_size= newBatchSize
         self.model=model
-        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=args.base_lr*base_lr_multi, amsgrad=True)
         # self.lr_scheduler = chooseScheduler(optimizer,schedulerIndex )
         self.schedulerIndex=schedulerIndex
-        self.optimizer=optimizer
         self.tracking_metrics=tracking_metrics
 
     def setup(self, stage=None):
         """
         setting up dataset
         """
+        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=self.args.base_lr*self.base_lr_multi, amsgrad=True)
+        self.optimizer=optimizer
+
         train_gen, valid_gen, test_gen, class_weights,df = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex
             ,expectedShape=self.expectedShape,RicianNoiseTransformProb=self.RicianNoiseTransformProb
             , LocalSmoothingTransformProb=self.LocalSmoothingTransformProb ,RandomBiasField_prob=self.RandomBiasField_prob
