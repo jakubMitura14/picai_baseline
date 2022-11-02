@@ -144,7 +144,7 @@ def getVneta(dropout,input_image_size,in_channels,out_channels):
     ,input_image_size_min=input_image_size_min
     , feature_size=16, num_heads=12 
     , dropout_rate=dropout,patch_size=(16,16,16) ) 
-    ,input_image_size,12)
+    ,input_image_size,4)
 
 
 def getVnetb(dropout,input_image_size,in_channels,out_channels):
