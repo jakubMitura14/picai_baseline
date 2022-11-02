@@ -130,6 +130,7 @@ class myVit(nn.Module):
     ,patch_size=patch_size)
         
     def forward(self, x):
+        print(f" self.net(x)[1] {self.net(x)[1]} ")
         return self.net(x)[0]
 
 
