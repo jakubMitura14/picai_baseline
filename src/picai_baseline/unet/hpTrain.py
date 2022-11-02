@@ -157,7 +157,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
         #strategy='dp'
     )
 
-    trainer.tune(model)
+    #trainer.tune(model)
 
     experiment=trainer.logger.experiment
     experiment.log_parameter('machine',machine)
