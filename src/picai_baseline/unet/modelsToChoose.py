@@ -148,8 +148,8 @@ def getVneta(dropout,input_image_size,in_channels,out_channels):
 
 
 def getVnetb(dropout,input_image_size,in_channels,out_channels):
-    input_image_size=(3,20,256,256)
-    input_image_size_min=(20,256,256)
+    input_image_size=(3,32,256,256)
+    input_image_size_min=(32,256,256)
 
     return (myVit(in_channels=in_channels, num_classes=out_channels
     ,input_image_size_min=input_image_size_min
