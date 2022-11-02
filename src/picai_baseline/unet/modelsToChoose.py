@@ -140,7 +140,9 @@ def myVit(in_channels
 #     , feature_size=16, num_heads=num_heads , dropout_rate=dropout_rate)
 #     #     self.net=monai.networks.nets.ViT(in_channels=in_channels, num_classes=num_classes
 #     # ,img_size=input_image_size_min, pos_embed='conv', classification=False, spatial_dims=3
-#     # , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate
+#    monai.networks.nets.UNETR(in_channels=in_channels, out_channels=num_classes
+    ,img_size=input_image_size_min, spatial_dims=3
+    , feature_size=16, num_heads=num_heads , dropout_rate=dropout_rate) # , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate
 #     # ,patch_size=patch_size)
         
 #     def forward(self, x):
@@ -242,10 +244,13 @@ class UnetWithTransformer(nn.Module):
 def getUnetWithTransformerA(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,32,256,256)
     
-    inner = getUneta(args,devicee)[0]
-    outer = getVneta(dropout,input_image_size,2,out_channels)[0]
-    return (nn.Sequential(outer,inner ),
-    input_image_size,4)
+    inner = neural_network_for_run(args=args, device=devicee)
+    outer = myVit(in_channels=2, num_classes=2
+    ,input_image_size_min=input_image_size_min
+    , feature_size=16, num_heads=12 
+    , dropout_rate=dropout,patch_size=(16,16,16) ) 
+
+    return (nn.Sequential(outer,inner ), input_image_size,4)
 
 def getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,args,devicee):
     input_image_size=(3,32,256,256)
