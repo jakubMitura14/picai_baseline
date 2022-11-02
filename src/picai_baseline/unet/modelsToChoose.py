@@ -117,21 +117,24 @@ class myVit(nn.Module):
     def __init__(self,
     in_channels
     ,num_classes
-    ,num_layers
+    ,feature_size
     ,num_heads
     ,dropout_rate
     ,patch_size
     ,input_image_size_min
     ) -> None:
         super().__init__()
-        self.net=monai.networks.nets.ViT(in_channels=in_channels, num_classes=num_classes
-    ,img_size=input_image_size_min, pos_embed='conv', classification=False, spatial_dims=3
-    , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate
+        self.net=monai.networks.nets.UNETR(in_channels=in_channels, out_channels=num_classes
+    ,img_size=input_image_size_min, spatial_dims=3
+    , feature_size=16, num_heads=num_heads , dropout_rate=dropout_rate
     ,patch_size=patch_size)
+    #     self.net=monai.networks.nets.ViT(in_channels=in_channels, num_classes=num_classes
+    # ,img_size=input_image_size_min, pos_embed='conv', classification=False, spatial_dims=3
+    # , num_layers=num_layers, num_heads=num_heads , dropout_rate=dropout_rate
+    # ,patch_size=patch_size)
         
     def forward(self, x):
-        print(f"ssssssssssss self.net(x)[1] {self.net(x)[1]} ")
-        return self.net(x)[0]
+        return self.net(x)
 
 
 
@@ -140,7 +143,7 @@ def getVneta(dropout,input_image_size,in_channels,out_channels):
     input_image_size_min=(32,256,256)
     return (myVit(in_channels=in_channels, num_classes=out_channels
     ,input_image_size_min=input_image_size_min
-    , num_layers=12, num_heads=12 
+    , feature_size=16, num_heads=12 
     , dropout_rate=dropout,patch_size=(16,16,16) ) 
     ,input_image_size,32)
 
@@ -151,8 +154,8 @@ def getVnetb(dropout,input_image_size,in_channels,out_channels):
 
     return (myVit(in_channels=in_channels, num_classes=out_channels
     ,input_image_size_min=input_image_size_min
-    , num_layers=24, num_heads=24 , dropout_rate=dropout,patch_size=(16,16,16) ) 
-    ,input_image_size,22)
+    , feature_size=32, num_heads=24 , dropout_rate=dropout,patch_size=(16,16,16) ) 
+    ,input_image_size,16)
     
 
 def getVnetc(dropout,input_image_size,in_channels,out_channels):
@@ -161,8 +164,8 @@ def getVnetc(dropout,input_image_size,in_channels,out_channels):
 
     return (myVit(in_channels=in_channels, num_classes=out_channels
     ,input_image_size_min=input_image_size_min
-    , num_layers=48, num_heads=48 , dropout_rate=dropout,patch_size=(16,16,16) ) 
-    ,input_image_size,18)
+    , feature_size=64, num_heads=48 , dropout_rate=dropout,patch_size=(16,16,16) ) 
+    ,input_image_size,8)
     
 
 
@@ -195,7 +198,7 @@ class UnetWithTransformerA(nn.Module):
     ) -> None:
         super().__init__()
         self.unet = getUneta(args,devicee)
-        self.tranformer = getVnetb(dropout,input_image_size,2,out_channels)
+        self.tranformer = getVneta(dropout,input_image_size,2,out_channels)
         
     def forward(self, x):
         return self.tranformer(self.unet(x))
@@ -212,7 +215,7 @@ class UnetWithTransformerB(nn.Module):
     ) -> None:
         super().__init__()
         self.unet = getUneta(args,devicee)
-        self.tranformer = getVnetb(dropout,input_image_size,3,3)
+        self.tranformer = getVneta(dropout,input_image_size,3,3)
         
     def forward(self, x):
         return self.unet(self.tranformer(x))        
