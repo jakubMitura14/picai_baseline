@@ -135,10 +135,10 @@ class myVit(nn.Module):
 
 def getVneta(dropout,input_image_size,in_channels,out_channels):
     input_image_size=(3,20,256,256)
-    input_image_size_min=(20,256,256)
+    input_image_size_min=(3,20,256,256)
     return (myVit(in_channels=in_channels, num_classes=out_channels
     ,input_image_size_min=input_image_size_min
-    , num_layers=12, num_heads=12 , dropout_rate=dropout,patch_size=(16,16,16) ) 
+    , num_layers=12, num_heads=12 , dropout_rate=dropout,patch_size=(3,16,16,16) ) 
     ,input_image_size,32)
 
 
