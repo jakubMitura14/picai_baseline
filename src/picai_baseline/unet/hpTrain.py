@@ -175,6 +175,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     experiment.log_parameter('RandomBiasField_prob',RandomBiasField_prob)
     experiment.log_parameter('RandomAnisotropy_prob',RandomAnisotropy_prob)
     experiment.log_parameter('Random_GaussNoiseProb',Random_GaussNoiseProb)
+    experiment.log_parameter('optimizerIndex',optimizerIndex)
 
 
 
