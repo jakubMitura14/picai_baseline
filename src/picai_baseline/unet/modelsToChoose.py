@@ -79,7 +79,7 @@ def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
         img_size=input_image_size,
         #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
         #depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
-    )input_image_size,4   )
+    ),input_image_size,4   )
 
 # def getSwinUNETRb(dropout,input_image_size,in_channels,out_channels):
 #     return monai.networks.nets.SwinUNETR(
