@@ -162,8 +162,8 @@ class Model(pl.LightningModule):
         """
         
         optimizers = [torch.optim.Adam(params=self.model.parameters(), lr=self.args.base_lr*self.learning_rate, amsgrad=True)
-                      ,torch.optim.SGD(model.parameters(), lr=self.args.base_lr*self.learning_rate, momentum=0.9)
-                      ,torch.optim.Rprop(model.parameters(), lr=self.args.base_lr*self.learning_rate)  
+                      ,torch.optim.SGD(self.model.parameters(), lr=self.args.base_lr*self.learning_rate, momentum=0.9)
+                      ,torch.optim.Rprop(self.model.parameters(), lr=self.args.base_lr*self.learning_rate)  
                         ]
         
         self.optimizer=optimizer[self.optimizerIndex]
