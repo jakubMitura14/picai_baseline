@@ -69,7 +69,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     base_lr_multi =1.5#trial.suggest_float("base_lr_multi", 0.1, 3.0)
     schedulerIndex=1#trial.suggest_int("scheduler_int", 0, 2)
     #modelIndex=2
-    modelIndex=2#trial.suggest_int("modelIndex", 0, 4)
+    modelIndex=0#trial.suggest_int("modelIndex", 0, 4)
     #modelIndex=0
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
     dropout=0.1#trial.suggest_float("dropout", 0.0,0.4)
@@ -160,7 +160,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             #strategy='dp'
         )
 
-        trainer.tune(model)
+        #trainer.tune(model)
 
         experiment=trainer.logger.experiment
         experiment.log_parameter('machine',machine)
