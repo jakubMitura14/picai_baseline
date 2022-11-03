@@ -67,7 +67,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     swa_lrs=0.01#trial.suggest_float("swa_lrs", 1e-1,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
     base_lr_multi =1.0#trial.suggest_float("base_lr_multi", 0.1, 3.0)
-    schedulerIndex=0#trial.suggest_int("scheduler_int", 0, 2)
+    schedulerIndex=2#trial.suggest_int("scheduler_int", 0, 2)
     #modelIndex=2
     modelIndex=0#trial.suggest_int("modelIndex", 0, 5)
     #modelIndex=0
