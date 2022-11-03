@@ -71,8 +71,10 @@ class UNetToRegresion(nn.Module):
 
 
 def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
-    input_image_size=(3,32,256,256)
-    input_image_sizeMin=(32,256,256)
+    input_image_size=(3,20,256,256)
+    input_image_sizeMin=(20,256,256)
+    # input_image_size=(3,32,256,256)
+    # input_image_sizeMin=(32,256,256)
     return (monai.networks.nets.SwinUNETR(
         spatial_dims=3,
         in_channels=in_channels,
@@ -153,8 +155,8 @@ def myVit(in_channels
 
 
 def getVneta(dropout,input_image_size,in_channels,out_channels):
-    input_image_size=(3,20,256,256)
-    input_image_size_min=(20,256,256)
+    input_image_size=(3,32,256,256)
+    input_image_size_min=(32,256,256)
     # input_image_size=(3,32,256,256)
     # input_image_size_min=(32,256,256)
     return (myVit(in_channels=in_channels, num_classes=out_channels
