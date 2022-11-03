@@ -228,7 +228,7 @@ def main():
 
     args = parser.parse_args()
     
-    project_name= "mono_network"
+    project_name= "mono_network_opt"
     #experiment_name="baseline_pl"
     # args.batch_size=32
     # imageShape=(256, 256,20)
