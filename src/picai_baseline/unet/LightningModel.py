@@ -108,6 +108,7 @@ class Model(pl.LightningModule):
     ,RandomBiasField_prob
     ,RandomAnisotropy_prob
     ,Random_GaussNoiseProb
+    ,optimizerIndex
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -129,7 +130,7 @@ class Model(pl.LightningModule):
         self.RandomAnisotropy_prob=RandomAnisotropy_prob
         self.Random_GaussNoiseProb=Random_GaussNoiseProb
         self.base_lr_multi=base_lr_multi
-
+        self.optimizerIndex=optimizerIndex
 
         # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
         # model, optimizer, tracking_metrics = resume_or_restart_training(
@@ -159,8 +160,13 @@ class Model(pl.LightningModule):
         """
         setting up dataset
         """
-        optimizer = torch.optim.Adam(params=self.model.parameters(), lr=self.args.base_lr*self.learning_rate, amsgrad=True)
-        self.optimizer=optimizer
+        
+        optimizers = [torch.optim.Adam(params=self.model.parameters(), lr=self.args.base_lr*self.learning_rate, amsgrad=True)
+                      ,torch.optim.SGD(model.parameters(), lr=self.args.base_lr*self.learning_rate, momentum=0.9)
+                      ,torch.optim.Rprop(model.parameters(), lr=self.args.base_lr*self.learning_rate)  
+                        ]
+        
+        self.optimizer=optimizer[self.optimizerIndex]
 
         train_gen, valid_gen, test_gen, class_weights,df = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex
             ,expectedShape=self.expectedShape,RicianNoiseTransformProb=self.RicianNoiseTransformProb
@@ -219,18 +225,7 @@ class Model(pl.LightningModule):
         lossSegm = self.loss_func(segmMap, labels)
         self.log('train_loss', lossSegm.item())
         return lossSegm
-        # if(epoch%2==0):
-        #     lossSegm = self.loss_func(segmMap, labels)
-        #     self.log('train_loss', lossSegm.item())
-        #     return lossSegm
 
-        # lossRegr=self.regLoss(reg_hat.flatten().float(),torch.Tensor(isCa).to(self.device).flatten().float() )
-        # # train_loss += loss.item()
-        # self.log('train_loss', lossRegr.item())
-        # # print(f" sssssssssss loss {type(loss)}  ")
-
-        # # return torch.Tensor([loss]).to(self.device)
-        # return lossRegr
 
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
         valid_images = valid_data['data']#[:,0,:,:,:,:].to(torch.float32)

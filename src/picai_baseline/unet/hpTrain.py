@@ -78,7 +78,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     RandomBiasField_prob=trial.suggest_float("dropout", 0.0,0.35)
     RandomAnisotropy_prob=trial.suggest_float("dropout", 0.0,0.35)
     Random_GaussNoiseProb=trial.suggest_float("dropout", 0.0,0.15)
-
+    optimizerIndex=0
 
 
 
@@ -135,7 +135,8 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             ,LocalSmoothingTransformProb
             ,RandomBiasField_prob
             ,RandomAnisotropy_prob
-            ,Random_GaussNoiseProb)
+            ,Random_GaussNoiseProb
+            ,optimizerIndex)
     #model = LightningModel.Model(f,args)
     trainer = pl.Trainer(
         #accelerator="cpu", #TODO(remove)
