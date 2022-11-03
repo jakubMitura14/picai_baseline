@@ -72,11 +72,12 @@ class UNetToRegresion(nn.Module):
 
 def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
     input_image_size=(3,32,256,256)
+    input_image_sizeMin=(32,256,256)
     return (monai.networks.nets.SwinUNETR(
         spatial_dims=3,
         in_channels=in_channels,
         out_channels=out_channels,
-        img_size=input_image_size,
+        img_size=input_image_sizeMin,
         #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
         #depths=(4, 4, 4, 4), num_heads=(6, 12, 24, 48)
     ),input_image_size,4   )
