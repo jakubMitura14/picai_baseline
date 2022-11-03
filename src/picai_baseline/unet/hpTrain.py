@@ -78,7 +78,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     RandomBiasField_prob=0#trial.suggest_float("dropout", 0.0,0.35)
     RandomAnisotropy_prob=0#trial.suggest_float("dropout", 0.0,0.35)
     Random_GaussNoiseProb=0#trial.suggest_float("dropout", 0.0,0.15)
-    optimizerIndex=trial.suggest_int("modelIndex", 0, 2)
+    optimizerIndex=trial.suggest_int("optimizerIndex", 0, 2)
 
 
 
