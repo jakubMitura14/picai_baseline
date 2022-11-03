@@ -162,12 +162,11 @@ class Model(pl.LightningModule):
         """
         
         optimizers = [torch.optim.Adam(params=self.model.parameters(), lr=self.args.base_lr*self.learning_rate, amsgrad=True)
-                      ,torch.optim.SGD(model.parameters(), lr=self.args.base_lr*self.learning_rate, momentum=0.9)
-                      ,torch.optim.Rprop(model.parameters(), lr=self.args.base_lr*self.learning_rate)  
+                      ,torch.optim.SGD(self.model.parameters(), lr=self.args.base_lr*self.learning_rate, momentum=0.9)
+                      ,torch.optim.Rprop(self.model.parameters(), lr=self.args.base_lr*self.learning_rate)  
                         ]
         
-        self.optimizer=optimizer[self.optimizerIndex]
-
+        self.optimizer=optimizers[self.optimizerIndex]
         train_gen, valid_gen, test_gen, class_weights,df = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex
             ,expectedShape=self.expectedShape,RicianNoiseTransformProb=self.RicianNoiseTransformProb
             , LocalSmoothingTransformProb=self.LocalSmoothingTransformProb ,RandomBiasField_prob=self.RandomBiasField_prob
