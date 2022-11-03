@@ -159,8 +159,7 @@ class Model(pl.LightningModule):
     def setup(self, stage=None):
         """
         setting up dataset
-        """
-        
+        """        
         optimizers = [torch.optim.Adam(params=self.model.parameters(), lr=self.args.base_lr*self.learning_rate, amsgrad=True)
                       ,torch.optim.SGD(self.model.parameters(), lr=self.args.base_lr*self.learning_rate, momentum=0.9)
                       ,torch.optim.Rprop(self.model.parameters(), lr=self.args.base_lr*self.learning_rate)  

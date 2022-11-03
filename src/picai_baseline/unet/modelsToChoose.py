@@ -259,5 +259,4 @@ def getUnetWithTransformerB(dropout,input_image_size,in_channels,out_channels,ar
     outer = getUneta(args,devicee)[0]
     inner = getVneta(dropout,input_image_size,3,3)[0]
 
-    return (nn.Sequential(outer,inner ),
-    input_image_size,3)    
+    return (nn.Sequential(outer,inner ),input_image_size,3)    
