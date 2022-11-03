@@ -243,7 +243,7 @@ def main():
     
     study = optuna.create_study(
             study_name=project_name
-            ,sampler=optuna.samplers.QMCSampler()    
+            ,sampler=optuna.samplers.NSGAIISampler()    
             ,pruner=optuna.pruners.HyperbandPruner()
             ,storage=f"mysql://root:jm@34.91.215.109:3306/{project_name}"
             ,load_if_exists=True
