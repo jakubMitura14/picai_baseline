@@ -126,12 +126,12 @@ def get_augmentations(RicianNoiseTransformProb, LocalSmoothingTransformProb,Rand
                                                             ignore_axes=None,data_key="data"))
         tr_transforms.append(
             GammaTransform(params.get("gamma_range"), True, True, retain_stats=params.get("gamma_retain_stats"),
-                           p_per_sample=0.1,data_key="data", label_key="seg"))  # inverted gamma
+                           p_per_sample=0.1,data_key="data"))  # inverted gamma
 
         if params.get("do_gamma"):
             tr_transforms.append(
                 GammaTransform(params.get("gamma_range"), False, True, retain_stats=params.get("gamma_retain_stats"),
-                               p_per_sample=params["p_gamma"],data_key="data", label_key="seg"))
+                               p_per_sample=params["p_gamma"],data_key="data"))
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------
         # flipping transform (reserved for last in order)
         if params.get("do_mirror") or params.get("mirror"):
