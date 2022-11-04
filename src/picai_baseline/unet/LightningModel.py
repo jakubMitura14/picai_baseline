@@ -162,7 +162,7 @@ class Model(pl.LightningModule):
         """
         setting up dataset
         """        
-        optimizers = [torch.optim.ADAMW(params=self.model.parameters(), lr=self.args.base_lr*self.learning_rate)
+        optimizers = [torch.optim.AdamW(params=self.model.parameters(), lr=self.args.base_lr*self.learning_rate)
                     ,torch.optim.Adam(params=self.model.parameters(), lr=self.args.base_lr*self.learning_rate, amsgrad=True)
                       ,torch.optim.SGD(self.model.parameters(), lr=self.args.base_lr*self.learning_rate, momentum=0.9)
                       ,torch.optim.Rprop(self.model.parameters(), lr=self.args.base_lr*self.learning_rate)  
