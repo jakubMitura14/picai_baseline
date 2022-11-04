@@ -102,40 +102,40 @@ def get_augmentations(RicianNoiseTransformProb, LocalSmoothingTransformProb,Rand
                                               p_scale_per_sample=params.get("p_scale"),
                                               p_rot_per_sample=params.get("p_rot"),
                                               independent_scale_for_each_axis=params.get("independent_scale_factor_for_each_axis")
-                                              ,data_key="data"                                              
+                                              ,data_key="data", label_key="seg"                                        
                                               ))
         # -------------------------------------------------------------------------------------------------------------------------------------------------------------
         # intensity transforms
-        # tr_transforms.append(GaussianNoiseTransform(p_per_sample=0.1,data_key="data"))
-        tr_transforms.append(GaussianNoiseTransform(p_per_sample=Random_GaussNoiseProb,data_key="data"))
-        tr_transforms.append(RicianNoiseTransform(p_per_sample=RicianNoiseTransformProb,data_key="data"))
+        # tr_transforms.append(GaussianNoiseTransform(p_per_sample=0.1,data_key="data", label_key="seg"))
+        tr_transforms.append(GaussianNoiseTransform(p_per_sample=Random_GaussNoiseProb,data_key="data", label_key="seg"))
+        tr_transforms.append(RicianNoiseTransform(p_per_sample=RicianNoiseTransformProb,data_key="data", label_key="seg"))
         tr_transforms.append(LocalSmoothingTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
 
-        tr_transforms.append(GaussianBlurTransform((0.5, 1.), different_sigma_per_channel=True, p_per_sample=0.2, p_per_channel=0.5,data_key="data"))
-        tr_transforms.append(BrightnessMultiplicativeTransform(multiplier_range=(0.75, 1.25), p_per_sample=0.15,data_key="data"))
+        tr_transforms.append(GaussianBlurTransform((0.5, 1.), different_sigma_per_channel=True, p_per_sample=0.2, p_per_channel=0.5,data_key="data", label_key="seg"))
+        tr_transforms.append(BrightnessMultiplicativeTransform(multiplier_range=(0.75, 1.25), p_per_sample=0.15,data_key="data", label_key="seg"))
 
         if params.get("do_additive_brightness"):
             tr_transforms.append(BrightnessTransform(params.get("additive_brightness_mu"),
                                                      params.get("additive_brightness_sigma"), True,
                                                      p_per_sample=params.get("additive_brightness_p_per_sample"),
-                                                     p_per_channel=params.get("additive_brightness_p_per_channel"),data_key="data"))
+                                                     p_per_channel=params.get("additive_brightness_p_per_channel"),data_key="data", label_key="seg"))
 
-        tr_transforms.append(ContrastAugmentationTransform(p_per_sample=0.15,data_key="data"))
+        tr_transforms.append(ContrastAugmentationTransform(p_per_sample=0.15,data_key="data", label_key="seg"))
         tr_transforms.append(SimulateLowResolutionTransform(zoom_range=(0.5, 1), per_channel=True, p_per_channel=0.5,
                                                             order_downsample=0,  order_upsample=3, p_per_sample=0.25,
-                                                            ignore_axes=None,data_key="data"))
+                                                            ignore_axes=None,data_key="data", label_key="seg"))
         tr_transforms.append(
             GammaTransform(params.get("gamma_range"), True, True, retain_stats=params.get("gamma_retain_stats"),
-                           p_per_sample=0.1,data_key="data"))  # inverted gamma
+                           p_per_sample=0.1,data_key="data", label_key="seg"))  # inverted gamma
 
         if params.get("do_gamma"):
             tr_transforms.append(
                 GammaTransform(params.get("gamma_range"), False, True, retain_stats=params.get("gamma_retain_stats"),
-                               p_per_sample=params["p_gamma"],data_key="data"))
+                               p_per_sample=params["p_gamma"],data_key="data", label_key="seg"))
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------
         # flipping transform (reserved for last in order)
         if params.get("do_mirror") or params.get("mirror"):
-            tr_transforms.append(MirrorTransform(params.get("mirror_axes"),data_key="data"))
+            tr_transforms.append(MirrorTransform(params.get("mirror_axes"),data_key="data", label_key="seg"))
     # ----------------------------------------------------------------------------------------------------------------------------------------------------------------
     # convert NumPy -> PyTorch tensors
     print(f"leeeeen {len(tr_transforms)}")

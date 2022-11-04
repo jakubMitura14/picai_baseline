@@ -236,7 +236,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             ToNumpyd(keys=["data","seg"]),
-            adaptor(batchTransforms, {"data": "data"}),
+            adaptor(batchTransforms, {"data": "data","seg": "seg"}),
             SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa"])  ,      
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float),
             getToShape(keys=["data","seg"]),
