@@ -243,7 +243,7 @@ class Model(pl.LightningModule):
         #     self.regressionMetric_train(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())        
         # print(f"wwwwwwwwwwww {self.model(valid_images).shape}")
         preds = [
-            torch.sigmoid(self.model(x).to(torch.float32))[:, 1, ...].detach().cpu().numpy()
+            np.nan_to_num(torch.sigmoid(self.model(x).to(torch.float32))[:, 1, ...].detach().cpu().numpy())
             for x in valid_images
         ]
         preds[1] = np.flip(preds[1], [3])

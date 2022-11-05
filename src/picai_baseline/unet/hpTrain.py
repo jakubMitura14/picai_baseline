@@ -112,22 +112,19 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     # if(swa_lrs>0.0):
     #     callbacks=[early_stopping,stochasticAveraging], #optuna_prune
     # check_eval_every_epoch=40
-    check_eval_every_epoch=30
+    check_eval_every_epoch=10
 
     # for each fold
     fInd=0
 
-    for f in args.folds:
-        f#=args.folds[0]
+    for fInd in range(0, len(args.folds)):#args.folds:
+        f=args.folds[fInd]
         fInd=fInd+1
         checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
         checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
         schedulerIndexToLog= schedulerIndex
         callbacks=[early_stopping,checkpoint_callback]#stochasticAveraging
-        #callbacks=[early_stopping,checkpoint_callback]
-        # if(schedulerIndex==2):
-        #     schedulerIndex=1
-        #     callbacks=[early_stopping,checkpoint_callback]
+
         logImageDir=tempfile.mkdtemp()
         model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
                 ,schedulerIndex,normalizationIndex,modelIndex,imageShape
