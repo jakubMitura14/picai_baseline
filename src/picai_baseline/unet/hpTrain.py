@@ -115,11 +115,11 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     check_eval_every_epoch=10
 
     # for each fold
-    fInd=0
+    fInd=-1
 
-    for fInd in range(0, len(args.folds)):#args.folds:
-        fInd=fInd+1
-        f=args.folds[fInd]
+    for f in args.folds #range(0, len(args.folds)):#args.folds:
+        # fInd=fInd+1
+        # f=args.folds[fInd]
         checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
         checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
         schedulerIndexToLog= schedulerIndex
