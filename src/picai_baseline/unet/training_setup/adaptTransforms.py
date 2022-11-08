@@ -120,20 +120,11 @@ class loadImageMy(MapTransform):
             stemm= Path(d[key]).stem
             d[key+'_name']=stemm
             if(self.normalizationIndex==0):    
-                d[key]=z_score_norm(d[key], 99.5)
+                d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
             if(self.normalizationIndex==1):    
                 nyul_normalizer=  self.normalizerDict[key]
-                d[key]=nyul_normalizer(d[key]).astype(np.float32)          
+                d[key]=nyul_normalizer(prepare_scan(d[key])).astype(np.float32)          
         return d
-        # for key in self.keys:
-        #     stemm= Path(d[key]).stem
-        #     d[key+'_name']=stemm
-        #     if(self.normalizationIndex==0):    
-        #         d[key]=z_score_norm(prepare_scan(d[key]), 99.5)
-        #     if(self.normalizationIndex==1):    
-        #         nyul_normalizer=  self.normalizerDict[key]
-        #         d[key]=nyul_normalizer(prepare_scan(d[key])).astype(np.float32)          
-        # return d
 
 class concatImageMy(MapTransform):
 
@@ -195,8 +186,8 @@ class loadlabelMy(MapTransform):
             isCa=(case_csPCa== 'YES')
             # print(f"list case_csPCa {case_csPCa} isCa {isCa}")
             d['isCa']=int(isCa)
-            # d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
-            # d[key] = np.expand_dims(d[key], axis=(0, 1))
+            d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
+            d[key] = np.expand_dims(d[key], axis=(0, 1))
         return d
 
 class applyOrigTransforms(MapTransform): #RandomizableTransform
@@ -227,18 +218,6 @@ class getToShape(MapTransform): #RandomizableTransform
             d[key] =  d[key][0,:,:,:,:]
         return d
 
-class swap_axes(MapTransform): #RandomizableTransform
-    def __init__(
-    self,
-    keys: KeysCollection,
-    allow_missing_keys: bool = False):
-        super().__init__(keys, allow_missing_keys)
-
-    def __call__(self, data):
-        d = dict(data)
-        for key in self.keys:
-            d[key] =  np.swapaxes(d[key],1,3)
-        return d
 
         
 def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationIndex
@@ -246,13 +225,9 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
     ,RandomAnisotropy_prob):
     # print(f"hhhh {expectedShape}")
     return Compose([
-            loadlabelMy(keys=["seg"],df=df),
-            LoadImaged(keys=["t2w","hbv","adc" ,"seg"]), #,reader="ITKReader"
-            EnsureTyped(keys=["t2w","hbv","adc" ,"seg"]),
-            EnsureChannelFirstd(keys=["t2w","hbv","adc" ,"seg"]),
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
-            swap_axes(keys=["t2w","hbv","adc" ,"seg"]),
+            loadlabelMy(keys=["seg"],df=df),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc"]),
             ToNumpyd(keys=["data","seg"]),
@@ -273,12 +248,9 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
 
     return Compose([
             # printTransform(keys=["seg"],info="loadAndtransform"),
-            loadlabelMy(keys=["seg"],df=df),
-            LoadImaged(keys=["t2w","hbv","adc" ,"seg"]),#,reader="ITKReader"
-            EnsureTyped(keys=["t2w","hbv","adc" ,"seg"]),
-            EnsureChannelFirstd(keys=["t2w","hbv","adc" ,"seg"]),
+
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
-            swap_axes(keys=["t2w","hbv","adc" ,"seg"]),
+            loadlabelMy(keys=["seg"],df=df),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc"]),
             ToNumpyd(keys=["data","seg"]),
