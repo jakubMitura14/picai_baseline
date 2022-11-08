@@ -255,7 +255,7 @@ def main():
 
 
 
-    study.optimize(objective, n_trials=400)
+    study.optimize(objective, n_trials=1)
 
 if __name__ == '__main__':
     main()

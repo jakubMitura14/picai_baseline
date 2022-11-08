@@ -106,7 +106,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
     for f in args.folds :#range(0, len(args.folds)):#args.folds:
         fInd=fInd+1
-        if(fInd>0):
+        if(fInd==0):
             comet_logger = CometLogger(
                 api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
                 #workspace="OPI", # Optional
