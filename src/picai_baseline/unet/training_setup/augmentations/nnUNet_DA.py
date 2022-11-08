@@ -27,12 +27,15 @@ from batchgenerators.transforms.color_transforms import GammaTransform
 from batchgenerators.transforms.noise_transforms import GaussianNoiseTransform, GaussianBlurTransform,RicianNoiseTransform
 from batchgenerators.transforms.resample_transforms import SimulateLowResolutionTransform
 from batchgenerators.transforms.spatial_transforms import SpatialTransform, MirrorTransform
-from batchgenerators.transforms.local_transforms import LocalSmoothingTransform
+from batchgenerators.transforms.local_transforms import LocalSmoothingTransform,BrightnessGradientAdditiveTransform
 from batchgenerators.transforms.utility_transforms import NumpyToTensor
 try:
     from batchgenerators.dataloading.nondet_multi_threaded_augmenter import NonDetMultiThreadedAugmenter
 except ImportError:
     NonDetMultiThreadedAugmenter = None
+
+
+
 
 import numpy as np
 
@@ -109,7 +112,12 @@ def get_augmentations(RicianNoiseTransformProb, LocalSmoothingTransformProb,Rand
         # tr_transforms.append(GaussianNoiseTransform(p_per_sample=0.1,data_key="data", label_key="seg"))
         tr_transforms.append(GaussianNoiseTransform(p_per_sample=Random_GaussNoiseProb,data_key="data"))
         tr_transforms.append(RicianNoiseTransform(p_per_sample=RicianNoiseTransformProb,data_key="data"))
-        tr_transforms.append(LocalSmoothingTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
+        
+        
+
+
+        
+        tr_transforms.append(BrightnessGradientAdditiveTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
 
         tr_transforms.append(GaussianBlurTransform((0.5, 1.), different_sigma_per_channel=True, p_per_sample=0.2, p_per_channel=0.5,data_key="data"))
         tr_transforms.append(BrightnessMultiplicativeTransform(multiplier_range=(0.75, 1.25), p_per_sample=0.15,data_key="data"))
