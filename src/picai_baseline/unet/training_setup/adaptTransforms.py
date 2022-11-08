@@ -247,7 +247,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
     # print(f"hhhh {expectedShape}")
     return Compose([
             loadlabelMy(keys=["seg"],df=df),
-            LoadImaged(keys=["t2w","hbv","adc" ,"seg"],reader="ITKReader"),
+            LoadImaged(keys=["t2w","hbv","adc" ,"seg"]), #,reader="ITKReader"
             EnsureTyped(keys=["t2w","hbv","adc" ,"seg"]),
             EnsureChannelFirstd(keys=["t2w","hbv","adc" ,"seg"]),
             # printTransform(keys=["seg"],info=f"loadAndtransform "),
@@ -274,7 +274,7 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
     return Compose([
             # printTransform(keys=["seg"],info="loadAndtransform"),
             loadlabelMy(keys=["seg"],df=df),
-            LoadImaged(keys=["t2w","hbv","adc" ,"seg"],reader="ITKReader"),
+            LoadImaged(keys=["t2w","hbv","adc" ,"seg"]),#,reader="ITKReader"
             EnsureTyped(keys=["t2w","hbv","adc" ,"seg"]),
             EnsureChannelFirstd(keys=["t2w","hbv","adc" ,"seg"]),
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
