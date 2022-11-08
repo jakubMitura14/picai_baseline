@@ -74,7 +74,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     normalizationIndex=0#trial.suggest_int("normalizationIndex", 0, 1)
     dropout=0.1#trial.suggest_float("dropout", 0.0,0.4)
     RicianNoiseTransformProb=0.05#trial.suggest_float("dropout", 0.0,0.35)
-    LocalSmoothingTransformProb=0.1#trial.suggest_float("dropout", 0.0,0.35)
+    LocalSmoothingTransformProb=0.9#trial.suggest_float("dropout", 0.0,0.35)
     RandomBiasField_prob=0.1#trial.suggest_float("dropout", 0.0,0.35)
     RandomAnisotropy_prob=0#trial.suggest_float("dropout", 0.0,0.35)
     Random_GaussNoiseProb=0.05#trial.suggest_float("dropout", 0.0,0.15)
