@@ -114,7 +114,7 @@ class Model(pl.LightningModule):
     ):
         super().__init__()
         self.save_hyperparameters()
-        in_channels=3
+        in_channels=4
         out_channels=2
         self.f = f
         devicee, args = compute_spec_for_run(args=args)
@@ -234,6 +234,7 @@ class Model(pl.LightningModule):
         valid_labels = valid_data['seg']#[:,0,:,:,:,:].to(torch.float32)
         #segmMap = self.model(valid_images)                
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
+        
         isCa = valid_data['isCa']
         label_name = valid_data['seg_name']
         

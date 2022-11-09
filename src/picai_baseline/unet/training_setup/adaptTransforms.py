@@ -140,8 +140,9 @@ class concatImageMy(MapTransform):
         img_t2w=d["t2w"]
         img_adc=d["adc"]
         img_hbv=d["hbv"]
-        imgConc= np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
-        d["data"]=np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
+        img_fulProst=d["fullProst"]
+        # imgConc= np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
+        d["data"]=np.concatenate([img_t2w, img_adc, img_hbv,img_fulProst], axis=1)
         return d
 
 
@@ -172,6 +173,7 @@ class loadlabelMy(MapTransform):
         super().__init__(keys, allow_missing_keys)
         self.df= df
     def __call__(self, data):
+        
         d = dict(data)
         for key in self.keys:
             stemm= Path(d[key]).stem
@@ -179,6 +181,8 @@ class loadlabelMy(MapTransform):
             patient_id, study_id= stemm.replace('.nii','').split('_')
             patient_id=int(patient_id)
             study_id= int(study_id)
+            prostPath=f"/home/jakub/locTemp/prostateFull/prostateFold/prostate_{study_id}.nii.gz"
+            
             # print(f"ppppp {patient_id} study_id {study_id}   ")
             df=self.df
             locDf = df.loc[df['study_id'] == study_id]
@@ -188,6 +192,9 @@ class loadlabelMy(MapTransform):
             d['isCa']=int(isCa)
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
             d[key] = np.expand_dims(d[key], axis=(0, 1))
+
+            d['fullProst']= sitk.GetArrayFromImage(prostPath).astype(np.int8)
+            d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
         return d
 
 class applyOrigTransforms(MapTransform): #RandomizableTransform
@@ -229,7 +236,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"],df=df),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
-            concatImageMy(keys=["t2w","hbv","adc"]),
+            concatImageMy(keys=["t2w","hbv","adc","fullProst"]),
             ToNumpyd(keys=["data","seg"]),
             monai.transforms.SpatialPadd(keys=["data"],spatial_size=expectedShape),#(3,32,256,256)
             monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(1,expectedShape[1],expectedShape[2],expectedShape[3])),
@@ -252,7 +259,7 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
             loadImageMy(keys=["t2w","hbv","adc"],normalizationIndex=normalizationIndex,normalizerDict=normalizerDict),
             loadlabelMy(keys=["seg"],df=df),
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
-            concatImageMy(keys=["t2w","hbv","adc"]),
+            concatImageMy(keys=["t2w","hbv","adc","fullProst"]),
             ToNumpyd(keys=["data","seg"]),
             monai.transforms.SpatialPadd(keys=["data"],spatial_size=expectedShape),
             monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(1,expectedShape[1],expectedShape[2],expectedShape[3])),
