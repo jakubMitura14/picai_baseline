@@ -70,6 +70,7 @@ except ImportError:  # pragma: no cover
 from intensity_normalization.normalize.nyul import NyulNormalize
 import os
 from pathlib import Path
+from picai_prep.preprocessing import Sample, PreprocessingSettings, crop_or_pad, resample_img
 
 def prepare_scan(path: str) -> "npt.NDArray[Any]":
     return np.expand_dims(
@@ -191,10 +192,12 @@ class loadlabelMy(MapTransform):
             # print(f"list case_csPCa {case_csPCa} isCa {isCa}")
             d['isCa']=int(isCa)
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
+            imageProst = sitk.ReadImage(prostPath)
+            d['fullProst']= crop_or_pad(sitk.GetArrayFromImage(imageProst),d[key].shape )
+
             d[key] = np.expand_dims(d[key], axis=(0, 1))
             # print(f"prostPath {prostPath}")
-            imageProst = sitk.ReadImage(prostPath)
-            d['fullProst']= sitk.GetArrayFromImage(imageProst)
+
             d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
         return d
 
