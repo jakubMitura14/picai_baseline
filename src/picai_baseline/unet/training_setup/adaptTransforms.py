@@ -49,7 +49,7 @@ from monai.transforms import (
 from monai.transforms import Randomizable, apply_transform
 import torch
 import torchio
-
+import nibabel as nib
 from monai.config import KeysCollection
 from monai.data import MetaTensor
 import torchio
@@ -83,7 +83,7 @@ class wrapTorchio(MapTransform):
     def __init__(
         self,
         torchioObj,
-        keys: KeysCollection = "chan3_col_name",
+        keys: KeysCollection = "data",
         # p: float=0.2,
         allow_missing_keys: bool = False,
         
@@ -192,9 +192,11 @@ class loadlabelMy(MapTransform):
             d['isCa']=int(isCa)
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
             d[key] = np.expand_dims(d[key], axis=(0, 1))
+            img = nib.load(prostPath)
+            print(f" prost shape {img.shape}  label shape {d[key].shape} ")
+            # d['fullProst']= sitk.GetArrayFromImage(prostPath)
+            # d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
 
-            d['fullProst']= sitk.GetArrayFromImage(prostPath).astype(np.int8)
-            d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
         return d
 
 class applyOrigTransforms(MapTransform): #RandomizableTransform
