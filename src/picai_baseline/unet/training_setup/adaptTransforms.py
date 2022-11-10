@@ -174,7 +174,6 @@ class loadlabelMy(MapTransform):
         super().__init__(keys, allow_missing_keys)
         self.df= df
     def __call__(self, data):
-        
         d = dict(data)
         for key in self.keys:
             stemm= Path(d[key]).stem
@@ -194,10 +193,8 @@ class loadlabelMy(MapTransform):
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
             imageProst = sitk.ReadImage(prostPath)
             d['fullProst']= crop_or_pad(sitk.GetArrayFromImage(imageProst),d[key].shape )
-
             d[key] = np.expand_dims(d[key], axis=(0, 1))
             # print(f"prostPath {prostPath}")
-
             d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
         return d
 
