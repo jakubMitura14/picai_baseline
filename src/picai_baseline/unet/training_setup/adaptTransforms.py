@@ -71,7 +71,6 @@ from intensity_normalization.normalize.nyul import NyulNormalize
 import os
 from pathlib import Path
 from picai_prep.preprocessing import Sample, PreprocessingSettings, crop_or_pad, resample_img
-import scipy.ndimage as ndimage
 
 def prepare_scan(path: str) -> "npt.NDArray[Any]":
     return np.expand_dims(
@@ -144,19 +143,10 @@ class concatImageMy(MapTransform):
         img_hbv=d["hbv"]
 
         # img_fulProst=d["fullProst"]
-        img_fulProst=(d["fullProst"]>0)
-        img_fulProst=(d["fullProst"]>0)
-        dilatated=ndimage.binary_dilation(img_fulProst, iterations=4)
-        dilatated=np.logical_not(dilatated)
-
-        img_t2w[dilatated]=0
-        img_adc[dilatated]=0
-        img_hbv[dilatated]=0
-
+        img_fulProst=d["fullProst"]
 
         # imgConc= np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
-        d["data"]=np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
-        # d["data"]=np.concatenate([img_t2w, img_adc, img_hbv,img_fulProst], axis=1)
+        d["data"]=np.concatenate([img_t2w, img_adc, img_hbv,img_fulProst], axis=1)
         return d
 
 
@@ -177,6 +167,13 @@ class printTransform(MapTransform):
         print(self.info)
         return d
 
+def tryLoadImageReturnZeros(path, labelArr):
+    if os.path.exists(path):
+        print(f"found path {path}")
+        loadedArr= (sitk.GetArrayFromImage(sitk.ReadImage(path))>0)
+        labelArrBool = (labelArr>0)
+        return np.logical_and(np.logical_not(labelArrBool),loadedArr)
+    return np.zeros_like(labelArr,dtype='bool')    
 class loadlabelMy(MapTransform):
 
     def __init__(
@@ -206,9 +203,22 @@ class loadlabelMy(MapTransform):
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
             imageProst = sitk.ReadImage(prostPath)
             d['fullProst']= crop_or_pad(sitk.GetArrayFromImage(imageProst),d[key].shape )
-            d[key] = np.expand_dims(d[key], axis=(0, 1))
             # print(f"prostPath {prostPath}")
+            #dilatated=ndimage.binary_dilation(img_fulProst, iterations=4)
+            nnunetPath = f"/home/sliceruser/locTemp/orig_nnunet_semi/orig_nnunet_semi/nnunetOut_{study_id}.nii.gz"
+            orig_nnunet_semi=tryLoadImageReturnZeros(nnunetPath, d[key])
+            orig_unet_semi_path = f"/home/sliceruser/locTemp/orig_unet_semi/orig_unet_semi/uun_semi_super_{study_id}.nii.gz"
+            orig_unet_semi=tryLoadImageReturnZeros(orig_unet_semi_path, d[key])
+            swinPath = f"/home/sliceruser/locTemp/outMultiSwin/outMultiSwin/ca_{study_id}.nii.gz"
+            swin=tryLoadImageReturnZeros(swinPath, d[key])
+            d['wrongLabel']= np.logical_or(np.logical_or(orig_nnunet_semi  ,orig_unet_semi ), swin   )
+
+            d[key] = np.expand_dims(d[key], axis=(0, 1))            
             d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
+
+
+
+
         return d
 
 class applyOrigTransforms(MapTransform): #RandomizableTransform
