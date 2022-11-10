@@ -114,7 +114,7 @@ class Model(pl.LightningModule):
     ):
         super().__init__()
         self.save_hyperparameters()
-        in_channels=4
+        in_channels=3
         out_channels=2
         self.f = f
         devicee, args = compute_spec_for_run(args=args)

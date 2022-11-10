@@ -71,6 +71,7 @@ from intensity_normalization.normalize.nyul import NyulNormalize
 import os
 from pathlib import Path
 from picai_prep.preprocessing import Sample, PreprocessingSettings, crop_or_pad, resample_img
+import scipy.ndimage as ndimage
 
 def prepare_scan(path: str) -> "npt.NDArray[Any]":
     return np.expand_dims(
@@ -141,9 +142,21 @@ class concatImageMy(MapTransform):
         img_t2w=d["t2w"]
         img_adc=d["adc"]
         img_hbv=d["hbv"]
-        img_fulProst=d["fullProst"]
+
+        # img_fulProst=d["fullProst"]
+        img_fulProst=(d["fullProst"]>0)
+        img_fulProst=(d["fullProst"]>0)
+        dilatated=ndimage.binary_dilation(img_fulProst, iterations=4)
+        dilatated=np.logical_not(dilatated)
+
+        img_t2w[dilatated]=0
+        img_adc[dilatated]=0
+        img_hbv[dilatated]=0
+
+
         # imgConc= np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
-        d["data"]=np.concatenate([img_t2w, img_adc, img_hbv,img_fulProst], axis=1)
+        d["data"]=np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
+        # d["data"]=np.concatenate([img_t2w, img_adc, img_hbv,img_fulProst], axis=1)
         return d
 
 
