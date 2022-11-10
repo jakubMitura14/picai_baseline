@@ -71,7 +71,7 @@ from intensity_normalization.normalize.nyul import NyulNormalize
 import os
 from pathlib import Path
 from picai_prep.preprocessing import Sample, PreprocessingSettings, crop_or_pad, resample_img
-
+import scipy.ndimage  as ndimage
 def prepare_scan(path: str) -> "npt.NDArray[Any]":
     return np.expand_dims(
         sitk.GetArrayFromImage(
@@ -171,9 +171,15 @@ def tryLoadImageReturnZeros(path, labelArr):
     if os.path.exists(path):
         # print(f"found path {path}")
         loadedArr= (sitk.GetArrayFromImage(sitk.ReadImage(path))>0)
+        
+
         loadedArr= crop_or_pad(loadedArr,labelArr.shape )
+
         labelArrBool = (labelArr>0)
-        return np.logical_and(np.logical_not(labelArrBool),loadedArr)
+        dilatated=ndimage.binary_dilation(labelArrBool, iterations=5)
+
+
+        return np.logical_and(np.logical_not(dilatated),loadedArr)
     # print('path not found')    
     return np.zeros_like(labelArr,dtype='bool')    
 class loadlabelMy(MapTransform):
@@ -219,9 +225,9 @@ class loadlabelMy(MapTransform):
             d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
             #d['wrongLabel']= np.expand_dims(d['fullProst'], axis=(0, 1))
             back = np.zeros_like(d[key])
-            back= np.expand_dims(back, axis=(0, 1))
-            lab = np.expand_dims(d[key], axis=(0, 1))
-            wrong =np.expand_dims(d['wrongLabel'], axis=(0, 1))
+            back= np.expand_dims(back, axis=(0, 1)).astype('uint8')
+            lab = np.expand_dims(d[key], axis=(0, 1)).astype('uint8')
+            wrong =np.expand_dims(d['wrongLabel'], axis=(0, 1)).astype('uint8')
             #d[key]=np.stack([np.zeros_like(d[key]),d[key],d['wrongLabel']  ])    
             d[key]=np.concatenate([back, lab, wrong], axis=1)
 
