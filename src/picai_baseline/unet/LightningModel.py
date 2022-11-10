@@ -134,7 +134,7 @@ class Model(pl.LightningModule):
         self.Random_GaussNoiseProb=Random_GaussNoiseProb
         self.base_lr_multi=base_lr_multi
         self.optimizerIndex=optimizerIndex
-
+        self.mseLoss = nn.MSELoss()
         # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
         # model, optimizer, tracking_metrics = resume_or_restart_training(
         #     model=model, optimizer=optimizer,
@@ -226,7 +226,7 @@ class Model(pl.LightningModule):
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         # outputs = self.modelRegression(inputs)
         segmMap = self.model(inputs)
-        lossAdd=torch.mean((torch.sigmoid(segmMap[:,1,:,:,:])-torch.sigmoid(segmMap[:,2,:,:,:]))**2)
+        lossAdd=self.mseLoss(torch.sigmoid(segmMap[:,1,:,:,:]),torch.sigmoid(segmMap[:,2,:,:,:]))
         lossSegm = self.loss_func(segmMap, labels)-(lossAdd/3)
         
         self.log('train_loss', lossSegm.item())
