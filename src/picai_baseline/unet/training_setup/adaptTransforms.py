@@ -223,7 +223,7 @@ class loadlabelMy(MapTransform):
             lab = np.expand_dims(d[key], axis=(0, 1))
             wrong =np.expand_dims(d['wrongLabel'], axis=(0, 1))
             #d[key]=np.stack([np.zeros_like(d[key]),d[key],d['wrongLabel']  ])    
-            d["data"]=np.concatenate([back, lab, wrong], axis=1)
+            d[key]=np.concatenate([back, lab, wrong], axis=1)
 
 
         return d
