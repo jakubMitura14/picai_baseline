@@ -218,7 +218,7 @@ class loadlabelMy(MapTransform):
             #d[key] = np.expand_dims(d[key], axis=(0, 1))            
             d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
             #d['wrongLabel']= np.expand_dims(d['fullProst'], axis=(0, 1))
-            d[key]=np.stack(np.zeros_like(d[key]),d[key],d['wrongLabel']  )    
+            d[key]=np.stack([np.zeros_like(d[key]),d[key],d['wrongLabel']  ])    
 
 
 
