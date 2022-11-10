@@ -226,7 +226,9 @@ class Model(pl.LightningModule):
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         # outputs = self.modelRegression(inputs)
         segmMap = self.model(inputs)
-        lossSegm = self.loss_func(segmMap, labels)
+        lossAdd=torch.mean((torch.sigmoid(segmMap[:,1,:,:,:])-torch.sigmoid(segmMap[:,2,:,:,:]))**2)
+        lossSegm = self.loss_func(segmMap, labels)+lossAdd
+        
         self.log('train_loss', lossSegm.item())
         return lossSegm
 
@@ -250,8 +252,8 @@ class Model(pl.LightningModule):
             for x in valid_images
         ]
         preds[1] = np.flip(preds[1], [3])
-        res= (valid_labels[:, 0, ...]
-                , np.mean([ gaussian_filter(x, sigma=1.5)for x in preds], axis=0), )
+        res= (valid_labels[:, 1, ...]
+                , np.mean([ gaussian_filter(np.nan_to_num(x), sigma=1.5) for x in preds], axis=0), )
         if(batch_idx<10):
             log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx,valid_labels[0,2,:,:,:])
         
