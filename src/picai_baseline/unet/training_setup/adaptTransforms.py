@@ -218,8 +218,12 @@ class loadlabelMy(MapTransform):
             #d[key] = np.expand_dims(d[key], axis=(0, 1))            
             d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
             #d['wrongLabel']= np.expand_dims(d['fullProst'], axis=(0, 1))
-            d[key]=np.stack([np.zeros_like(d[key]),d[key],d['wrongLabel']  ])    
-
+            back = np.zeros_like(d[key])
+            back= np.expand_dims(back, axis=(0, 1))
+            lab = np.expand_dims(d[key], axis=(0, 1))
+            wrong =np.expand_dims(d['wrongLabel'], axis=(0, 1))
+            #d[key]=np.stack([np.zeros_like(d[key]),d[key],d['wrongLabel']  ])    
+            d["data"]=np.concatenate([back, lab, wrong], axis=1)
 
 
         return d
@@ -266,16 +270,18 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             concatImageMy(keys=["t2w","hbv","adc","fullProst"]),
             ToNumpyd(keys=["data","seg"]),
             monai.transforms.SpatialPadd(keys=["data"],spatial_size=(4,expectedShape[1],expectedShape[2],expectedShape[3])),#(3,32,256,256)
-            #monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(3,expectedShape[1],expectedShape[2],expectedShape[3])),
+            monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(3,expectedShape[1],expectedShape[2],expectedShape[3])),
+            wrapTorchio(torchio.transforms.RandomAnisotropy(include=["data"],p=RandomAnisotropy_prob)),
+            wrapTorchio(torchio.transforms.RandomBiasField(include=["data"],p=RandomBiasField_prob))
+            
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             ToNumpyd(keys=["data","seg"]),
             adaptor(batchTransforms, {"data": "data","seg": "seg"}),
             SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa"])  ,      
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float),
-            getToShape(keys=["data","seg"]),
-            wrapTorchio(torchio.transforms.RandomAnisotropy(include=["data"],p=RandomAnisotropy_prob)),
-            wrapTorchio(torchio.transforms.RandomBiasField(include=["data"],p=RandomBiasField_prob))
+            #getToShape(keys=["data","seg"]),
+
              ]           )        
 def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,expectedShape,df):
     # print(f"hhhh {expectedShape}")
@@ -289,13 +295,13 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
             concatImageMy(keys=["t2w","hbv","adc","fullProst"]),
             ToNumpyd(keys=["data","seg"]),
             monai.transforms.SpatialPadd(keys=["data"],spatial_size=(4,expectedShape[1],expectedShape[2],expectedShape[3])),
-            #monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(3,expectedShape[1],expectedShape[2],expectedShape[3])),
+            monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(3,expectedShape[1],expectedShape[2],expectedShape[3])),
 
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa"])  ,      
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float),
-            getToShape(keys=["data","seg"])
+            #getToShape(keys=["data","seg"])
 
             ])        
 
