@@ -174,6 +174,7 @@ def tryLoadImageReturnZeros(path, labelArr):
         loadedArr= crop_or_pad(loadedArr,labelArr.shape )
         labelArrBool = (labelArr>0)
         return np.logical_and(np.logical_not(labelArrBool),loadedArr)
+    print('path not found')    
     return np.zeros_like(labelArr,dtype='bool')    
 class loadlabelMy(MapTransform):
 
@@ -214,9 +215,10 @@ class loadlabelMy(MapTransform):
             swin=tryLoadImageReturnZeros(swinPath, d[key])
             d['wrongLabel']= np.logical_or(np.logical_or(orig_nnunet_semi  ,orig_unet_semi ), swin   )
 
-            d[key] = np.expand_dims(d[key], axis=(0, 1))            
+            #d[key] = np.expand_dims(d[key], axis=(0, 1))            
             d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
-
+            #d['wrongLabel']= np.expand_dims(d['fullProst'], axis=(0, 1))
+            d[key]=np.stack(np.zeros_like(d[key]),d[key],d['wrongLabel']  )    
 
 
 

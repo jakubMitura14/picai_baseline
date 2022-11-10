@@ -114,8 +114,8 @@ class Model(pl.LightningModule):
     ):
         super().__init__()
         self.save_hyperparameters()
-        in_channels=3
-        out_channels=2
+        in_channels=4
+        out_channels=3
         self.f = f
         devicee, args = compute_spec_for_run(args=args)
         self.learning_rate=learning_rate
@@ -176,7 +176,8 @@ class Model(pl.LightningModule):
             ,RandomAnisotropy_prob=self.RandomAnisotropy_prob, Random_GaussNoiseProb=self.Random_GaussNoiseProb  )
         self.df = df
         # self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
-        self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
+        self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=False,gamma=self.args.focal_loss_gamma )
+        # self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # integrate data augmentation pipeline from nnU-Net
         # train_gen = apply_augmentations(
         #     dataloader=train_gen,
