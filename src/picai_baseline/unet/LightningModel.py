@@ -227,7 +227,7 @@ class Model(pl.LightningModule):
         # outputs = self.modelRegression(inputs)
         segmMap = self.model(inputs)
         lossAdd=torch.mean((torch.sigmoid(segmMap[:,1,:,:,:])-torch.sigmoid(segmMap[:,2,:,:,:]))**2)
-        lossSegm = self.loss_func(segmMap, labels)+lossAdd
+        lossSegm = self.loss_func(segmMap, labels)-(lossAdd/3)
         
         self.log('train_loss', lossSegm.item())
         return lossSegm
