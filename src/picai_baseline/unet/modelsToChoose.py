@@ -82,7 +82,7 @@ def getSwinUNETRa(dropout,input_image_size,in_channels,out_channels):
         img_size=input_image_sizeMin,
         #norm_name='layer'
         #depths=(2, 2, 2, 2), num_heads=(3, 6, 12, 24)
-        depths=(4, 4, 4, 4)#, num_heads=(6, 12, 24, 48)
+        depths=(6, 6, 6, 6)#, num_heads=(6, 12, 24, 48)
     ),input_image_size,2   )
 
 # def getSwinUNETRb(dropout,input_image_size,in_channels,out_channels):
