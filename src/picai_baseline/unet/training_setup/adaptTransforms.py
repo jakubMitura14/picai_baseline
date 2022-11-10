@@ -169,12 +169,12 @@ class printTransform(MapTransform):
 
 def tryLoadImageReturnZeros(path, labelArr):
     if os.path.exists(path):
-        print(f"found path {path}")
+        # print(f"found path {path}")
         loadedArr= (sitk.GetArrayFromImage(sitk.ReadImage(path))>0)
         loadedArr= crop_or_pad(loadedArr,labelArr.shape )
         labelArrBool = (labelArr>0)
         return np.logical_and(np.logical_not(labelArrBool),loadedArr)
-    print('path not found')    
+    # print('path not found')    
     return np.zeros_like(labelArr,dtype='bool')    
 class loadlabelMy(MapTransform):
 

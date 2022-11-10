@@ -70,7 +70,7 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
     return path
 
 
-def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataloaderIdx):
+def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataloaderIdx,validWrong):
     valTr='val'
     if(dataloaderIdx==1):
         valTr='train'
@@ -88,6 +88,7 @@ def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataload
             if np.sum(gold_arr_loc)>0:
                 # experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*2,((extracted[maxSlice,:,:]).astype('float'))),directory,f"{valTr}_{labelName}_{epoch}",'plasma'))
                 experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*2,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
+                experiment.log_image( save_heatmap(validWrong,directory,f"validWrong_{labelName}_{epoch}"))
                 # experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
 
 
@@ -252,7 +253,7 @@ class Model(pl.LightningModule):
         res= (valid_labels[:, 0, ...]
                 , np.mean([ gaussian_filter(x, sigma=1.5)for x in preds], axis=0), )
         if(batch_idx<4):
-            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx)
+            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx,valid_labels,valid_labels[0,2,:,:,:])
         
         return res
 
