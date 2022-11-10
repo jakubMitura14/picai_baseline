@@ -255,7 +255,7 @@ class Model(pl.LightningModule):
         res= (valid_labels[:, 1, ...]
                 , np.mean([ gaussian_filter(np.nan_to_num(x), sigma=1.5) for x in preds], axis=0), )
         if(batch_idx<10):
-            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx,valid_labels[0,2,:,:,:])
+            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx,valid_labels[0,2,:,:,:].cpu().numpy())
         
         return res
 
