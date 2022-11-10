@@ -273,7 +273,6 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(3,expectedShape[1],expectedShape[2],expectedShape[3])),
             wrapTorchio(torchio.transforms.RandomAnisotropy(include=["data"],p=RandomAnisotropy_prob)),
             wrapTorchio(torchio.transforms.RandomBiasField(include=["data"],p=RandomBiasField_prob))
-            
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             ToNumpyd(keys=["data","seg"]),
