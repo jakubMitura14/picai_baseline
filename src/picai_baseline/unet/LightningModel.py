@@ -232,7 +232,8 @@ class Model(pl.LightningModule):
         #lossAdd=self.mseLoss(torch.sigmoid(segmMap[:,1,:,:,:]),torch.sigmoid(segmMap[:,2,:,:,:]))
         lossSegm = self.loss_func(segmMap, labels)
         lossWrong = self.loss_func(segmMap, labelsWrong)
-        loss = lossSegm-lossWrong
+        # loss = lossSegm-lossWrong
+        loss = lossSegm*2 + 1/(lossWrong + 1e-6)
         self.log('train_loss', loss.item())
         return loss
 
