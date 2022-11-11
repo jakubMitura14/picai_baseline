@@ -75,7 +75,7 @@ def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataload
     if(dataloaderIdx==1):
         valTr='train'
     for batchInd in range(0,golds.shape[0]):
-        if(batchInd<20):
+        if(batchInd<40):
             gold_arr_loc=golds[batchInd,:,:,:]
             extracted=extract_lesion_candidates(extracteds[batchInd,:,:,:])[0]
             labelName=labelNames[batchInd]
@@ -259,8 +259,8 @@ class Model(pl.LightningModule):
         preds[1] = np.flip(preds[1], [3])
         res= (valid_labels[:, 0, ...]
                 , np.mean([ gaussian_filter(np.nan_to_num(x), sigma=1.5) for x in preds], axis=0), )
-        if(batch_idx<10):
-            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx,valid_labels[0,2,:,:,:].cpu().numpy())
+        if(batch_idx<30):
+            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx,valid_labels[0,1,:,:,:].cpu().numpy())
         
         return res
 
