@@ -116,7 +116,7 @@ class Model(pl.LightningModule):
         super().__init__()
         self.save_hyperparameters()
         in_channels=4
-        out_channels=3
+        out_channels=2
         self.f = f
         devicee, args = compute_spec_for_run(args=args)
         self.learning_rate=learning_rate
@@ -177,7 +177,7 @@ class Model(pl.LightningModule):
             ,RandomAnisotropy_prob=self.RandomAnisotropy_prob, Random_GaussNoiseProb=self.Random_GaussNoiseProb  )
         self.df = df
         # self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
-        self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=False,gamma=self.args.focal_loss_gamma )
+        self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # integrate data augmentation pipeline from nnU-Net
         # train_gen = apply_augmentations(
@@ -221,16 +221,20 @@ class Model(pl.LightningModule):
         epoch=self.current_epoch
         # train_loss, step = 0,  0
         inputs = batch_data['data']#[:,0,:,:,:,:]
-        labels = batch_data['seg']#[:,0,:,:,:,:]
+        labels = torch.unsqueeze(batch_data['seg'][:,0,:,:,:], 1)#[:,0,:,:,:,:]
+        labelsWrong = torch.unsqueeze(batch_data['seg'][:,1,:,:,:], 1)#[:,0,:,:,:,:]
         isCa = batch_data['isCa']
+
+        
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         # outputs = self.modelRegression(inputs)
         segmMap = self.model(inputs)
-        lossAdd=self.mseLoss(torch.sigmoid(segmMap[:,1,:,:,:]),torch.sigmoid(segmMap[:,2,:,:,:]))
-        lossSegm = self.loss_func(segmMap, labels)-(lossAdd/3)
-        
-        self.log('train_loss', lossSegm.item())
-        return lossSegm
+        #lossAdd=self.mseLoss(torch.sigmoid(segmMap[:,1,:,:,:]),torch.sigmoid(segmMap[:,2,:,:,:]))
+        lossSegm = self.loss_func(segmMap, labels)
+        lossWrong = self.loss_func(segmMap, labelsWrong)
+        loss = lossSegm-lossWrong
+        self.log('train_loss', loss.item())
+        return loss
 
 
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
@@ -252,7 +256,7 @@ class Model(pl.LightningModule):
             for x in valid_images
         ]
         preds[1] = np.flip(preds[1], [3])
-        res= (valid_labels[:, 1, ...]
+        res= (valid_labels[:, 0, ...]
                 , np.mean([ gaussian_filter(np.nan_to_num(x), sigma=1.5) for x in preds], axis=0), )
         if(batch_idx<10):
             log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx,valid_labels[0,2,:,:,:].cpu().numpy())
