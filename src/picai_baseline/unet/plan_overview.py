@@ -20,11 +20,20 @@ import numpy as np
 import SimpleITK as sitk
 from picai_baseline.splits.picai_nnunet import nnunet_splits
 
+# python3.9 -u /home/sliceruser/locTemp/picai_baseline/src/picai_baseline/unet/train.py \
+#   --weights_dir='/mnt/disks/sdb/workdir/results/UNet/weights/' \
+#   --overviews_dir='/mnt/disks/sdb/workdir/results/UNet/overviews/' \
+#   --folds 0 1 2 3 4 --max_threads 12 --enable_da 1 --num_epochs 250 --batch_size 48 \
+#   --validate_n_epochs 1 --validate_min_epoch 0
+
+
+#     preprocessed_data_path: Union[Path, str] = Path('/mnt/disks/sdb/workdir/nnUNet_raw_data/Task2201_picai_baseline/'),
+#     overviews_path: Union[Path, str] = Path('/mnt/disks/sdb/workdir/results/UNet/overviews/'),
 
 
 def main(
-    preprocessed_data_path: Union[Path, str] = Path('/mnt/disks/sdb/workdir/nnUNet_raw_data/Task2201_picai_baseline/'),
-    overviews_path: Union[Path, str] = Path('/mnt/disks/sdb/workdir/results/UNet/overviews/'),
+    preprocessed_data_path: Union[Path, str] = Path('/home/sliceruser/workdir/nnUNet_raw_data/Task2203_picai_baseline/'),
+    overviews_path: Union[Path, str] = Path('/home/sliceruser/workdir/results/UNet/overviews/'),
     splits: Optional[Dict[str, List[str]]] = None,
     excluded_cases: Tuple[str] = ("11475_1001499",)
 ):
