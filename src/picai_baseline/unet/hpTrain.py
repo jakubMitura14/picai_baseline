@@ -91,7 +91,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     # if(swa_lrs>0.0):
     #     callbacks=[early_stopping,stochasticAveraging], #optuna_prune
     # check_eval_every_epoch=40
-    check_eval_every_epoch=10
+    check_eval_every_epoch=1
 
     # for each fold
     fInd=-1
