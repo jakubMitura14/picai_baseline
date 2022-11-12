@@ -283,7 +283,7 @@ class Model(pl.LightningModule):
 
     def _eval_epoch_end(self, outputs,labelKey,predsKey, dataloader_idxx):
         epoch=self.current_epoch
-        # print(f"outputs {outputs}")
+        print(f"outputs {outputs}")
         outputs = outputs[dataloader_idxx]#list(filter( lambda entry : entry['dataloader_idx']==dataloader_idxx,outputs))
         all_valid_labels=np.array(([x[labelKey].cpu().detach().numpy() for x in outputs]))
         all_valid_preds=np.array(([x[predsKey] for x in outputs]))
@@ -293,10 +293,11 @@ class Model(pl.LightningModule):
         # all_train_labels=np.array(([x['train_label'].cpu().detach().numpy() for x in outputs]))
         # all_train_preds=np.array(([x['tain_preds']for x in outputs]))
         # print(f"all_valid_labels {all_valid_labels}")
-
+        print("pre valid_metrics")
         valid_metrics = evaluate(y_det=iter(np.concatenate([x for x in np.array(all_valid_preds)], axis=0)),
                                 y_true=iter(np.concatenate([x for x in np.array(all_valid_labels)], axis=0)),
                                 y_det_postprocess_func=lambda pred: extract_lesion_candidates(pred)[0])
+        print("post valid_metrics")
 
         num_pos = int(np.sum([np.max(y) for y in np.concatenate(
             [x for x in np.array(all_valid_labels)], axis=0)]))
