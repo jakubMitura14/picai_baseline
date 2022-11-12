@@ -70,7 +70,7 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
     return path
 
 
-def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataloaderIdx,validWrong):
+def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataloaderIdx):
     valTr='val'
     if(dataloaderIdx==1):
         valTr='train'
@@ -88,7 +88,7 @@ def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataload
             if np.sum(gold_arr_loc)>0:
                 # experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*2,((extracted[maxSlice,:,:]).astype('float'))),directory,f"{valTr}_{labelName}_{epoch}",'plasma'))
                 experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*2,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
-                experiment.log_image( save_heatmap(validWrong[maxSlice,:,:],directory,f"validWrong_{labelName}_{epoch}"))
+                # experiment.log_image( save_heatmap(validWrong[maxSlice,:,:],directory,f"validWrong_{labelName}_{epoch}"))
                 # experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
 
 
@@ -231,11 +231,11 @@ class Model(pl.LightningModule):
         segmMap = self.model(inputs)
         #lossAdd=self.mseLoss(torch.sigmoid(segmMap[:,1,:,:,:]),torch.sigmoid(segmMap[:,2,:,:,:]))
         lossSegm = self.loss_func(segmMap, labels)
-        lossWrong = self.loss_func(segmMap, labelsWrong)
+        #lossWrong = self.loss_func(segmMap, labelsWrong)
         # loss = lossSegm-lossWrong
-        loss = lossSegm*2 + 1/(lossWrong + 1e-6)
-        self.log('train_loss', loss.item())
-        return loss
+        #loss = lossSegm*2 + 1/(lossWrong + 1e-6)
+        self.log('train_loss', lossSegm.item())
+        return lossSegm
 
 
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
@@ -260,7 +260,7 @@ class Model(pl.LightningModule):
         res= (valid_labels[:, 0, ...]
                 , np.mean([ gaussian_filter(np.nan_to_num(x), sigma=1.5) for x in preds], axis=0), )
         if(batch_idx<30):
-            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx,valid_labels[0,1,:,:,:].cpu().numpy())
+            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx)#,valid_labels[0,1,:,:,:].cpu().numpy()
         
         return res
 
