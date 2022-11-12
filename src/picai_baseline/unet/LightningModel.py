@@ -177,7 +177,7 @@ class Model(pl.LightningModule):
             ,RandomAnisotropy_prob=self.RandomAnisotropy_prob, Random_GaussNoiseProb=self.Random_GaussNoiseProb  )
         self.df = df
         # self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
-        self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=False,gamma=self.args.focal_loss_gamma )
+        self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # integrate data augmentation pipeline from nnU-Net
         # train_gen = apply_augmentations(
