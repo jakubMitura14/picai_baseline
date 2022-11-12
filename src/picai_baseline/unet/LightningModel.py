@@ -70,12 +70,12 @@ def save_heatmap(arr,dir,name,cmapp='gray'):
     return path
 
 
-def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataloaderIdx):
+def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataloaderIdx,validWrong):
     valTr='val'
     if(dataloaderIdx==1):
         valTr='train'
     for batchInd in range(0,golds.shape[0]):
-        if(batchInd<40):
+        if(batchInd<20):
             gold_arr_loc=golds[batchInd,:,:,:]
             extracted=extract_lesion_candidates(extracteds[batchInd,:,:,:])[0]
             labelName=labelNames[batchInd]
@@ -88,7 +88,7 @@ def log_images(experiment,golds,extracteds ,labelNames, directory,epoch,dataload
             if np.sum(gold_arr_loc)>0:
                 # experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:].astype('float')*2,((extracted[maxSlice,:,:]).astype('float'))),directory,f"{valTr}_{labelName}_{epoch}",'plasma'))
                 experiment.log_image( save_heatmap(np.add(gold_arr_loc[maxSlice,:,:]*2,((extracted[maxSlice,:,:]>0).astype('int8'))),directory,f"gold_plus_extracted_{labelName}_{epoch}",'plasma'))
-                # experiment.log_image( save_heatmap(validWrong[maxSlice,:,:],directory,f"validWrong_{labelName}_{epoch}"))
+                experiment.log_image( save_heatmap(validWrong[maxSlice,:,:],directory,f"validWrong_{labelName}_{epoch}"))
                 # experiment.log_image( save_heatmap(np.add(t2w.astype('float'),(gold_arr_loc[maxSlice,:,:]*(t2wMax)).astype('float')),directory,f"gold_plus_t2w_{labelName}_{epoch}"))
 
 
@@ -134,7 +134,7 @@ class Model(pl.LightningModule):
         self.Random_GaussNoiseProb=Random_GaussNoiseProb
         self.base_lr_multi=base_lr_multi
         self.optimizerIndex=optimizerIndex
-        self.mseLoss = nn.MSELoss()
+
         # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
         # model, optimizer, tracking_metrics = resume_or_restart_training(
         #     model=model, optimizer=optimizer,
@@ -177,7 +177,7 @@ class Model(pl.LightningModule):
             ,RandomAnisotropy_prob=self.RandomAnisotropy_prob, Random_GaussNoiseProb=self.Random_GaussNoiseProb  )
         self.df = df
         # self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
-        self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
+        self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=False,gamma=self.args.focal_loss_gamma )
         # self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
         # integrate data augmentation pipeline from nnU-Net
         # train_gen = apply_augmentations(
@@ -221,19 +221,12 @@ class Model(pl.LightningModule):
         epoch=self.current_epoch
         # train_loss, step = 0,  0
         inputs = batch_data['data']#[:,0,:,:,:,:]
-        labels = torch.unsqueeze(batch_data['seg'][:,0,:,:,:], 1)#[:,0,:,:,:,:]
-        labelsWrong = torch.unsqueeze(batch_data['seg'][:,1,:,:,:], 1)#[:,0,:,:,:,:]
+        labels = batch_data['seg']#[:,0,:,:,:,:]
         isCa = batch_data['isCa']
-
-        
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         # outputs = self.modelRegression(inputs)
         segmMap = self.model(inputs)
-        #lossAdd=self.mseLoss(torch.sigmoid(segmMap[:,1,:,:,:]),torch.sigmoid(segmMap[:,2,:,:,:]))
         lossSegm = self.loss_func(segmMap, labels)
-        #lossWrong = self.loss_func(segmMap, labelsWrong)
-        # loss = lossSegm-lossWrong
-        #loss = lossSegm*2 + 1/(lossWrong + 1e-6)
         self.log('train_loss', lossSegm.item())
         return lossSegm
 
@@ -258,9 +251,9 @@ class Model(pl.LightningModule):
         ]
         preds[1] = np.flip(preds[1], [3])
         res= (valid_labels[:, 0, ...]
-                , np.mean([ gaussian_filter(np.nan_to_num(x), sigma=1.5) for x in preds], axis=0), )
-        if(batch_idx<30):
-            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx)#,valid_labels[0,1,:,:,:].cpu().numpy()
+                , np.mean([ gaussian_filter(x, sigma=1.5)for x in preds], axis=0), )
+        if(batch_idx<10):
+            log_images(self.logger.experiment,res[0],res[1] ,label_name, self.logImageDir,self.current_epoch,dataloader_idx,valid_labels[0,2,:,:,:])
         
         return res
 
@@ -283,7 +276,7 @@ class Model(pl.LightningModule):
 
     def _eval_epoch_end(self, outputs,labelKey,predsKey, dataloader_idxx):
         epoch=self.current_epoch
-        print(f"outputs {outputs}")
+        # print(f"outputs {outputs}")
         outputs = outputs[dataloader_idxx]#list(filter( lambda entry : entry['dataloader_idx']==dataloader_idxx,outputs))
         all_valid_labels=np.array(([x[labelKey].cpu().detach().numpy() for x in outputs]))
         all_valid_preds=np.array(([x[predsKey] for x in outputs]))
@@ -293,11 +286,10 @@ class Model(pl.LightningModule):
         # all_train_labels=np.array(([x['train_label'].cpu().detach().numpy() for x in outputs]))
         # all_train_preds=np.array(([x['tain_preds']for x in outputs]))
         # print(f"all_valid_labels {all_valid_labels}")
-        print("pre valid_metrics")
+
         valid_metrics = evaluate(y_det=iter(np.concatenate([x for x in np.array(all_valid_preds)], axis=0)),
                                 y_true=iter(np.concatenate([x for x in np.array(all_valid_labels)], axis=0)),
                                 y_det_postprocess_func=lambda pred: extract_lesion_candidates(pred)[0])
-        print("post valid_metrics")
 
         num_pos = int(np.sum([np.max(y) for y in np.concatenate(
             [x for x in np.array(all_valid_labels)], axis=0)]))
