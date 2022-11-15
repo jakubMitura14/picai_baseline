@@ -157,12 +157,12 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
                 inputs = batch_data['data'].to(device)
                 output = model(inputs)[0,1,:,:,:].detach().cpu().numpy()
                 studyId= batch_data['study_id'][0]             
-
+                print("*")
 
                 outPathFile = join(outputPAth,f"{studyId}.mha")
                 image = sitk.GetImageFromArray(output)
                 sitk.WriteImage(image, str(outPathFile))  
-            
+            print(f"finished fold {fInd}")
             
 
             
@@ -224,7 +224,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
 
             # trainer.fit(model)
-
+    print("fiiiiiiiiiiiiiiiiiinished")
 
 
 
