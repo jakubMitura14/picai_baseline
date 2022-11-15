@@ -122,7 +122,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             
 
 
-
+            learningRate = 0.0057# manually taken from learning rate finder
             model = LightningModel.Model.load_from_checkpoint(checkPointPath).model
             # model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
             #         ,schedulerIndex,normalizationIndex,modelIndex,imageShape
@@ -157,7 +157,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
                 #strategy='dp'
             )
 
-            trainer.tune(model)
+            # trainer.tune(model)
 
             experiment=trainer.logger.experiment
             experiment.log_parameter('machine',machine)
