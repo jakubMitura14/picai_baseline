@@ -146,7 +146,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             train_data = [np.array(train_json['image_paths']), np.array(train_json['label_paths'])]
             subjects_train = list(map(partial(data_generator.getPatientDict,image_files=train_data[0], seg_files=train_data[1]) , range(0,len(train_data[0])) ))
 
-            batchh=2
+            batchh=1
             expectedShape=(3,32,256,256)
             transfVal=adaptTransforms.loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,{},expectedShape,df)
             transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
