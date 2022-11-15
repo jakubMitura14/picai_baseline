@@ -112,8 +112,8 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
                 #divergence_threshold=(-0.1)
             )
             # f=args.folds[fInd]
-            # checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
-            checkPointPath=f"/home/sliceruser/locTemp/checkB/checkpoints/f{fInd}.ckpt"
+            checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
+            checkPointPathFromOut=f"/home/sliceruser/locTemp/checkB/checkpoints/f{fInd}.ckpt"
             checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
             schedulerIndexToLog= schedulerIndex
             callbacks=[early_stopping,checkpoint_callback]#stochasticAveraging
@@ -121,7 +121,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             logImageDir=tempfile.mkdtemp()
             
             learningRate = 0.0057# manually taken from learning rate finder
-            model = LightningModel.Model.load_from_checkpoint(checkPointPath)#.model
+            model = LightningModel.Model.load_from_checkpoint(checkPointPathFromOut)#.model
             # model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
             #         ,schedulerIndex,normalizationIndex,modelIndex,imageShape
             #         ,fInd,logImageDir,dropout,regression_channels
