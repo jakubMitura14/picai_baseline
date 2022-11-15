@@ -96,7 +96,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
     for f in args.folds :#range(0, len(args.folds)):#args.folds:
         fInd=fInd+1
-        if(fInd>2):
+        if(fInd>-1):
             comet_logger = CometLogger(
                 api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
                 #workspace="OPI", # Optional
@@ -112,21 +112,30 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
                 #divergence_threshold=(-0.1)
             )
             # f=args.folds[fInd]
-            checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
+            # checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
+            checkPointPath=f"/home/sliceruser/locTemp/checkB/f{fInd}.ckpt"
             checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
             schedulerIndexToLog= schedulerIndex
             callbacks=[early_stopping,checkpoint_callback]#stochasticAveraging
 
             logImageDir=tempfile.mkdtemp()
-            model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
-                    ,schedulerIndex,normalizationIndex,modelIndex,imageShape
-                    ,fInd,logImageDir,dropout,regression_channels
-                    ,RicianNoiseTransformProb
-                    ,LocalSmoothingTransformProb
-                    ,RandomBiasField_prob
-                    ,RandomAnisotropy_prob
-                    ,Random_GaussNoiseProb
-                    ,optimizerIndex)
+            
+
+
+
+            model = LightningModel.Model.load_from_checkpoint(checkPointPath).model
+            # model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
+            #         ,schedulerIndex,normalizationIndex,modelIndex,imageShape
+            #         ,fInd,logImageDir,dropout,regression_channels
+            #         ,RicianNoiseTransformProb
+            #         ,LocalSmoothingTransformProb
+            #         ,RandomBiasField_prob
+            #         ,RandomAnisotropy_prob
+            #         ,Random_GaussNoiseProb
+            #         ,optimizerIndex)
+
+
+
             #model = LightningModel.Model(f,args)
             trainer = pl.Trainer(
                 #accelerator="cpu", #TODO(remove)
