@@ -120,10 +120,8 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
             logImageDir=tempfile.mkdtemp()
             
-
-
             learningRate = 0.0057# manually taken from learning rate finder
-            model = LightningModel.Model.load_from_checkpoint(checkPointPath).model
+            model = LightningModel.Model.load_from_checkpoint(checkPointPath)#.model
             # model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
             #         ,schedulerIndex,normalizationIndex,modelIndex,imageShape
             #         ,fInd,logImageDir,dropout,regression_channels
