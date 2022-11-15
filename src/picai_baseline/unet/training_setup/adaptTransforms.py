@@ -199,6 +199,7 @@ class loadlabelMy(MapTransform):
             patient_id, study_id= stemm.replace('.nii','').split('_')
             patient_id=int(patient_id)
             study_id= int(study_id)
+            d['study_id']=study_id
             #prostPath=f"/home/sliceruser/locTemp/prostateFull/prostateFold/prostate_{study_id}.nii.gz"
             prostPath=f"/home/sliceruser/labels/anatomical_delineations/whole_gland/AI/Bosma22b/{patient_id}_{study_id}.nii.gz"
             # print(f"ppppp {patient_id} study_id {study_id}   ")
