@@ -103,7 +103,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
     for f in args.folds :#range(0, len(args.folds)):#args.folds:
         fInd=fInd+1
-        outputPAth = join('/home/sliceruser/',str(fInd) )
+        outputPAth = join('/home/sliceruser/data/',str(fInd) )
         os.makedirs(outputPAth ,exist_ok = True)
         if(fInd>-1):
             comet_logger = CometLogger(
