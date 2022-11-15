@@ -104,7 +104,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
                 experiment_name=f"{machine}_{fInd}_{str(expId)}" # Optional
                 #experiment_name=experiment_name # Optional
             )
-            # stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= swa_lrs )
+            stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= 0.5 )
             early_stopping = pl.callbacks.early_stopping.EarlyStopping(
                 monitor=toMonitor,
                 patience=5,
@@ -116,7 +116,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             checkPointPathFromOut=f"/home/sliceruser/locTemp/checkB/checkpoints/f{fInd}.ckpt"
             checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
             schedulerIndexToLog= schedulerIndex
-            callbacks=[early_stopping,checkpoint_callback]#stochasticAveraging
+            callbacks=[early_stopping,checkpoint_callback,stochasticAveraging]#stochasticAveraging
 
             logImageDir=tempfile.mkdtemp()
             
