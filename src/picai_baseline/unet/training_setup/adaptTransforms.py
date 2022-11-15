@@ -284,7 +284,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
             ToNumpyd(keys=["data","seg"]),
             adaptor(batchTransforms, {"data": "data","seg": "seg"}),
-            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa","studyId"])  ,      #,"wrongLabel"
+            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa","study_id"])  ,      #,"wrongLabel"
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float),
             getToShape(keys=["data","seg"]),
             wrapTorchio(torchio.transforms.RandomAnisotropy(include=["data"],p=RandomAnisotropy_prob)),
@@ -306,7 +306,7 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
 
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
-            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa","studyId"])  ,      #,"wrongLabel"
+            SelectItemsd(keys=["data","seg_name","seg","t2w_name","hbv_name","adc_name","isCa","study_id"])  ,      #,"wrongLabel"
             monai.transforms.ToTensord(keys=["data","seg"], dtype=torch.float),
             getToShape(keys=["data","seg"])
 

@@ -156,7 +156,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             for i, batch_data in enumerate(valid_ldr, 0):
                 inputs = batch_data['data'].to(device)
                 output = model(inputs).detach().cpu().numpy()
-                studyIds= batch_data['studyId']
+                studyIds= batch_data['study_id']
                 
                 dat = decollate_batch(output)
                 print(f"dat.shape {dat.shape}")
