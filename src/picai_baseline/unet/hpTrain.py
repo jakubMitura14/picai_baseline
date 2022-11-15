@@ -159,8 +159,9 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
                 studyIds= batch_data['study_id']
                 
                 dat = decollate_batch(output)
-                print(f"dat.shape {dat.shape}")
                 for i, study in enumerate(dat):
+                    print(f"study.shape {study.shape}")
+
                     studyId=studyIds[i]
                     outPathFile = join(outputPAth,f"{studyId}.mha")
                     sitk.GetImageFromArray()
