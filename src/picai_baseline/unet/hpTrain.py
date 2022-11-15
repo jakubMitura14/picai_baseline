@@ -151,7 +151,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             transfVal=adaptTransforms.loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,{},expectedShape,df)
             transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
             valid_ds=Dataset(data=subjects_train, transform=transfVal )
-            valid_ldr=DataLoader(valid_ds,batch_size=batchh, num_workers=12,shuffle=False)
+            valid_ldr=DataLoader(valid_ds,batch_size=batchh, num_workers=6,shuffle=False)
 
             for i, batch_data in enumerate(valid_ldr, 0):
                 inputs = batch_data['data'].to(device)
