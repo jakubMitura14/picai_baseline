@@ -160,8 +160,8 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
 
                 outPathFile = join(outputPAth,f"{studyId}.mha")
-                sitk.GetImageFromArray()
-                sitk.WriteImage(output, str(outPathFile))  
+                image = sitk.GetImageFromArray(output)
+                sitk.WriteImage(image, str(outPathFile))  
             
             
 
