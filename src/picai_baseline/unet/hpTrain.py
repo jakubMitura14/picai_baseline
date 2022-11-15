@@ -62,6 +62,7 @@ import importlib.util
 import sys
 import LightningModel
 from pytorch_lightning.callbacks import ModelCheckpoint
+from os.path import basename, dirname, exists, isdir, join, split
 
 
 def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
@@ -96,6 +97,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
     for f in args.folds :#range(0, len(args.folds)):#args.folds:
         fInd=fInd+1
+        os.makedirs(join('/home/sliceruser/',fInd ) ,exist_ok = True)
         if(fInd>-1):
             comet_logger = CometLogger(
                 api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
