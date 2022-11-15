@@ -155,17 +155,13 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
             for i, batch_data in enumerate(valid_ldr, 0):
                 inputs = batch_data['data'].to(device)
-                output = model(inputs).detach().cpu().numpy()
-                studyIds= batch_data['study_id']
-                
-                dat = decollate_batch(output)
-                for i, study in enumerate(dat):
-                    print(f"study.shape {study.shape}")
+                output = model(inputs)[0,1,:,:,:].detach().cpu().numpy()
+                studyId= batch_data['study_id'][0]             
 
-                    studyId=studyIds[i]
-                    outPathFile = join(outputPAth,f"{studyId}.mha")
-                    sitk.GetImageFromArray()
-                    sitk.WriteImage(study, str(outPathFile))  
+
+                outPathFile = join(outputPAth,f"{studyId}.mha")
+                sitk.GetImageFromArray()
+                sitk.WriteImage(output, str(outPathFile))  
             
             
 
