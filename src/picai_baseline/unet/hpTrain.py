@@ -149,7 +149,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
         default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
         # auto_scale_batch_size="binsearch",
         auto_lr_find=True,
-        check_val_every_n_epoch=check_eval_every_epoch,
+        check_val_every_n_epoch=2,
         accumulate_grad_batches= 1,
         #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
         log_every_n_steps=5
@@ -174,7 +174,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     experiment.log_parameter('RandomAnisotropy_prob',RandomAnisotropy_prob)
     experiment.log_parameter('Random_GaussNoiseProb',Random_GaussNoiseProb)
     experiment.log_parameter('optimizerIndex',optimizerIndex)
-    experiment.log_parameter('fInd',fInd)
+    # experiment.log_parameter('fInd',fInd)
 
 
 
