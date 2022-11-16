@@ -153,6 +153,29 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             valid_ds=Dataset(data=subjects_train, transform=transfVal )
             valid_ldr=DataLoader(valid_ds,batch_size=batchh, num_workers=6,shuffle=False)
 
+            # for i, batch_data in enumerate(valid_ldr, 0):
+            #     inputs = batch_data['data'].to(device)
+            #     output = model(inputs)[0,1,:,:,:].detach().cpu().numpy()
+            #     studyId= batch_data['study_id'][0]             
+            #     print("*")
+
+            #     outPathFile = join(outputPAth,f"{studyId}.mha")
+            #     image = sitk.GetImageFromArray(output)
+            #     sitk.WriteImage(image, str(outPathFile))  
+            # print(f"finished fold {fInd}")
+            # valid_ds=Dataset(data=subjects_train, transform=transfVal )
+
+
+            with open(args.overviews_dir+'PI-CAI_val-fold-'+str(fInd)+'.json') as fp:
+                valid_json = json.load(fp)
+            
+            valid_data = [np.array(valid_json['image_paths']), np.array(valid_json['label_paths'])]
+            subjects_train = list(map(partial(data_generator.getPatientDict,image_files=valid_data[0], seg_files=valid_data[1]) , range(0,len(valid_data[0])) ))
+
+            valid_ds=Dataset(data=subjects_train, transform=transfVal )
+
+            valid_ldr=DataLoader(valid_ds,batch_size=batchh, num_workers=6,shuffle=False)
+
             for i, batch_data in enumerate(valid_ldr, 0):
                 inputs = batch_data['data'].to(device)
                 output = model(inputs)[0,1,:,:,:].detach().cpu().numpy()
@@ -163,7 +186,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
                 image = sitk.GetImageFromArray(output)
                 sitk.WriteImage(image, str(outPathFile))  
             print(f"finished fold {fInd}")
-            
+            valid_ds=Dataset(data=subjects_train, transform=transfVal )
 
             
             
