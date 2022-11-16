@@ -91,7 +91,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
     machine = os.environ['machine']
     expId=trial.number
-    f = args.folds[1]
+    f = args.folds[0]
     toMonitor="valid_ranking"
         # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
     # if(swa_lrs>0.0):
