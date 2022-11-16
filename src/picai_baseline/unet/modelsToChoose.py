@@ -197,7 +197,7 @@ def getUneta(args,devicee):
     res= monai.networks.nets.UNet(spatial_dims=3,in_channels= 6,out_channels=2,    channels=(4, 8, 16),
     strides=(2, 2),num_res_units=2)
     args.model_features = [ 2, 4, 16, 16, 16,32]
-    return res#(neural_network_for_run(args=args, device=devicee),(3,32,256,256),32)
+    return (res,(3,32,256,256),32)
 
 # def getVNet(dropout,input_image_size,in_channels,out_channels):
 #     return (monai.networks.nets.VNet(
