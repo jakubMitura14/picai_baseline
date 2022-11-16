@@ -227,7 +227,7 @@ class loadlabelMy(MapTransform):
             d['isCa']=int(isCa)
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
             imageProst = sitk.ReadImage(prostPath)
-            d['fullProst']= crop_or_pad(sitk.GetArrayFromImage(imageProst),d[key].shape )
+            d['fullProst']= crop_or_pad(sitk.GetArrayFromImage(imageProst),(32,256,256) )
             d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
             
 
