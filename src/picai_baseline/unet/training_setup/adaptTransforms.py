@@ -72,6 +72,8 @@ import os
 from pathlib import Path
 from picai_prep.preprocessing import Sample, PreprocessingSettings, crop_or_pad, resample_img
 import scipy.ndimage  as ndimage
+from os.path import basename, dirname, exists, isdir, join, split
+
 def prepare_scan(path: str) -> "npt.NDArray[Any]":
     return np.expand_dims(
         sitk.GetArrayFromImage(
@@ -127,6 +129,16 @@ class loadImageMy(MapTransform):
                 d[key]=nyul_normalizer(prepare_scan(d[key])).astype(np.float32)          
         return d
 
+def getimage(fInd,studyId ,targetShape):
+    prostPath = join('/home/sliceruser/data/',str(fInd) )
+    imageProst = sitk.ReadImage(prostPath)
+    res= crop_or_pad(sitk.GetArrayFromImage(imageProst),targetShape )
+    res= np.expand_dims(res, axis=(0, 1))
+    return res
+    
+
+   
+
 class concatImageMy(MapTransform):
 
     def __init__(
@@ -138,15 +150,19 @@ class concatImageMy(MapTransform):
 
     def __call__(self, data):
         d = dict(data)
-        img_t2w=d["t2w"]
-        img_adc=d["adc"]
-        img_hbv=d["hbv"]
-
+        # img_t2w=d["t2w"]
+        # img_adc=d["adc"]
+        # img_hbv=d["hbv"]
+        studyId=d["study_id"]
+        toConcat = list(map(lambda fInd: getimage(fInd,studyId ,d['t2w'].shape),list(range(0,5)) )) 
+        # for fInd in range(0,5):
+        #     outputPAth = join('/home/sliceruser/data/',str(fInd) )
+        #     krowa
         # img_fulProst=d["fullProst"]
         img_fulProst=d["fullProst"]
 
         # imgConc= np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
-        d["data"]=np.concatenate([img_t2w, img_adc, img_hbv,img_fulProst], axis=1)
+        d["data"]=np.concatenate([img_fulProst,*toConcat], axis=1)
         return d
 
 
@@ -263,7 +279,7 @@ def loadTrainTransform(transform,seg_transform,batchTransforms,normalizationInde
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc","fullProst"]),
             ToNumpyd(keys=["data","seg"]),
-            monai.transforms.SpatialPadd(keys=["data"],spatial_size=(4,expectedShape[1],expectedShape[2],expectedShape[3])),#(3,32,256,256)
+            monai.transforms.SpatialPadd(keys=["data"],spatial_size=(6,expectedShape[1],expectedShape[2],expectedShape[3])),#(3,32,256,256)
             monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(1,expectedShape[1],expectedShape[2],expectedShape[3])),
             applyOrigTransforms(keys=["data"],transform=transform),
             applyOrigTransforms(keys=["seg"],transform=seg_transform),
@@ -286,7 +302,7 @@ def loadValTransform(transform,seg_transform,normalizationIndex,normalizerDict,e
             #DivisiblePadd(keys=["t2w","hbv","adc","seg"],k=32),
             concatImageMy(keys=["t2w","hbv","adc","fullProst"]),
             ToNumpyd(keys=["data","seg"]),
-            monai.transforms.SpatialPadd(keys=["data"],spatial_size=(4,expectedShape[1],expectedShape[2],expectedShape[3])),
+            monai.transforms.SpatialPadd(keys=["data"],spatial_size=(6,expectedShape[1],expectedShape[2],expectedShape[3])),
             monai.transforms.SpatialPadd(keys=["seg"],spatial_size=(1,expectedShape[1],expectedShape[2],expectedShape[3])),
 
             applyOrigTransforms(keys=["data"],transform=transform),
