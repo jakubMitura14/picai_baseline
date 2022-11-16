@@ -135,7 +135,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
         experiment_name=f"{machine}_{0}_{str(expId)}" # Optional
         #experiment_name=experiment_name # Optional
         )
-    model = LightningModel.Model(f,args)
+
     trainer = pl.Trainer(
         #accelerator="cpu", #TODO(remove)
         max_epochs=3000,#args.num_epochs,
