@@ -101,68 +101,150 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     # for each fold
     fInd=-1
 
-    for f in args.folds :#range(0, len(args.folds)):#args.folds:
-        fInd=fInd+1
-        outputPAth = join('/home/sliceruser/data/',str(fInd) )
-        os.makedirs(outputPAth ,exist_ok = True)
-        if(fInd>-1):
-            comet_logger = CometLogger(
-                api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
-                #workspace="OPI", # Optional
-                project_name=project_name, # Optional
-                experiment_name=f"{machine}_{fInd}_{str(expId)}" # Optional
-                #experiment_name=experiment_name # Optional
-            )
-            stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= 0.5 )
-            early_stopping = pl.callbacks.early_stopping.EarlyStopping(
-                monitor=toMonitor,
-                patience=5,
-                mode="max",
-                #divergence_threshold=(-0.1)
-            )
-            # f=args.folds[fInd]
-            checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
-            checkPointPathFromOut=f"/home/sliceruser/locTemp/checkB/checkpoints/f{fInd}.ckpt"
-            checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
-            schedulerIndexToLog= schedulerIndex
-            callbacks=[early_stopping,checkpoint_callback,stochasticAveraging]#stochasticAveraging
-            device = 'cuda'
+    outputPAth = join('/home/sliceruser/data/',str(fInd) )
+    stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= 0.5 )
+    early_stopping = pl.callbacks.early_stopping.EarlyStopping(
+        monitor=toMonitor,
+        patience=5,
+        mode="max",
+        #divergence_threshold=(-0.1)
+    )
+    # f=args.folds[fInd]
+    checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
+    checkPointPathFromOut=f"/home/sliceruser/locTemp/checkB/checkpoints/f{fInd}.ckpt"
+    checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
+    schedulerIndexToLog= schedulerIndex
+    callbacks=[early_stopping,checkpoint_callback]#stochasticAveraging
+    logImageDir=tempfile.mkdtemp()
 
-            logImageDir=tempfile.mkdtemp()
+
+    model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
+            ,schedulerIndex,normalizationIndex,modelIndex,imageShape
+            ,fInd,logImageDir,dropout,regression_channels
+            ,RicianNoiseTransformProb
+            ,LocalSmoothingTransformProb
+            ,RandomBiasField_prob
+            ,RandomAnisotropy_prob
+            ,Random_GaussNoiseProb
+            ,optimizerIndex)
+    f = args.folds[1]
+
+    comet_logger = CometLogger(
+        api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
+        #workspace="OPI", # Optional
+        project_name=project_name, # Optional
+        experiment_name=f"{machine}_{fInd}_{str(expId)}" # Optional
+        #experiment_name=experiment_name # Optional
+        )
+    model = LightningModel.Model(f,args)
+    trainer = pl.Trainer(
+        #accelerator="cpu", #TODO(remove)
+        max_epochs=3000,#args.num_epochs,
+        #gpus=1,
+        precision=16,#experiment.get_parameter("precision"), 
+        callbacks=callbacks, #optuna_prune
+        logger=comet_logger,
+        accelerator='auto',
+        devices='auto',       
+        default_root_dir= "/home/sliceruser/locTemp/lightning_logs",
+        # auto_scale_batch_size="binsearch",
+        auto_lr_find=True,
+        check_val_every_n_epoch=check_eval_every_epoch,
+        accumulate_grad_batches= 1,
+        #gradient_clip_val=  0.9 ,#experiment.get_parameter("gradient_clip_val"),# 0.5,2.0
+        log_every_n_steps=5
+        ,reload_dataloaders_every_n_epochs=1
+        #strategy='dp'
+    )
+
+    trainer.tune(model)
+
+    experiment=trainer.logger.experiment
+    experiment.log_parameter('machine',machine)
+    experiment.log_parameter('base_lr_multi',base_lr_multi)
+    experiment.log_parameter('swa_lrs',swa_lrs)
+    experiment.log_parameter('schedulerIndex',schedulerIndexToLog)
+    experiment.log_parameter('normalizationIndex',normalizationIndex)
+    experiment.log_parameter('modelIndex',modelIndex)
+
+    experiment.log_parameter('dropout',dropout)
+    experiment.log_parameter('RicianNoiseTransformProb',RicianNoiseTransformProb)
+    experiment.log_parameter('LocalSmoothingTransformProb',LocalSmoothingTransformProb)
+    experiment.log_parameter('RandomBiasField_prob',RandomBiasField_prob)
+    experiment.log_parameter('RandomAnisotropy_prob',RandomAnisotropy_prob)
+    experiment.log_parameter('Random_GaussNoiseProb',Random_GaussNoiseProb)
+    experiment.log_parameter('optimizerIndex',optimizerIndex)
+    experiment.log_parameter('fInd',fInd)
+
+
+
+
+
+    trainer.fit(model)
+
+
+    # for f in args.folds :#range(0, len(args.folds)):#args.folds:
+    #     fInd=fInd+1
+    #     outputPAth = join('/home/sliceruser/data/',str(fInd) )
+    #     os.makedirs(outputPAth ,exist_ok = True)
+    #     if(fInd>-1):
+    #         comet_logger = CometLogger(
+    #             api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
+    #             #workspace="OPI", # Optional
+    #             project_name=project_name, # Optional
+    #             experiment_name=f"{machine}_{fInd}_{str(expId)}" # Optional
+    #             #experiment_name=experiment_name # Optional
+    #         )
+    #         stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= 0.5 )
+    #         early_stopping = pl.callbacks.early_stopping.EarlyStopping(
+    #             monitor=toMonitor,
+    #             patience=5,
+    #             mode="max",
+    #             #divergence_threshold=(-0.1)
+    #         )
+    #         # f=args.folds[fInd]
+    #         checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
+    #         checkPointPathFromOut=f"/home/sliceruser/locTemp/checkB/checkpoints/f{fInd}.ckpt"
+    #         checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
+    #         schedulerIndexToLog= schedulerIndex
+    #         callbacks=[early_stopping,checkpoint_callback,stochasticAveraging]#stochasticAveraging
+    #         device = 'cuda'
+
+    #         logImageDir=tempfile.mkdtemp()
             
-            learningRate = 0.0057# manually taken from learning rate finder
-            model = LightningModel.Model.load_from_checkpoint(checkPointPathFromOut).model.to(device)
+    #         learningRate = 0.0057# manually taken from learning rate finder
+    #         model = LightningModel.Model.load_from_checkpoint(checkPointPathFromOut).model.to(device)
             
             
             
             
-            csvPath='/home/sliceruser/labels/clinical_information/marksheet.csv'
-            df = pd.read_csv(csvPath)
-            with open(args.overviews_dir+'PI-CAI_train-fold-'+str(fInd)+'.json') as fp:
-                train_json = json.load(fp)
+    #         csvPath='/home/sliceruser/labels/clinical_information/marksheet.csv'
+    #         df = pd.read_csv(csvPath)
+    #         with open(args.overviews_dir+'PI-CAI_train-fold-'+str(fInd)+'.json') as fp:
+    #             train_json = json.load(fp)
         
-            pretx = [EnsureType()]
+    #         pretx = [EnsureType()]
             
-            train_data = [np.array(train_json['image_paths']), np.array(train_json['label_paths'])]
-            subjects_train = list(map(partial(data_generator.getPatientDict,image_files=train_data[0], seg_files=train_data[1]) , range(0,len(train_data[0])) ))
+    #         train_data = [np.array(train_json['image_paths']), np.array(train_json['label_paths'])]
+    #         subjects_train = list(map(partial(data_generator.getPatientDict,image_files=train_data[0], seg_files=train_data[1]) , range(0,len(train_data[0])) ))
 
-            batchh=1
-            expectedShape=(3,32,256,256)
-            transfVal=adaptTransforms.loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,{},expectedShape,df)
-            transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
-            valid_ds=Dataset(data=subjects_train, transform=transfVal )
-            valid_ldr=DataLoader(valid_ds,batch_size=batchh, num_workers=6,shuffle=False)
+    #         batchh=1
+    #         expectedShape=(3,32,256,256)
+    #         transfVal=adaptTransforms.loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,{},expectedShape,df)
+    #         transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
+    #         valid_ds=Dataset(data=subjects_train, transform=transfVal )
+    #         valid_ldr=DataLoader(valid_ds,batch_size=batchh, num_workers=6,shuffle=False)
 
-            for i, batch_data in enumerate(valid_ldr, 0):
-                inputs = batch_data['data'].to(device)
-                output = model(inputs)[0,1,:,:,:].detach().cpu().numpy()
-                studyId= batch_data['study_id'][0]             
-                print("*")
+    #         for i, batch_data in enumerate(valid_ldr, 0):
+    #             inputs = batch_data['data'].to(device)
+    #             output = model(inputs)[0,1,:,:,:].detach().cpu().numpy()
+    #             studyId= batch_data['study_id'][0]             
+    #             print("*")
 
-                outPathFile = join(outputPAth,f"{studyId}.mha")
-                image = sitk.GetImageFromArray(output)
-                sitk.WriteImage(image, str(outPathFile))  
-            print(f"finished fold {fInd}")
+    #             outPathFile = join(outputPAth,f"{studyId}.mha")
+    #             image = sitk.GetImageFromArray(output)
+    #             sitk.WriteImage(image, str(outPathFile))  
+    #         print(f"finished fold {fInd}")
             
 
             
