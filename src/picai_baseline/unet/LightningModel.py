@@ -40,9 +40,9 @@ import modelsToChoose
 
 
 def chooseModel(args,devicee,index, dropout, input_image_size,in_channels,out_channels  ):
-    models=[
-        modelsToChoose.getSwinUNETRa(dropout,input_image_size,in_channels,out_channels)
-        ,modelsToChoose.getUneta(args,devicee),
+    models=[modelsToChoose.getUneta(args,devicee),
+        modelsToChoose.getSwinUNETRa(dropout,input_image_size,in_channels,out_channels),
+        
             modelsToChoose.getSegResNeta(dropout, input_image_size,in_channels,out_channels),
             modelsToChoose.getSegResNetb(dropout, input_image_size,in_channels,out_channels),
             modelsToChoose.getVneta(dropout, input_image_size,in_channels,out_channels),
@@ -115,7 +115,7 @@ class Model(pl.LightningModule):
     ):
         super().__init__()
         self.save_hyperparameters()
-        in_channels=4
+        in_channels=6
         out_channels=2
         self.f = f
         devicee, args = compute_spec_for_run(args=args)

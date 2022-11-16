@@ -99,9 +99,9 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     # check_eval_every_epoch=40
     check_eval_every_epoch=5
     # for each fold
-    fInd=-1
+    # fInd=-1
 
-    outputPAth = join('/home/sliceruser/data/',str(fInd) )
+    # outputPAth = join('/home/sliceruser/data/',str(fInd) )
     stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= 0.5 )
     early_stopping = pl.callbacks.early_stopping.EarlyStopping(
         monitor=toMonitor,
@@ -120,7 +120,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
     model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
             ,schedulerIndex,normalizationIndex,modelIndex,imageShape
-            ,fInd,logImageDir,dropout,regression_channels
+            ,0,logImageDir,dropout,regression_channels
             ,RicianNoiseTransformProb
             ,LocalSmoothingTransformProb
             ,RandomBiasField_prob

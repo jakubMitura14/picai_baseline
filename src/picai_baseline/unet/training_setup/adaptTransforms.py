@@ -212,27 +212,12 @@ class loadlabelMy(MapTransform):
             d[key] = sitk.GetArrayFromImage(sitk.ReadImage(d[key])).astype(np.int8)
             imageProst = sitk.ReadImage(prostPath)
             d['fullProst']= crop_or_pad(sitk.GetArrayFromImage(imageProst),d[key].shape )
-            # print(f"prostPath {prostPath}")
-            #dilatated=ndimage.binary_dilation(img_fulProst, iterations=4)
-            # nnunetPath = f"/home/sliceruser/locTemp/orig_nnunet_semi/orig_nnunet_semi/nnunetOut_{study_id}.nii.gz"
-            # orig_nnunet_semi=tryLoadImageReturnZeros(nnunetPath, d[key])
-            # orig_unet_semi_path = f"/home/sliceruser/locTemp/orig_unet_semi/orig_unet_semi/uun_semi_super_{study_id}.nii.gz"
-            # orig_unet_semi=tryLoadImageReturnZeros(orig_unet_semi_path, d[key])
-            # swinPath = f"/home/sliceruser/locTemp/outMultiSwin/outMultiSwin/ca_{study_id}.nii.gz"
-            # swin=tryLoadImageReturnZeros(swinPath, d[key])
-            # d['wrongLabel']= np.logical_or(np.logical_or(orig_nnunet_semi  ,orig_unet_semi ), swin   )
-
-            #d[key] = np.expand_dims(d[key], axis=(0, 1))            
             d['fullProst']= np.expand_dims(d['fullProst'], axis=(0, 1))
-            #d['wrongLabel']= np.expand_dims(d['fullProst'], axis=(0, 1))
-            # back = np.zeros_like(d[key])
-            # back= np.expand_dims(back, axis=(0, 1)).astype('uint8')
+            
+
+
             lab = np.expand_dims(d[key], axis=(0, 1)).astype('uint8')
-            # wrong =np.expand_dims(d['wrongLabel'], axis=(0, 1)).astype('uint8')
-            #d[key]=np.stack([np.zeros_like(d[key]),d[key],d['wrongLabel']  ])    
-            # d[key]=np.concatenate([back, lab, wrong], axis=1)
-            # d[key]= np.concatenate([lab,], axis=1)
-            d[key]= lab#np.concatenate([lab], axis=1)
+            d[key]= lab
             d['study_id']=study_id
 
         return d
