@@ -133,7 +133,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
         api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
         #workspace="OPI", # Optional
         project_name=project_name, # Optional
-        experiment_name=f"{machine}_{fInd}_{str(expId)}" # Optional
+        experiment_name=f"{machine}_{0}_{str(expId)}" # Optional
         #experiment_name=experiment_name # Optional
         )
     model = LightningModel.Model(f,args)
