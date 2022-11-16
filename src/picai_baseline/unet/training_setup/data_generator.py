@@ -174,14 +174,14 @@ def prepare_datagens(args
 
 
 
-    transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(RicianNoiseTransformProb, LocalSmoothingTransformProb,Random_GaussNoiseProb),normalizationIndex,normalizerDict,expectedShape,df    ,RandomBiasField_prob
-    ,RandomAnisotropy_prob)
+    # transfTrain=loadTrainTransform(Compose(pretx),Compose(pretx),nnUNet_DA.get_augmentations(RicianNoiseTransformProb, LocalSmoothingTransformProb,Random_GaussNoiseProb),normalizationIndex,normalizerDict,expectedShape,df    ,RandomBiasField_prob
+    # ,RandomAnisotropy_prob)
        
     transfVal=loadValTransform(Compose(pretx),Compose(pretx),normalizationIndex,normalizerDict,expectedShape,df)
 
-    transfTrain=Compose(transfTrain,monai.transforms.ToTensord(keys=["data","seg"])  )
+    # transfTrain=Compose(transfTrain,monai.transforms.ToTensord(keys=["data","seg"])  )
     transfVal=Compose(transfVal,monai.transforms.ToTensord(keys=["data","seg"])  )
-
+    transfTrain=transfVal
     # print(f"train_data {train_data[0]}")
     # train_ds=Dataset(data=subjects_train, transform= transfTrain)
     # valid_ds=Dataset(data=subjects_val, transform= transfVal)

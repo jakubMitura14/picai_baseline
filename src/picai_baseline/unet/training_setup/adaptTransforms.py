@@ -154,7 +154,7 @@ class concatImageMy(MapTransform):
         # img_adc=d["adc"]
         # img_hbv=d["hbv"]
         studyId=d["study_id"]
-        toConcat = list(map(lambda fInd: getimage(fInd,studyId ,d['t2w'].shape),list(range(0,5)) )) 
+        toConcat = list(map(lambda fInd: getimage(fInd,studyId ,(20,256,256)),list(range(0,5)) )) 
         # for fInd in range(0,5):
         #     outputPAth = join('/home/sliceruser/data/',str(fInd) )
         #     krowa
