@@ -91,7 +91,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
     machine = os.environ['machine']
     expId=trial.number
-
+    f = args.folds[1]
     toMonitor="valid_ranking"
         # optuna_prune=PyTorchLightningPruningCallback(trial, monitor=toMonitor)     
     # if(swa_lrs>0.0):
@@ -126,7 +126,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             ,RandomAnisotropy_prob
             ,Random_GaussNoiseProb
             ,optimizerIndex)
-    f = args.folds[1]
+    
 
     comet_logger = CometLogger(
         api_key="yB0irIjdk9t7gbpTlSUPnXBd4",
