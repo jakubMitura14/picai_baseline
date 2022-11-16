@@ -130,7 +130,7 @@ class loadImageMy(MapTransform):
         return d
 
 def getimage(fInd,studyId ,targetShape):
-    prostPath = join('/home/sliceruser/data/',str(fInd) )
+    prostPath = join('/home/sliceruser/data/',str(fInd), f"{studyId}.mha" )
     imageProst = sitk.ReadImage(prostPath)
     res= crop_or_pad(sitk.GetArrayFromImage(imageProst),targetShape )
     res= np.expand_dims(res, axis=(0, 1))
