@@ -162,7 +162,7 @@ class concatImageMy(MapTransform):
         img_fulProst=d["fullProst"]
 
         # imgConc= np.concatenate([img_t2w, img_adc, img_hbv], axis=1)
-        d["data"]=np.concatenate([img_fulProst,*toConcat], axis=1)
+        d["data"]=np.concatenate([*toConcat,img_fulProst], axis=1)
         return d
 
 
