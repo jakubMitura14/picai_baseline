@@ -195,7 +195,7 @@ def getVnetb(dropout,input_image_size,in_channels,out_channels):
 
 def getUneta(args,devicee):
     args.model_features = [ 2, 4, 16, 16, 16,32]
-    return (neural_network_for_run(args=args, device=devicee),(3,20,256,256),32)
+    return (neural_network_for_run(args=args, device=devicee),(3,32,256,256),32)
 
 # def getVNet(dropout,input_image_size,in_channels,out_channels):
 #     return (monai.networks.nets.VNet(
