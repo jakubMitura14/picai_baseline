@@ -186,7 +186,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
                 image = sitk.GetImageFromArray(output)
                 sitk.WriteImage(image, str(outPathFile))  
             print(f"finished fold {fInd}")
-            valid_ds=Dataset(data=subjects_train, transform=transfVal )
+            # valid_ds=Dataset(data=subjects_train, transform=transfVal )
 
             
             
