@@ -110,8 +110,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
         #divergence_threshold=(-0.1)
     )
     # f=args.folds[fInd]
-    checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/{fInd}"
-    checkPointPathFromOut=f"/home/sliceruser/locTemp/checkB/checkpoints/f{fInd}.ckpt"
+    checkPointPath=f"/home/sliceruser/locTemp/checkPoints/{project_name}/{expId}/6"
     checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
     schedulerIndexToLog= schedulerIndex
     callbacks=[early_stopping,checkpoint_callback]#stochasticAveraging
