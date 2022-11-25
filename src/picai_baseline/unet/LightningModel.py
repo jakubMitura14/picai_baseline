@@ -231,7 +231,7 @@ class Model(pl.LightningModule):
         # segmMap = self.model(inputs)
         segmMap, regHat= self.modelRegression(inputs)
         lossSegm = self.loss_func(segmMap, labels)
-        regLoss= self.regLoss(regHat,isCa)
+        regLoss= self.regLoss(regHat.flatten(),isCa.flatten())
         losss= lossSegm+regLoss
         self.log('train_loss', losss.item())
         return losss
