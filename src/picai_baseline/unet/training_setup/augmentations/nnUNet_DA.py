@@ -122,6 +122,11 @@ def get_augmentations(RicianNoiseTransformProb, LocalSmoothingTransformProb,Rand
         tr_transforms.append(BrightnessGradientAdditiveTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
         tr_transforms.append(BrightnessGradientAdditiveTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
         tr_transforms.append(BrightnessGradientAdditiveTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
+        tr_transforms.append(BrightnessGradientAdditiveTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
+        tr_transforms.append(BrightnessGradientAdditiveTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
+        tr_transforms.append(BrightnessGradientAdditiveTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
+        tr_transforms.append(BrightnessGradientAdditiveTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
+        tr_transforms.append(BrightnessGradientAdditiveTransform(p_per_sample=LocalSmoothingTransformProb, scale =params.get("p_scale"), data_key="data"))
 
         tr_transforms.append(GaussianBlurTransform((0.5, 1.), different_sigma_per_channel=True, p_per_sample=0.2, p_per_channel=0.5,data_key="data"))
         tr_transforms.append(BrightnessMultiplicativeTransform(multiplier_range=(0.75, 1.25), p_per_sample=0.15,data_key="data"))

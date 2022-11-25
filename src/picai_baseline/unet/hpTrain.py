@@ -78,7 +78,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     RandomBiasField_prob=0.1#trial.suggest_float("dropout", 0.0,0.35)
     RandomAnisotropy_prob=0#trial.suggest_float("dropout", 0.0,0.35)
     Random_GaussNoiseProb=0.05#trial.suggest_float("dropout", 0.0,0.15)
-    optimizerIndex=0#trial.suggest_int("optimizerIndex", 0, 2)
+    optimizerIndex=2#trial.suggest_int("optimizerIndex", 0, 2)
 
     regression_channels=[64,128,256]
 
@@ -116,7 +116,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             checkPointPathFromOut=f"/home/sliceruser/locTemp/checkB/checkpoints/f{fInd}.ckpt"
             checkpoint_callback = ModelCheckpoint(dirpath= checkPointPath,mode='max', save_top_k=1, monitor=toMonitor)
             schedulerIndexToLog= schedulerIndex
-            callbacks=[early_stopping,checkpoint_callback,stochasticAveraging]#stochasticAveraging
+            callbacks=[early_stopping,checkpoint_callback]#stochasticAveraging
 
             logImageDir=tempfile.mkdtemp()
             
