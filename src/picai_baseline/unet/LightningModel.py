@@ -248,13 +248,14 @@ class Model(pl.LightningModule):
         valid_images = valid_data['data']#[:,0,:,:,:,:].to(torch.float32)
         valid_labels = valid_data['seg']#[:,0,:,:,:,:].to(torch.float32)
         #segmMap = self.model(valid_images)
-                        
+
+        self.saveRegLoss(valid_images,dataloader_idx,isCa)
+
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         
         isCa = valid_data['isCa']
         label_name = valid_data['seg_name']
 
-        self.saveRegLoss(valid_images,dataloader_idx,isCa)
         
         preds = [
             np.nan_to_num(torch.sigmoid(self.model(x)[0].to(torch.float32))[:, 1, ...].detach().cpu().numpy())
