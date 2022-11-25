@@ -259,7 +259,7 @@ class Model(pl.LightningModule):
 
         
         preds = [
-            np.nan_to_num(torch.sigmoid(self.model(x)[0].to(torch.float32))[:, 1, ...].detach().cpu().numpy())
+            np.nan_to_num(torch.sigmoid(self.modelRegression(x)[0].to(torch.float32))[:, 1, ...].detach().cpu().numpy())
             for x in valid_images
         ]
         preds[1] = np.flip(preds[1], [3])
