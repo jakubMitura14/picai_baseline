@@ -113,7 +113,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
             stochasticAveraging=pl.callbacks.stochastic_weight_avg.StochasticWeightAveraging(swa_lrs= 0.5 )
             early_stopping = pl.callbacks.early_stopping.EarlyStopping(
                 monitor=toMonitor,
-                patience=5,
+                patience=15,
                 mode="max",
                 #divergence_threshold=(-0.1)
             )
