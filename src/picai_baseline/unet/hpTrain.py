@@ -62,7 +62,7 @@ import importlib.util
 import sys
 import LightningModel
 from pytorch_lightning.callbacks import ModelCheckpoint
-
+import json
 
 def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     swa_lrs=0.01#trial.suggest_float("swa_lrs", 1e-1,0.5) #trial.suggest_float("swa_lrs", 1e-6, 1e-4)
@@ -78,7 +78,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     RandomBiasField_prob=0.1#trial.suggest_float("dropout", 0.0,0.35)
     RandomAnisotropy_prob=0#trial.suggest_float("dropout", 0.0,0.35)
     Random_GaussNoiseProb=0.05#trial.suggest_float("dropout", 0.0,0.15)
-    optimizerIndex=2#trial.suggest_int("optimizerIndex", 0, 2)
+    optimizerIndex=0#trial.suggest_int("optimizerIndex", 0, 2)
 
     regression_channels=[64,128,256]
 
@@ -92,7 +92,13 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
     # check_eval_every_epoch=40
     check_eval_every_epoch=5
     # for each fold
+    with open(args.overviews_dir+'PI-CAI_train-fold-'+str(0)+'.json') as fp:
+        train_json = json.load(fp)
+    testArr=np.array(train_json['image_paths'])[0:100]
+
+
     fInd=-1
+
 
     for f in args.folds :#range(0, len(args.folds)):#args.folds:
         fInd=fInd+1
@@ -120,17 +126,17 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
 
             logImageDir=tempfile.mkdtemp()
             
-            learningRate = 0.0057# manually taken from learning rate finder
-            model = LightningModel.Model.load_from_checkpoint(checkPointPathFromOut)#.model
-            # model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
-            #         ,schedulerIndex,normalizationIndex,modelIndex,imageShape
-            #         ,fInd,logImageDir,dropout,regression_channels
-            #         ,RicianNoiseTransformProb
-            #         ,LocalSmoothingTransformProb
-            #         ,RandomBiasField_prob
-            #         ,RandomAnisotropy_prob
-            #         ,Random_GaussNoiseProb
-            #         ,optimizerIndex)
+            #learningRate = 0.0057# manually taken from learning rate finder
+            #model = LightningModel.Model.load_from_checkpoint(checkPointPathFromOut)#.model
+            model = LightningModel.Model(f,args,args.base_lr,base_lr_multi
+                    ,schedulerIndex,normalizationIndex,modelIndex,imageShape
+                    ,fInd,logImageDir,dropout,regression_channels
+                    ,RicianNoiseTransformProb
+                    ,LocalSmoothingTransformProb
+                    ,RandomBiasField_prob
+                    ,RandomAnisotropy_prob
+                    ,Random_GaussNoiseProb
+                    ,optimizerIndex,testArr)
 
 
 
@@ -155,7 +161,7 @@ def mainTrain(project_name,args,trial: optuna.trial.Trial,imageShape) -> float:
                 #strategy='dp'
             )
 
-            # trainer.tune(model)
+            trainer.tune(model)
 
             experiment=trainer.logger.experiment
             experiment.log_parameter('machine',machine)

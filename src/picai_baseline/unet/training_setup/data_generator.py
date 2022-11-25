@@ -111,7 +111,8 @@ def prepare_datagens(args
     ,LocalSmoothingTransformProb
     ,RandomBiasField_prob
     ,RandomAnisotropy_prob
-    ,Random_GaussNoiseProb):
+    ,Random_GaussNoiseProb
+    ,testArr):
     """Load data sheets --> Create datasets --> Create data loaders"""
 
     #load dataset
@@ -125,7 +126,12 @@ def prepare_datagens(args
         valid_json = json.load(fp)
 
     # load paths to images and labels
-    train_data = [np.array(train_json['image_paths']), np.array(train_json['label_paths'])]
+    trainArr=np.array(train_json['image_paths'])
+    print(f"trainArr before filter {len(trainArr)}")
+    trainArr=list(filter( lambda el: el not in testArr,trainArr))
+    print(f"trainArr after filter {len(trainArr)}")
+
+    train_data = [trainArr, np.array(train_json['label_paths'])]
     valid_data = [np.array(valid_json['image_paths']), np.array(valid_json['label_paths'])]
 
 

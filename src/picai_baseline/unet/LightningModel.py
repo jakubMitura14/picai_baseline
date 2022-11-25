@@ -112,6 +112,7 @@ class Model(pl.LightningModule):
     ,RandomAnisotropy_prob
     ,Random_GaussNoiseProb
     ,optimizerIndex
+    ,testArr
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -134,7 +135,7 @@ class Model(pl.LightningModule):
         self.Random_GaussNoiseProb=Random_GaussNoiseProb
         self.base_lr_multi=base_lr_multi
         self.optimizerIndex=optimizerIndex
-
+        self.testArr=testArr
         # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.base_lr, amsgrad=True)
         # model, optimizer, tracking_metrics = resume_or_restart_training(
         #     model=model, optimizer=optimizer,
@@ -145,7 +146,7 @@ class Model(pl.LightningModule):
         # args.batch_size= newBatchSize
         #self.expectedShape=expectedShape
 
-        #self.modelRegression = UNetToRegresion(2,regression_channels,model)
+        self.modelRegression = modelsToChoose.UNetToRegresion(2,regression_channels,model)
         self.regressionMetric_val=BinaryF1Score()
         self.regressionMetric_train=BinaryF1Score()
         self.regLoss = nn.BCEWithLogitsLoss()
@@ -174,7 +175,9 @@ class Model(pl.LightningModule):
         train_gen, valid_gen, test_gen, class_weights,df = prepare_datagens(args=self.args, fold_id=self.f,normalizationIndex=self.normalizationIndex
             ,expectedShape=self.expectedShape,RicianNoiseTransformProb=self.RicianNoiseTransformProb
             , LocalSmoothingTransformProb=self.LocalSmoothingTransformProb ,RandomBiasField_prob=self.RandomBiasField_prob
-            ,RandomAnisotropy_prob=self.RandomAnisotropy_prob, Random_GaussNoiseProb=self.Random_GaussNoiseProb  )
+            ,RandomAnisotropy_prob=self.RandomAnisotropy_prob
+            ,Random_GaussNoiseProb=self.Random_GaussNoiseProb
+            ,testArr=self.testArr  )
         self.df = df
         # self.loss_func = FocalLoss(alpha=class_weights[-1], gamma=self.args.focal_loss_gamma)     
         self.loss_func = monai.losses.FocalLoss(include_background=False, to_onehot_y=True,gamma=self.args.focal_loss_gamma )
@@ -225,28 +228,36 @@ class Model(pl.LightningModule):
         isCa = batch_data['isCa']
         # print(f"uuuuu  inputs {type(inputs)} labels {type(labels)}  ")
         # outputs = self.modelRegression(inputs)
-        segmMap = self.model(inputs)
+        # segmMap = self.model(inputs)
+        segmMap, regHat= self.modelRegression(inputs)
         lossSegm = self.loss_func(segmMap, labels)
-        self.log('train_loss', lossSegm.item())
-        return lossSegm
+        regLoss= self.regLoss(regHat,isCa)
+        losss= lossSegm+regLoss
+        self.log('train_loss', losss.item())
+        return losss
 
+    def saveRegLoss(self,valid_images,dataloader_idx,isCa):
+        segmMap, reg_hat= self.modelRegression(valid_images)
+        if(dataloader_idx==0):
+            self.regressionMetric_val(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())
+        if(dataloader_idx==1):
+            self.regressionMetric_train(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())        
+        # print(f"wwwwwwwwwwww {self.model(valid_images).shape}")
 
     def _shared_eval_step(self, valid_data, batch_idx,dataloader_idx):
         valid_images = valid_data['data']#[:,0,:,:,:,:].to(torch.float32)
         valid_labels = valid_data['seg']#[:,0,:,:,:,:].to(torch.float32)
-        #segmMap = self.model(valid_images)                
+        #segmMap = self.model(valid_images)
+                        
         valid_images = [valid_images, torch.flip(valid_images, [4]).to(self.device)]
         
         isCa = valid_data['isCa']
         label_name = valid_data['seg_name']
+
+        self.saveRegLoss(valid_images,dataloader_idx,isCa)
         
-        # if(dataloader_idx==0):
-        #     self.regressionMetric_val(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())
-        # if(dataloader_idx==1):
-        #     self.regressionMetric_train(torch.round(reg_hat.flatten().float()),torch.Tensor(isCa).to(self.device).float())        
-        # print(f"wwwwwwwwwwww {self.model(valid_images).shape}")
         preds = [
-            np.nan_to_num(torch.sigmoid(self.model(x).to(torch.float32))[:, 1, ...].detach().cpu().numpy())
+            np.nan_to_num(torch.sigmoid(self.model(x)[0].to(torch.float32))[:, 1, ...].detach().cpu().numpy())
             for x in valid_images
         ]
         preds[1] = np.flip(preds[1], [3])
@@ -321,13 +332,13 @@ class Model(pl.LightningModule):
         self.log('train_ranking',valid_metrics_train.score  )    
         
         
-        # regressionMetric_val=self.regressionMetric_val.compute()
-        # self.regressionMetric_val.reset()
-        # self.log('val_F1', regressionMetric_val)
+        regressionMetric_val=self.regressionMetric_val.compute()
+        self.regressionMetric_val.reset()
+        self.log('val_F1', regressionMetric_val)
         
-        # regressionMetric_train=self.regressionMetric_train.compute()
-        # self.regressionMetric_train.reset()
-        # self.log('train_F1', regressionMetric_train)
+        regressionMetric_train=self.regressionMetric_train.compute()
+        self.regressionMetric_train.reset()
+        self.log('train_F1', regressionMetric_train)
 
         # export train-time + validation metrics as .xlsx sheet
         metricsData = pd.DataFrame(list(zip(self.tracking_metrics['all_epochs'],
